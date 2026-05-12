@@ -6,70 +6,70 @@
     <title>PPL Milenial Wajo - Smart Farming</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-    :root {
-        --bg-color: #0d1117;
-        --card-bg: #161b22;
-        --accent-green: #00ff88;
-        --accent-soil: #ffd700;
-        --text-main: #ffffff;
-        --border: #30363d;
-    }
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --accent-green: #00ff88;
+            --accent-soil: #ffd700;
+            --text-main: #ffffff;
+            --border: #30363d;
+        }
 
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: var(--bg-color);
-        color: var(--text-main);
-        margin: 0; padding: 10px;
-        display: flex; flex-direction: column; align-items: center; min-height: 100vh;
-    }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0; padding: 10px;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+        }
 
-    .header { text-align: center; margin: 20px 0; }
-    .header h1 { margin: 0; font-size: 1.5rem; color: var(--accent-green); text-shadow: 0 0 10px rgba(0,255,136,0.3); }
+        .header { text-align: center; margin: 20px 0; }
+        .header h1 { margin: 0; font-size: 1.5rem; color: var(--accent-green); text-shadow: 0 0 10px rgba(0,255,136,0.3); }
 
-    .tab-container {
-        display: flex; background: var(--card-bg); padding: 5px; border-radius: 15px;
-        margin-bottom: 20px; width: 100%; max-width: 420px; border: 1px solid var(--border);
-    }
-    .tab-btn {
-        flex: 1; padding: 12px; border: none; background: none; color: #8b949e;
-        cursor: pointer; font-weight: 600; border-radius: 12px; transition: 0.3s;
-    }
-    .tab-btn.active { background: var(--accent-green); color: #000; }
-    .tab-btn.active.soil-mode { background: var(--accent-soil); color: #000; }
+        .tab-container {
+            display: flex; background: var(--card-bg); padding: 5px; border-radius: 15px;
+            margin-bottom: 20px; width: 100%; max-width: 420px; border: 1px solid var(--border);
+        }
+        .tab-btn {
+            flex: 1; padding: 12px; border: none; background: none; color: #8b949e;
+            cursor: pointer; font-weight: 600; border-radius: 12px; transition: 0.3s;
+        }
+        .tab-btn.active { background: var(--accent-green); color: #000; }
+        .tab-btn.active.soil-mode { background: var(--accent-soil); color: #000; }
 
-    .card {
-        background: var(--card-bg); border: 1px solid var(--border); padding: 20px;
-        border-radius: 25px; max-width: 420px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
+        .card {
+            background: var(--card-bg); border: 1px solid var(--border); padding: 20px;
+            border-radius: 25px; max-width: 420px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
 
-    .scan-window {
-        position: relative; border: 2px dashed var(--border); border-radius: 20px; 
-        margin: 15px 0; overflow: hidden; min-height: 150px; display: flex; align-items: center; justify-content: center;
-    }
+        .scan-window {
+            position: relative; border: 2px dashed var(--border); border-radius: 20px; 
+            margin: 15px 0; overflow: hidden; min-height: 150px; display: flex; align-items: center; justify-content: center;
+        }
 
-    #preview, #resultImg { width: 100%; border-radius: 15px; display: none; }
-    .laser-line {
-        display: none; position: absolute; width: 100%; height: 3px;
-        background: var(--accent-green); box-shadow: 0 0 15px var(--accent-green);
-        z-index: 5; animation: scanAnim 2s linear infinite;
-    }
-    @keyframes scanAnim { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
-    .is-scanning .laser-line { display: block; }
+        #preview, #resultImg { width: 100%; border-radius: 15px; display: none; }
+        .laser-line {
+            display: none; position: absolute; width: 100%; height: 3px;
+            background: var(--accent-green); box-shadow: 0 0 15px var(--accent-green);
+            z-index: 5; animation: scanAnim 2s linear infinite;
+        }
+        @keyframes scanAnim { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
+        .is-scanning .laser-line { display: block; }
 
-    .btn-main {
-        background: var(--accent-green); color: #000; border: none; padding: 15px;
-        border-radius: 15px; font-weight: 700; width: 100%; cursor: pointer; text-transform: uppercase;
-    }
-    .btn-camera { background: #1f6feb; color: white; margin-bottom: 10px; }
+        .btn-main {
+            background: var(--accent-green); color: #000; border: none; padding: 15px;
+            border-radius: 15px; font-weight: 700; width: 100%; cursor: pointer; text-transform: uppercase;
+        }
+        .btn-camera { background: #1f6feb; color: white; margin-bottom: 10px; }
 
-    #result { margin-top: 20px; display: none; }
-    .info-box {
-        background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px;
-        margin-top: 10px; border-left: 4px solid var(--accent-green); font-size: 0.8rem;
-    }
-    .row-val { font-weight: 600; text-align: right; color: var(--accent-green); }
-    table { width: 100%; font-size: 0.8rem; border-collapse: collapse; margin: 10px 0;}
-    td { padding: 8px 0; border-bottom: 1px solid #333; }
+        #result { margin-top: 20px; display: none; }
+        .info-box {
+            background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px;
+            margin-top: 10px; border-left: 4px solid var(--accent-green); font-size: 0.8rem;
+        }
+        .row-val { font-weight: 600; text-align: right; color: var(--accent-green); }
+        table { width: 100%; font-size: 0.8rem; border-collapse: collapse; margin: 10px 0;}
+        td { padding: 8px 0; border-bottom: 1px solid #333; }
     </style>
 </head>
 <body>
@@ -111,16 +111,23 @@
             </div>
 
             <div id="boxTanah" style="display:none;">
-                <div class="info-box" style="border-left-color:#1f6feb; margin-bottom:15px;">
-                    <strong>📖 Deskripsi Tanah:</strong><br><span id="resPenjelasan">-</span>
+                <div class="info-box" style="border-left-color: var(--accent-soil);">
+                    <strong>📊 Analisis Distribusi Tanah:</strong>
+                    <div id="soilList" style="margin-top: 10px; font-size: 0.75rem;"></div>
                 </div>
+                
+                <div class="info-box" style="border-left-color:#1f6feb; margin-top:15px;">
+                    <strong>📖 Deskripsi Utama:</strong><br>
+                    <span id="resPenjelasan">-</span>
+                </div>
+
                 <table>
                     <tr><td>Kesuburan</td><td class="row-val" id="resSubur">-</td></tr>
                     <tr><td>Bahan Organik</td><td class="row-val" id="resOrganik">-</td></tr>
                     <tr><td>Estimasi pH</td><td class="row-val" id="resPH">-</td></tr>
                 </table>
                 <div class="info-box" style="border-left-color:#ffd700;"><strong>💡 Saran PPL:</strong><br><span id="resSaran">-</span></div>
-                <canvas id="textureTriangle" width="300" height="200" style="width: 100%; margin-top: 15px;"></canvas>
+                <canvas id="textureTriangle" width="300" height="250" style="width: 100%; margin-top: 15px;"></canvas>
             </div>
             
             <img id="resultImg" style="margin-top:15px; border:1px solid var(--border);">
@@ -316,7 +323,7 @@
             const res = await fetch(url, { method: 'POST', body: JSON.stringify({ image: base64Image }) });
             const data = await res.json();
             tampilkanHasil(data);
-        } catch (e) { alert("Koneksi gagal!"); }
+        } catch (e) { alert("Gagal koneksi server!"); }
         document.getElementById('scanWindow').classList.remove('is-scanning');
         document.getElementById('loader').style.display = 'none';
     }
@@ -328,8 +335,7 @@
         document.getElementById('result').style.display = 'block';
         document.getElementById('boxPenyakit').style.display = currentMode === 'daun' ? 'block' : 'none';
         document.getElementById('boxTanah').style.display = currentMode === 'tanah' ? 'block' : 'none';
-        document.getElementById('resultImg').style.display = 'none';
-
+        
         let label = "unlabeled", conf = 0;
 
         if (currentMode === 'daun') {
@@ -343,41 +349,139 @@
             document.getElementById('resGejala').innerText = info.gejala;
             document.getElementById('resPenyebab').innerText = info.penyebab || "-";
             document.getElementById('resSolusi').innerText = info.solusi;
-            
-            if(out.annotated_image) {
-                document.getElementById('resultImg').src = "data:image/jpeg;base64," + (out.annotated_image.value || out.annotated_image);
-                document.getElementById('resultImg').style.display = 'block';
-                document.getElementById('preview').style.display = 'none';
-            }
         } else {
             let foundBlock = null;
             for (let key in out) { if (out[key].predicted_classes) { foundBlock = out[key]; break; } }
-            if (foundBlock) {
-                label = foundBlock.predicted_classes[0].toLowerCase().replace(/ /g, "_");
-                conf = (foundBlock.predictions[foundBlock.predicted_classes[0]].confidence * 100).toFixed(1);
+            if (foundBlock && foundBlock.predictions) {
+                const preds = foundBlock.predictions;
+                const container = document.getElementById('soilList');
+                container.innerHTML = ""; 
+
+                let sortedSoil = Object.keys(preds).sort((a, b) => {
+                    let valA = typeof preds[a] === 'number' ? preds[a] : preds[a].confidence;
+                    let valB = typeof preds[b] === 'number' ? preds[b] : preds[b].confidence;
+                    return valB - valA;
+                });
+
+                sortedSoil.forEach(soilKey => {
+                    const p = preds[soilKey];
+                    const cVal = ((typeof p === 'number' ? p : p.confidence) * 100).toFixed(2);
+                    container.innerHTML += `
+                        <div style="margin-bottom: 5px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>${soilKey.toUpperCase().replace(/_/g, ' ')}</span>
+                                <span>${cVal}%</span>
+                            </div>
+                            <div style="background: #333; height: 4px; border-radius: 2px;">
+                                <div style="background: var(--accent-soil); width: ${cVal}%; height: 100%;"></div>
+                            </div>
+                        </div>`;
+                });
+
+                const topLabel = foundBlock.predicted_classes[0].toLowerCase().replace(/ /g, "_");
+                const info = kamusTanah[topLabel] || kamusTanah.unlabeled;
+                label = topLabel;
+                conf = ((typeof preds[foundBlock.predicted_classes[0]] === 'number' ? preds[foundBlock.predicted_classes[0]] : preds[foundBlock.predicted_classes[0]].confidence) * 100).toFixed(1);
+                
+                document.getElementById('resLabel').innerText = info.nama;
+                document.getElementById('resPenjelasan').innerText = info.penjelasan;
+                document.getElementById('resSubur').innerText = info.subur;
+                document.getElementById('resOrganik').innerText = info.organik;
+                document.getElementById('resPH').innerText = info.pH;
+                document.getElementById('resSaran').innerText = info.saran;
+                drawTriangle(label);
             }
-            const info = kamusTanah[label] || kamusTanah.unlabeled;
-            document.getElementById('resLabel').innerText = info.nama;
-            document.getElementById('resPenjelasan').innerText = info.penjelasan || "-";
-            document.getElementById('resSubur').innerText = info.subur || '-';
-            document.getElementById('resOrganik').innerText = info.organik || '-';
-            document.getElementById('resPH').innerText = info.pH || '-';
-            document.getElementById('resSaran').innerText = info.saran || '-';
-            drawTriangle(label);
         }
         document.getElementById('resConf').innerText = `Akurasi: ${conf}%`;
     }
 
-    function drawTriangle(l) {
-        const c = document.getElementById('textureTriangle');
-        const ctx = c.getContext('2d');
-        ctx.clearRect(0,0,300,200);
-        ctx.strokeStyle = '#00ff88'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(150,10); ctx.lineTo(20,180); ctx.lineTo(280,180); ctx.closePath(); ctx.stroke();
-        let dot = {x:150, y:100};
-        if(l.includes('clay')) dot={x:150, y:50}; else if(l.includes('sandy')) dot={x:70, y:150};
-        ctx.fillStyle='#ff4d4d'; ctx.beginPath(); ctx.arc(dot.x, dot.y, 6, 0, 7); ctx.fill();
+    function drawTriangle(label) {
+    const canvas = document.getElementById('textureTriangle');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Titik sudut segitiga
+    const top = { x: 150, y: 45 };      
+    const left = { x: 45, y: 215 };     
+    const right = { x: 255, y: 215 };   
+
+    // 1. Tambahkan Background Glow Lembut
+    const bgGrad = ctx.createRadialGradient(150, 130, 10, 150, 130, 120);
+    bgGrad.addColorStop(0, 'rgba(46, 204, 113, 0.05)');
+    bgGrad.addColorStop(1, 'transparent');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, 300, 250);
+
+    // 2. Garis Kisi (Grid) Dekoratif agar lebih teknis
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.lineWidth = 1;
+    for (let i = 1; i < 10; i++) {
+        let ratio = i / 10;
+        // Garis horizontal
+        let y = 215 - (ratio * 170);
+        let xS = 45 + (ratio * 105 * 0.5);
+        let xE = 255 - (ratio * 105 * 0.5);
+        ctx.beginPath(); ctx.moveTo(xS, y); ctx.lineTo(xE, y); ctx.stroke();
     }
+
+    // 3. Segitiga Utama dengan Neon Glow
+    ctx.save();
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = 'rgba(0, 255, 136, 0.5)';
+    ctx.strokeStyle = '#00ff88';
+    ctx.lineWidth = 3;
+    ctx.lineJoin = 'round';
+    ctx.beginPath(); 
+    ctx.moveTo(top.x, top.y); 
+    ctx.lineTo(left.x, left.y); 
+    ctx.lineTo(right.x, right.y); 
+    ctx.closePath(); 
+    ctx.stroke();
+    ctx.restore();
+
+    // 4. Label Sudut dengan Gaya Futuristik
+    ctx.fillStyle = '#00ff88';
+    ctx.font = '800 12px Poppins';
+    ctx.textAlign = 'center';
+    ctx.fillText("LIAT (CLAY)", top.x, top.y - 15);
+    
+    ctx.textAlign = 'right';
+    ctx.fillText("PASIR", left.x - 10, left.y + 5);
+    
+    ctx.textAlign = 'left';
+    ctx.fillText("DEBU", right.x + 10, right.y + 5);
+
+    // 5. Penentuan Posisi Titik Berdasarkan Label
+    let dot = { x: 150, y: 130 }; // Posisi default (tengah)
+    const labelLower = label.toLowerCase();
+    
+    if (labelLower.includes("clay")) {
+        dot = { x: 150, y: 80 }; // Area Liat (Atas)
+    } else if (labelLower.includes("sandy")) {
+        dot = { x: 85, y: 190 }; // Area Pasir (Kiri Bawah)
+    } else if (labelLower.includes("loam")) {
+        dot = { x: 150, y: 170 }; // Area Lempung (Tengah Bawah)
+    } else if (labelLower.includes("alluvial") || labelLower.includes("silt")) {
+        dot = { x: 215, y: 190 }; // Area Debu/Sedimen (Kanan Bawah)
+    } else if (labelLower.includes("peat") || labelLower.includes("black")) {
+        dot = { x: 150, y: 140 }; // Area Organik (Tengah)
+    }
+
+    // 6. Gambar Titik Deteksi dengan Efek "Pulse" Merah
+    // Outer Glow Titik
+    ctx.beginPath();
+    ctx.arc(dot.x, dot.y, 10, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(231, 76, 60, 0.3)';
+    ctx.fill();
+
+    // Core Titik
+    ctx.beginPath();
+    ctx.arc(dot.x, dot.y, 5, 0, Math.PI * 2);
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = "#ff4d4d";
+    ctx.fillStyle = '#ff4d4d';
+    ctx.fill();
+}
 </script>
 </body>
 </html>
