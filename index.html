@@ -363,20 +363,27 @@
                     return valB - valA;
                 });
 
-                sortedSoil.forEach(soilKey => {
-                    const p = preds[soilKey];
-                    const cVal = ((typeof p === 'number' ? p : p.confidence) * 100).toFixed(2);
-                    container.innerHTML += `
-                        <div style="margin-bottom: 5px;">
-                            <div style="display: flex; justify-content: space-between;">
-                                <span>${soilKey.toUpperCase().replace(/_/g, ' ')}</span>
-                                <span>${cVal}%</span>
-                            </div>
-                            <div style="background: #333; height: 4px; border-radius: 2px;">
-                                <div style="background: var(--accent-soil); width: ${cVal}%; height: 100%;"></div>
-                            </div>
-                        </div>`;
-                });
+               sortedSoil.forEach(soilKey => {
+    const p = preds[soilKey];
+    const cVal = ((typeof p === 'number' ? p : p.confidence) * 100).toFixed(2);
+    
+    // Mengambil nama asli Bahasa Indonesia dari Kamus Tanah
+    // Jika tidak ada di kamus, gunakan nama asli dari AI (dengan format rapi)
+    const namaIndonesia = kamusTanah[soilKey.toLowerCase()] 
+                          ? kamusTanah[soilKey.toLowerCase()].nama 
+                          : soilKey.toUpperCase().replace(/_/g, ' ');
+
+    container.innerHTML += `
+        <div style="margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                <span style="color: var(--text-main); font-weight: 600;">${namaIndonesia}</span>
+                <span style="color: var(--accent-soil);">${cVal}%</span>
+            </div>
+            <div style="background: #333; height: 6px; border-radius: 3px; margin-top: 4px; overflow: hidden;">
+                <div style="background: linear-gradient(90deg, #ffd700, #ff8c00); width: ${cVal}%; height: 100%; border-radius: 3px; transition: width 1s ease-in-out;"></div>
+            </div>
+        </div>`;
+});
 
                 const topLabel = foundBlock.predicted_classes[0].toLowerCase().replace(/ /g, "_");
                 const info = kamusTanah[topLabel] || kamusTanah.unlabeled;
