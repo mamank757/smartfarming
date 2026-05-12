@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PPL Milenial Wajo - Smart Farming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+    :root {
+        --bg-color: #0d1117;
+        --card-bg: #161b22;
+        --accent-green: #00ff88;
+        --accent-soil: #ffd700;
+        --text-main: #ffffff;
+        --border: #30363d;
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        margin: 0; padding: 10px;
+        display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+    }
+
+    .header { text-align: center; margin: 20px 0; }
+    .header h1 { margin: 0; font-size: 1.5rem; color: var(--accent-green); text-shadow: 0 0 10px rgba(0,255,136,0.3); }
+
+    .tab-container {
+        display: flex; background: var(--card-bg); padding: 5px; border-radius: 15px;
+        margin-bottom: 20px; width: 100%; max-width: 420px; border: 1px solid var(--border);
+    }
+    .tab-btn {
+        flex: 1; padding: 12px; border: none; background: none; color: #8b949e;
+        cursor: pointer; font-weight: 600; border-radius: 12px; transition: 0.3s;
+    }
+    .tab-btn.active { background: var(--accent-green); color: #000; }
+    .tab-btn.active.soil-mode { background: var(--accent-soil); color: #000; }
+
+    .card {
+        background: var(--card-bg); border: 1px solid var(--border); padding: 20px;
+        border-radius: 25px; max-width: 420px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .scan-window {
+        position: relative; border: 2px dashed var(--border); border-radius: 20px; 
+        margin: 15px 0; overflow: hidden; min-height: 150px; display: flex; align-items: center; justify-content: center;
+    }
+
+    #preview, #resultImg { width: 100%; border-radius: 15px; display: none; }
+    .laser-line {
+        display: none; position: absolute; width: 100%; height: 3px;
+        background: var(--accent-green); box-shadow: 0 0 15px var(--accent-green);
+        z-index: 5; animation: scanAnim 2s linear infinite;
+    }
+    @keyframes scanAnim { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
+    .is-scanning .laser-line { display: block; }
+
+    .btn-main {
+        background: var(--accent-green); color: #000; border: none; padding: 15px;
+        border-radius: 15px; font-weight: 700; width: 100%; cursor: pointer; text-transform: uppercase;
+    }
+    .btn-camera { background: #1f6feb; color: white; margin-bottom: 10px; }
+
+    #result { margin-top: 20px; display: none; }
+    .info-box {
+        background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px;
+        margin-top: 10px; border-left: 4px solid var(--accent-green); font-size: 0.8rem;
+    }
+    .row-val { font-weight: 600; text-align: right; color: var(--accent-green); }
+    table { width: 100%; font-size: 0.8rem; border-collapse: collapse; margin: 10px 0;}
+    td { padding: 8px 0; border-bottom: 1px solid #333; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>PPL MILENIAL WAJO</h1>
+        <p style="font-size: 0.7rem; color: #f5e505; letter-spacing: 2px;">SMART FARMING - Deteksi Daun & Deteksi Tekstur Tanah</p>
+    </div>
+
+    <div class="tab-container">
+        <button class="tab-btn active" id="tabDaun" onclick="switchMode('daun')">🍃 Padi</button>
+        <button class="tab-btn" id="tabTanah" onclick="switchMode('tanah')">🏜️ Tanah</button>
+    </div>
+
+    <div class="card">
+        <h3 id="modeTitle" style="margin-top:0; color: var(--accent-green);">Deteksi Penyakit Padi</h3>
+        
+        <input type="file" id="fileInput" accept="image/*" hidden onchange="handleFile(event)">
+        <button class="btn-main btn-camera" onclick="document.getElementById('fileInput').click()">📸 AMBIL FOTO/GALERI</button>
+
+        <div class="scan-window" id="scanWindow">
+            <div class="laser-line" id="laser"></div>
+            <p id="msg" style="font-size: 0.8rem; opacity: 0.5;">Pratinjau foto sampel</p>
+            <img id="preview">
+        </div>
+
+        <button id="btnAnalisis" class="btn-main" style="display: none;" onclick="mulaiAnalisis()">🚀 MULAI ANALISIS AI</button>
+        
+        <div id="loader" style="display:none; text-align:center; margin-top:10px; font-size:0.7rem; color:var(--accent-green);">📡 MENGHUBUNGKAN SERVER AI...</div>
+
+        <div id="result">
+            <div id="resLabel" style="font-size: 1.2rem; font-weight: 800; color: var(--accent-green); text-align: center;">-</div>
+            <div id="resConf" style="font-size: 0.75rem; text-align: center; margin-bottom: 15px; color: #ffd700;">Akurasi: 0%</div>
+            
+            <div id="boxPenyakit">
+                <div class="info-box"><strong>🔍 Gejala:</strong><br><span id="resGejala">-</span></div>
+                <div class="info-box" style="border-left-color:#f85149;"><strong>🧬 Penyebab:</strong><br><span id="resPenyebab">-</span></div>
+                <div class="info-box" style="border-left-color:#ffd700;"><strong>✅ Solusi:</strong><br><span id="resSolusi">-</span></div>
+            </div>
+
+            <div id="boxTanah" style="display:none;">
+                <div class="info-box" style="border-left-color:#1f6feb; margin-bottom:15px;">
+                    <strong>📖 Deskripsi Tanah:</strong><br><span id="resPenjelasan">-</span>
+                </div>
+                <table>
+                    <tr><td>Kesuburan</td><td class="row-val" id="resSubur">-</td></tr>
+                    <tr><td>Bahan Organik</td><td class="row-val" id="resOrganik">-</td></tr>
+                    <tr><td>Estimasi pH</td><td class="row-val" id="resPH">-</td></tr>
+                </table>
+                <div class="info-box" style="border-left-color:#ffd700;"><strong>💡 Saran PPL:</strong><br><span id="resSaran">-</span></div>
+                <canvas id="textureTriangle" width="300" height="200" style="width: 100%; margin-top: 15px;"></canvas>
+            </div>
+            
+            <img id="resultImg" style="margin-top:15px; border:1px solid var(--border);">
+        </div>
+    </div>
+
+<script>
+    let currentMode = 'daun';
+    let base64Image = "";
+
+    const URL_DAUN = "https://script.google.com/macros/s/AKfycbyCYh65h_3lT4iWr97_RHJNZmaPTSHDp_uFPy_pAP_rvC5BxYHI1n3dn5iwrnNcER1X/exec";
+    const URL_TANAH = "https://script.google.com/macros/s/AKfycbx0nIsCAsnKmQAJ4a1hc4FvHy6jqETLEaa2ouYtk8yuoTgrgIHKn9HUa-aYiMZsXejF3w/exec";
+
+    const kamusTani = {
+        "healthy": { 
+            nama: "Tanaman Sehat", 
+            gejala: "Warna hijau segar, pertumbuhan normal tanpa bercak.", 
+            penyebab: "Kondisi lingkungan dan nutrisi optimal.",
+            solusi: "Lanjutkan pemupukan berimbang dan pantau secara rutin." 
+        },
+        "bacterial_leaf_blight": { 
+            nama: "Hawar Daun Bakteri (Kresek)", 
+            gejala: "Garis kuning/oranye di sepanjang pinggir daun yang mengering.", 
+            penyebab: "Bakteri Xanthomonas oryzae.",
+            solusi: "Gunakan bakterisida, pastikan sirkulasi air sawah lancar, kurangi Urea." 
+        },
+        "brown_spot": { 
+            nama: "Bercak Cokelat (Brown Spot)", 
+            gejala: "Bintik cokelat bulat atau oval merata di permukaan daun.", 
+            penyebab: "Jamur Bipolaris oryzae. Sering terjadi pada tanah kurang nutrisi.",
+            solusi: "Cukupi kebutuhan Kalium (KCL) dan pastikan drainase lancar." 
+        },
+        "leaf_blast": { 
+            nama: "Penyakit Blast", 
+            gejala: "Bercak cokelat berbentuk belah ketupat dengan pusat abu-abu.", 
+            penyebab: "Jamur Pyricularia oryzae.",
+            solusi: "Semprot fungisida sistemik (Trisiklazol), kurangi dosis Nitrogen." 
+        },
+        "leaf_scald": { 
+            nama: "Luka Daun (Leaf Scald)", 
+            gejala: "Bercak besar berbentuk perahu yang mengering di ujung daun.", 
+            penyebab: "Jamur Microdochium oryzae.",
+            solusi: "Gunakan varietas tahan dan atur jarak tanam jangan terlalu rapat." 
+        },
+        "narrow_brown_spot": { 
+            nama: "Bercak Cokelat Sempit", 
+            gejala: "Garis-garis cokelat sempit searah dengan tulang daun.", 
+            penyebab: "Jamur Cercospora janseana.",
+            solusi: "Tambah dosis pupuk Kalium dan perbaiki sistem pengairan." 
+        },
+        "unlabeled": { 
+            nama: "Objek Tidak Dikenali", 
+            gejala: "-", penyebab: "-", 
+            solusi: "Pastikan foto DAUN fokus, dekat, dan cahaya terang." 
+        }
+    };
+
+         const kamusTanah = {
+    "alluvial": { 
+        "nama": "Tanah Alluvial", 
+        "penjelasan": "Tanah yang terbentuk dari endapan material sedimen (lumpur, pasir, kerikil) yang terbawa aliran sungai. Ditemukan di dataran rendah atau delta. Sangat subur dan kaya unsur hara.",
+        "pH": "6.0 - 7.0", "organik": "Sedang", "npk": "Tinggi", "subur": "Sangat Subur", 
+        "tanaman": "Padi, Jagung, Sayuran", 
+        "saran": "Ideal untuk Padi. Jaga sirkulasi air agar mineral tetap terjaga." 
+    },
+    "black": { 
+        "nama": "Tanah Hitam", 
+        "penjelasan": "Tanah yang memiliki kandungan organik tinggi dan mineral yang kaya, biasanya berwarna gelap hingga hitam pekat. Memiliki kemampuan menahan air yang baik dan sangat produktif.",
+        "pH": "6.5 - 7.5", "organik": "Tinggi", "npk": "Tinggi", "subur": "Subur", 
+        "tanaman": "Kedelai, Kapas, Palawija", 
+        "saran": "Sangat bagus untuk Kedelai. Lakukan pengolahan tanah saat kondisi lembap agar struktur tetap remah." 
+    },
+    "cinder": { 
+        "nama": "Tanah Vulkanik", 
+        "penjelasan": "Tanah yang berasal dari pelapukan material letusan gunung berapi. Teksturnya seringkali berpori, sangat kaya akan unsur hara alami, dan memiliki kemampuan menyimpan air yang luar biasa.",
+        "pH": "5.0 - 7.0", "organik": "Tinggi", "npk": "Sangat Tinggi", "subur": "Sangat Subur", 
+        "tanaman": "Sayuran, Hortikultura, Kopi", 
+        "saran": "Terbaik untuk Sayuran/Horti. Gunakan pupuk organik tambahan untuk menjaga kelembapan jangka panjang." 
+    },
+    "clay": { 
+        "nama": "Tanah Liat (Clay)", 
+        "penjelasan": "Tanah dengan partikel mineral sangat halus. Memiliki kemampuan menahan air yang sangat kuat namun sulit ditembus air (drainase lambat). Bersifat lengket saat basah dan keras saat kering.",
+        "pH": "4.5 - 6.0", "organik": "Sedang", "npk": "Sedang", "subur": "Sedang", 
+        "tanaman": "Padi, Rumput Gajah", 
+        "saran": "Drainase wajib lancar agar akar tak busuk. Tambahkan bahan organik untuk memperbaiki struktur tanah." 
+    },
+    "laterite": { 
+        "nama": "Tanah Laterit", 
+        "penjelasan": "Tanah tua yang telah mengalami pencucian hara secara intensif oleh curah hujan tinggi. Kaya akan oksida besi dan aluminium, sehingga teksturnya seringkali keras dan kurang subur.",
+        "pH": "4.0 - 5.5", "organik": "Rendah", "npk": "Rendah", "subur": "Kurang", 
+        "tanaman": "Karet, Kelapa Sawit", 
+        "saran": "Wajib tambah pupuk organik dosis tinggi & pengapuran (Dolomit) untuk menaikkan pH." 
+    },
+    "loamy": { 
+        "nama": "Tanah Lempung", 
+        "penjelasan": "Kombinasi ideal antara pasir, debu, dan sedikit liat. Tanah ini memiliki drainase yang baik sekaligus mampu menyimpan nutrisi dengan efektif. Teksturnya sangat remah dan mudah diolah.",
+        "pH": "6.0 - 7.0", "organik": "Tinggi", "npk": "Tinggi", "subur": "Sangat Subur", 
+        "tanaman": "Palawija, Buah-buahan", 
+        "saran": "Tanah prima untuk semua tanaman. Pertahankan kualitas dengan penggunaan pupuk organik konsisten." 
+    },
+    "loam": { 
+        "nama": "Tanah Lempung", 
+        "penjelasan": "Tekstur tanah yang paling seimbang untuk pertanian. Mampu menjaga kelembapan tanpa tergenang, serta menyediakan ruang udara yang cukup bagi pernapasan akar tanaman.",
+        "pH": "6.0 - 7.0", "organik": "Tinggi", "npk": "Tinggi", "subur": "Sangat Subur", 
+        "tanaman": "Sayuran, Buah-buahan", 
+        "saran": "Gunakan mulsa organik untuk menjaga kegemburan tanah 'emas' ini." 
+    },
+    "peat": { 
+        "nama": "Tanah Gambut (Peat)", 
+        "penjelasan": "Tanah yang terbentuk dari akumulasi sisa-sisa tumbuhan yang membusuk tidak sempurna di area rawa. Memiliki kandungan bahan organik sangat tinggi namun tingkat keasamannya ekstrem.",
+        "pH": "3.0 - 5.0", "organik": "Sangat Tinggi", "npk": "Rendah", "subur": "Rendah", 
+        "tanaman": "Kopi, Nanas, Sawit", 
+        "saran": "Berikan Dolomit dosis tinggi & buat parit drainase agar tanah tidak selalu tergenang." 
+    },
+    "red": { 
+        "nama": "Tanah Merah", 
+        "penjelasan": "Tanah yang mengalami pelapukan lanjut dan pencucian hara. Warna merah berasal dari kandungan besi oksida yang tinggi. Teksturnya remah namun miskin akan hara organik.",
+        "pH": "4.5 - 5.5", "organik": "Rendah", "npk": "Rendah", "subur": "Kurang", 
+        "tanaman": "Singkong, Karet", 
+        "saran": "Beri pupuk Fosfat (SP-36) dosis ekstra & pupuk kandang untuk memperbaiki kesuburan." 
+    },
+    "sandy": { 
+        "nama": "Tanah Berpasir", 
+        "penjelasan": "Tanah dengan partikel kasar yang tidak dapat menahan air dan unsur hara dengan baik. Teksturnya remah dan sangat mudah diolah, namun sangat cepat kering di musim kemarau.",
+        "pH": "5.5 - 7.0", "organik": "Rendah", "npk": "Rendah", "subur": "Rendah", 
+        "tanaman": "Kelapa, Semangka", 
+        "saran": "Wajib tambah kompos/pupuk kandang tiap musim untuk meningkatkan daya ikat air tanah." 
+    },
+    "yellow": { 
+        "nama": "Tanah Kuning", 
+        "penjelasan": "Tanah yang mirip dengan tanah merah namun memiliki hidrasi mineral besi yang berbeda. Biasanya terbentuk di lingkungan yang lebih lembap namun tetap memiliki tingkat kesuburan yang rendah.",
+        "pH": "4.5 - 5.5", "organik": "Rendah", "npk": "Rendah", "subur": "Kurang", 
+        "tanaman": "Ubi Kayu, Karet", 
+        "saran": "Pakai mulsa agar tanah tidak cepat mengeras dan tererosi saat hujan lebat." 
+    },
+    "unlabeled": { 
+        "nama": "Objek Tidak Dikenali", 
+        "penjelasan": "AI tidak dapat memastikan jenis tanah karena foto kurang jelas atau terhalang benda lain.",
+        "saran": "Ambil foto kembali dengan cahaya terang. Pastikan tanah bersih dari sampah plastik atau daun kering." 
+    }
+};
+
+    function switchMode(mode) {
+        currentMode = mode;
+        const color = mode === 'daun' ? 'var(--accent-green)' : 'var(--accent-soil)';
+        document.getElementById('tabDaun').className = mode === 'daun' ? 'tab-btn active' : 'tab-btn';
+        document.getElementById('tabTanah').className = mode === 'tanah' ? 'tab-btn active soil-mode' : 'tab-btn';
+        document.getElementById('modeTitle').innerText = mode === 'daun' ? 'Deteksi Penyakit Padi' : 'Analisis Jenis Tanah';
+        document.getElementById('modeTitle').style.color = color;
+        document.getElementById('laser').style.background = color;
+        document.getElementById('result').style.display = 'none';
+        document.getElementById('preview').style.display = 'none';
+        document.getElementById('msg').style.display = 'block';
+        document.getElementById('btnAnalisis').style.display = 'none';
+    }
+
+    function handleFile(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 800; canvas.height = (img.height * 800) / img.width;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                base64Image = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+                document.getElementById('preview').src = canvas.toDataURL('image/jpeg');
+                document.getElementById('preview').style.display = 'block';
+                document.getElementById('msg').style.display = 'none';
+                document.getElementById('btnAnalisis').style.display = 'block';
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async function mulaiAnalisis() {
+        document.getElementById('scanWindow').classList.add('is-scanning');
+        document.getElementById('loader').style.display = 'block';
+        try {
+            const url = currentMode === 'daun' ? URL_DAUN : URL_TANAH;
+            const res = await fetch(url, { method: 'POST', body: JSON.stringify({ image: base64Image }) });
+            const data = await res.json();
+            tampilkanHasil(data);
+        } catch (e) { alert("Koneksi gagal!"); }
+        document.getElementById('scanWindow').classList.remove('is-scanning');
+        document.getElementById('loader').style.display = 'none';
+    }
+
+    function tampilkanHasil(data) {
+        let out = Array.isArray(data) ? data[0] : data;
+        if (out.outputs && out.outputs[0]) out = out.outputs[0];
+
+        document.getElementById('result').style.display = 'block';
+        document.getElementById('boxPenyakit').style.display = currentMode === 'daun' ? 'block' : 'none';
+        document.getElementById('boxTanah').style.display = currentMode === 'tanah' ? 'block' : 'none';
+        document.getElementById('resultImg').style.display = 'none';
+
+        let label = "unlabeled", conf = 0;
+
+        if (currentMode === 'daun') {
+            if (out.classification_result) {
+                const res = out.classification_result;
+                label = (res.top || "unlabeled").toLowerCase().replace(/ /g, "_");
+                conf = ((res.confidence || 0) * 100).toFixed(1);
+            }
+            const info = kamusTani[label] || kamusTani.unlabeled;
+            document.getElementById('resLabel').innerText = info.nama;
+            document.getElementById('resGejala').innerText = info.gejala;
+            document.getElementById('resPenyebab').innerText = info.penyebab || "-";
+            document.getElementById('resSolusi').innerText = info.solusi;
+            
+            if(out.annotated_image) {
+                document.getElementById('resultImg').src = "data:image/jpeg;base64," + (out.annotated_image.value || out.annotated_image);
+                document.getElementById('resultImg').style.display = 'block';
+                document.getElementById('preview').style.display = 'none';
+            }
+        } else {
+            let foundBlock = null;
+            for (let key in out) { if (out[key].predicted_classes) { foundBlock = out[key]; break; } }
+            if (foundBlock) {
+                label = foundBlock.predicted_classes[0].toLowerCase().replace(/ /g, "_");
+                conf = (foundBlock.predictions[foundBlock.predicted_classes[0]].confidence * 100).toFixed(1);
+            }
+            const info = kamusTanah[label] || kamusTanah.unlabeled;
+            document.getElementById('resLabel').innerText = info.nama;
+            document.getElementById('resPenjelasan').innerText = info.penjelasan || "-";
+            document.getElementById('resSubur').innerText = info.subur || '-';
+            document.getElementById('resOrganik').innerText = info.organik || '-';
+            document.getElementById('resPH').innerText = info.pH || '-';
+            document.getElementById('resSaran').innerText = info.saran || '-';
+            drawTriangle(label);
+        }
+        document.getElementById('resConf').innerText = `Akurasi: ${conf}%`;
+    }
+
+    function drawTriangle(l) {
+        const c = document.getElementById('textureTriangle');
+        const ctx = c.getContext('2d');
+        ctx.clearRect(0,0,300,200);
+        ctx.strokeStyle = '#00ff88'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(150,10); ctx.lineTo(20,180); ctx.lineTo(280,180); ctx.closePath(); ctx.stroke();
+        let dot = {x:150, y:100};
+        if(l.includes('clay')) dot={x:150, y:50}; else if(l.includes('sandy')) dot={x:70, y:150};
+        ctx.fillStyle='#ff4d4d'; ctx.beginPath(); ctx.arc(dot.x, dot.y, 6, 0, 7); ctx.fill();
+    }
+</script>
+</body>
+</html>
