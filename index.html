@@ -11,8 +11,10 @@
             --card-bg: #161b22;
             --accent-green: #00ff88;
             --accent-soil: #ffd700;
+            --accent-bwd: #1f6feb;
             --text-main: #ffffff;
             --border: #30363d;
+            --red-alert: #f85149;
         }
 
         body {
@@ -28,26 +30,27 @@
 
         .tab-container {
             display: flex; background: var(--card-bg); padding: 5px; border-radius: 15px;
-            margin-bottom: 20px; width: 100%; max-width: 420px; border: 1px solid var(--border);
+            margin-bottom: 20px; width: 100%; max-width: 460px; border: 1px solid var(--border); gap: 5px;
         }
         .tab-btn {
-            flex: 1; padding: 12px; border: none; background: none; color: #8b949e;
-            cursor: pointer; font-weight: 600; border-radius: 12px; transition: 0.3s;
+            flex: 1; padding: 12px 5px; border: none; background: none; color: #8b949e;
+            cursor: pointer; font-weight: 600; border-radius: 12px; transition: 0.3s; font-size: 0.75rem;
         }
         .tab-btn.active { background: var(--accent-green); color: #000; }
         .tab-btn.active.soil-mode { background: var(--accent-soil); color: #000; }
+        .tab-btn.active.bwd-mode { background: var(--accent-bwd); color: #fff; }
 
         .card {
             background: var(--card-bg); border: 1px solid var(--border); padding: 20px;
-            border-radius: 25px; max-width: 420px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 25px; max-width: 460px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .scan-window {
             position: relative; border: 2px dashed var(--border); border-radius: 20px; 
-            margin: 15px 0; overflow: hidden; min-height: 150px; display: flex; align-items: center; justify-content: center;
+            margin: 15px 0; overflow: hidden; min-height: 180px; display: flex; align-items: center; justify-content: center; background: #000;
         }
 
-        #preview, #resultImg { width: 100%; border-radius: 15px; display: none; }
+        #preview { width: 100%; border-radius: 15px; display: none; }
         .laser-line {
             display: none; position: absolute; width: 100%; height: 3px;
             background: var(--accent-green); box-shadow: 0 0 15px var(--accent-green);
@@ -60,86 +63,145 @@
             background: var(--accent-green); color: #000; border: none; padding: 15px;
             border-radius: 15px; font-weight: 700; width: 100%; cursor: pointer; text-transform: uppercase;
         }
-        .btn-camera { background: #1f6feb; color: white; margin-bottom: 10px; }
+        .btn-camera { background: var(--accent-bwd); color: white; margin-bottom: 10px; }
 
         #result { margin-top: 20px; display: none; }
         .info-box {
-            background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px;
+            background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px;
             margin-top: 10px; border-left: 4px solid var(--accent-green); font-size: 0.8rem;
         }
-        .row-val { font-weight: 600; text-align: right; color: var(--accent-green); }
+        .row-val { font-weight: 600; text-align: right; color: var(--accent-soil); }
         table { width: 100%; font-size: 0.8rem; border-collapse: collapse; margin: 10px 0;}
         td { padding: 8px 0; border-bottom: 1px solid #333; }
+
+       /* STYLE BARU: OUTLINE NEON PERSIS GAMBAR.PNG */
+        /* Pastikan badge transparan agar border neon terlihat */
+        .badge {
+            background: transparent !important;
+            border-width: 2px;
+            border-style: solid;
+            text-transform: uppercase; /* MENAMBAHKAN INI AGAR HURUF BESAR SEMUA */
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 4px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        /* Warna Garis Pinggir & Tulisan */
+       /* --- WARNA OUTLINE NEON PERSIS GAMBAR.PNG --- */
+        /* Skala 1 & 2: Kuning */
+        .skala-1, .skala-2 { 
+            border-color: #ffff00 !important; 
+            color: #ffff00 !important; 
+        }
+        /* Skala 3: Hijau Muda */
+        .skala-3 { 
+            border-color: #adff2f !important; 
+            color: #adff2f !important; 
+        }
+        /* Skala 4 & 5: Hijau Neon */
+        .skala-4, .skala-5 { 
+            border-color: #00ff88 !important; 
+            color: #00ff88 !important; 
+        }
+
+        /* Pastikan badge transparan agar border neon terlihat */
+        .badge {
+            background: transparent !important;
+            border-width: 2px;
+            border-style: solid;
+            text-transform: uppercase;
+        }
+
+        .leaf-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-left: 5px solid #00ff88; /* Garis neon kiri hijau */
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+
+        .recommendation {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 18px;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1>PPL MILENIAL WAJO</h1>
-        <p style="font-size: 0.7rem; color: #f5e505; letter-spacing: 2px;">SMART FARMING - Deteksi Daun & Deteksi Tekstur Tanah</p>
+        <p style="font-size: 0.7rem; color: var(--accent-soil); letter-spacing: 1px;">SMART FARMING - MULTI ANALISA</p>
     </div>
 
     <div class="tab-container">
-        <button class="tab-btn active" id="tabDaun" onclick="switchMode('daun')">🍃 Padi</button>
-        <button class="tab-btn" id="tabTanah" onclick="switchMode('tanah')">🏜️ Tanah</button>
+        <button class="tab-btn active" id="tabDaun" onclick="switchMode('daun')">🍃 PENYAKIT PADI</button>
+        <button class="tab-btn" id="tabTanah" onclick="switchMode('tanah')">🏜️ KESUBURAN TANAH</button>
+        <button class="tab-btn" id="tabBWD" onclick="switchMode('bwd')">📊 UJI BWD NITROGEN</button>
     </div>
 
     <div class="card">
-        <h3 id="modeTitle" style="margin-top:0; color: var(--accent-green);">Deteksi Penyakit Padi</h3>
+        <h3 id="modeTitle" style="margin-top:0; color: var(--accent-green); font-size: 1rem;">Deteksi Penyakit Padi</h3>
         
         <input type="file" id="fileInput" accept="image/*" hidden onchange="handleFile(event)">
-        <button class="btn-main btn-camera" onclick="document.getElementById('fileInput').click()">📸 AMBIL FOTO/GALERI</button>
+        <button class="btn-main btn-camera" onclick="document.getElementById('fileInput').click()">📸 AMBIL FOTO / GALERI</button>
 
         <div class="scan-window" id="scanWindow">
             <div class="laser-line" id="laser"></div>
-            <p id="msg" style="font-size: 0.8rem; opacity: 0.5;">Pratinjau foto sampel</p>
+            <p id="msg" style="font-size: 0.75rem; opacity: 0.5;">Pratinjau foto sampel</p>
             <img id="preview">
         </div>
 
         <button id="btnAnalisis" class="btn-main" style="display: none;" onclick="mulaiAnalisis()">🚀 MULAI ANALISIS AI</button>
-        
-        <div id="loader" style="display:none; text-align:center; margin-top:10px; font-size:0.7rem; color:var(--accent-green);">📡 MENGHUBUNGKAN SERVER AI...</div>
+        <div id="loader" style="display:none; text-align:center; margin-top:10px; font-size:0.7rem; color:var(--accent-green);">📡 MENGANALISIS...</div>
 
         <div id="result">
-            <div id="resLabel" style="font-size: 1.2rem; font-weight: 800; color: var(--accent-green); text-align: center;">-</div>
-            <div id="resConf" style="font-size: 0.75rem; text-align: center; margin-bottom: 15px; color: #ffd700;">Akurasi: 0%</div>
+            <div id="resLabel" style="font-size: 1.1rem; font-weight: 800; color: var(--accent-green); text-align: center;">-</div>
+            <div id="resConf" style="font-size: 0.75rem; text-align: center; margin-bottom: 15px; color: var(--accent-soil);">Akurasi: 0%</div>
             
+            <!-- BOX 1: PENYAKIT -->
             <div id="boxPenyakit">
                 <div class="info-box"><strong>🔍 Gejala:</strong><br><span id="resGejala">-</span></div>
-                <div class="info-box" style="border-left-color:#f85149;"><strong>🧬 Penyebab:</strong><br><span id="resPenyebab">-</span></div>
-                <div class="info-box" style="border-left-color:#ffd700;"><strong>✅ Solusi:</strong><br><span id="resSolusi">-</span></div>
+                <div class="info-box" style="border-left-color:var(--red-alert);"><strong>🧬 Penyebab:</strong><br><span id="resPenyebab">-</span></div>
+                <div class="info-box" style="border-left-color:var(--accent-soil);"><strong>✅ Solusi PPL:</strong><br><span id="resSolusi">-</span></div>
             </div>
 
+            <!-- BOX 2: TANAH -->
             <div id="boxTanah" style="display:none;">
-                <div class="info-box" style="border-left-color: var(--accent-soil);">
-                    <strong>📊 Analisis Distribusi Tanah:</strong>
-                    <div id="soilList" style="margin-top: 10px; font-size: 0.75rem;"></div>
-                </div>
-                
-                <div class="info-box" style="border-left-color:#1f6feb; margin-top:15px;">
-                    <strong>📖 Deskripsi Utama:</strong><br>
-                    <span id="resPenjelasan">-</span>
-                </div>
-
+                <div class="info-box" style="border-left-color: var(--accent-soil);"><strong>📊 Distribusi Tekstur:</strong><div id="soilList" style="margin-top: 10px;"></div></div>
                 <table>
                     <tr><td>Kesuburan</td><td class="row-val" id="resSubur">-</td></tr>
                     <tr><td>Bahan Organik</td><td class="row-val" id="resOrganik">-</td></tr>
                     <tr><td>Estimasi pH</td><td class="row-val" id="resPH">-</td></tr>
                 </table>
-                <div class="info-box" style="border-left-color:#ffd700;"><strong>💡 Saran PPL:</strong><br><span id="resSaran">-</span></div>
+                <div class="info-box" style="border-left-color: var(--accent-bwd);"><strong>📖 Deskripsi Utama:</strong><br><span id="resPenjelasan">-</span></div>
+                <div class="info-box" style="border-left-color: var(--accent-soil);"><strong>💡 Saran Tanah:</strong><br><span id="resSaranTanah">-</span></div>
                 <canvas id="textureTriangle" width="300" height="250" style="width: 100%; margin-top: 15px;"></canvas>
             </div>
-            
-            <img id="resultImg" style="margin-top:15px; border:1px solid var(--border);">
+
+            <!-- BOX 3: BWD -->
+            <div id="boxBWD" style="display:none;">
+                <div id="leafList"></div>
+                <div class="info-box" style="border-left-color: var(--accent-bwd);">
+                    <div id="voteInfo" style="font-weight:800; color:var(--accent-soil); margin-bottom:5px;"></div>
+                    <strong>📋 Rekomendasi Pemupukan:</strong><br><span id="resBWDSaran">-</span>
+                </div>
+            </div>
         </div>
     </div>
 
 <script>
-    let currentMode = 'daun';
-    let base64Image = "";
+    let currentMode = 'daun', base64Image = "";
 
     const URL_DAUN = "https://script.google.com/macros/s/AKfycbyCYh65h_3lT4iWr97_RHJNZmaPTSHDp_uFPy_pAP_rvC5BxYHI1n3dn5iwrnNcER1X/exec";
     const URL_TANAH = "https://script.google.com/macros/s/AKfycbyjW_J423BTWIZiP88OiQy0nVUp791OCUlH5DcW5owVj3NoDPHK6d9_Jwc11kdtX4gWkw/exec";
+    const URL_BWD = "https://script.google.com/macros/s/AKfycbxo0vRHLyBMTUkZa6UpgkP2cYZy97bFOr6sF_VipfsL4cimUd99vUImofHVflFL-j10/exec";
 
     const kamusTani = {
         "healthy": { 
@@ -280,12 +342,44 @@
     }
 };
 
+    const RECOMMENDATIONS = {
+            "yellow": {
+                label: "BWD Skala 1",
+                rec: "🚨 SEGERA berikan pupuk Urea 100-150 kg/ha. Tanaman kritis nitrogen (Defisiensi Berat).",
+                color: "badge-yellow"
+            },
+            "yellowish green": {
+                label: "BWD Skala 2",
+                rec: "⚠️ Nitrogen rendah. Tambahkan pupuk Urea 75-100 kg/ha sesuai umur tanaman.",
+                color: "badge-yellow"
+            },
+            "light green": {
+                label: "BWD Skala 3",
+                rec: "✅ Kondisi Cukup. Berikan Urea 50 kg/ha untuk menjaga fase pertumbuhan.",
+                color: "badge-green"
+            },
+            "green": {
+                label: "BWD Skala 4",
+                rec: "🌟 Kondisi Optimal/Ideal. Tidak perlu tambahan Urea. Pertahankan kondisi ini.",
+                color: "badge-green"
+            },
+            "dark green": {
+                label: "BWD Skala 5",
+                rec: "⚡ Nitrogen Berlebih. HENTIKAN pupuk N. Waspada serangan hama wereng dan penyakit Blast.",
+                color: "badge-dark"
+            }
+        };
+
+
+    const kamusWarna = { "yellow": "Kuning", "yellowish green": "Hijau Kekuningan", "light green": "Hijau Muda", "green": "Hijau", "dark green": "Hijau Tua" };
+
     function switchMode(mode) {
         currentMode = mode;
-        const color = mode === 'daun' ? 'var(--accent-green)' : 'var(--accent-soil)';
+        const color = mode === 'daun' ? 'var(--accent-green)' : (mode === 'tanah' ? 'var(--accent-soil)' : 'var(--accent-bwd)');
         document.getElementById('tabDaun').className = mode === 'daun' ? 'tab-btn active' : 'tab-btn';
         document.getElementById('tabTanah').className = mode === 'tanah' ? 'tab-btn active soil-mode' : 'tab-btn';
-        document.getElementById('modeTitle').innerText = mode === 'daun' ? 'Deteksi Penyakit Padi' : 'Analisis Jenis Tanah';
+        document.getElementById('tabBWD').className = mode === 'bwd' ? 'tab-btn active bwd-mode' : 'tab-btn';
+        document.getElementById('modeTitle').innerText = mode === 'daun' ? 'Deteksi Penyakit Padi' : (mode === 'tanah' ? 'Analisis Jenis Tanah' : 'Analisis Warna Daun (BWD)');
         document.getElementById('modeTitle').style.color = color;
         document.getElementById('laser').style.background = color;
         document.getElementById('result').style.display = 'none';
@@ -319,8 +413,8 @@
         document.getElementById('scanWindow').classList.add('is-scanning');
         document.getElementById('loader').style.display = 'block';
         try {
-            const url = currentMode === 'daun' ? URL_DAUN : URL_TANAH;
-            const res = await fetch(url, { method: 'POST', body: JSON.stringify({ image: base64Image }) });
+            const urls = { daun: URL_DAUN, tanah: URL_TANAH, bwd: URL_BWD };
+            const res = await fetch(urls[currentMode], { method: 'POST', body: JSON.stringify({ image: base64Image }) });
             const data = await res.json();
             tampilkanHasil(data);
         } catch (e) { alert("Gagal koneksi server!"); }
@@ -335,9 +429,11 @@
         document.getElementById('result').style.display = 'block';
         document.getElementById('boxPenyakit').style.display = currentMode === 'daun' ? 'block' : 'none';
         document.getElementById('boxTanah').style.display = currentMode === 'tanah' ? 'block' : 'none';
+        document.getElementById('boxBWD').style.display = currentMode === 'bwd' ? 'block' : 'none';
         
         let label = "unlabeled", conf = 0;
 
+        // --- LOGIKA 1: PENYAKIT PADI ---
         if (currentMode === 'daun') {
             if (out.classification_result) {
                 const res = out.classification_result;
@@ -349,60 +445,139 @@
             document.getElementById('resGejala').innerText = info.gejala;
             document.getElementById('resPenyebab').innerText = info.penyebab || "-";
             document.getElementById('resSolusi').innerText = info.solusi;
-        } else {
+        } 
+
+        // --- LOGIKA 2: ANALISIS TANAH (SANGAT LENGKAP) ---
+        else if (currentMode === 'tanah') {
             let foundBlock = null;
             for (let key in out) { if (out[key].predicted_classes) { foundBlock = out[key]; break; } }
+            
             if (foundBlock && foundBlock.predictions) {
                 const preds = foundBlock.predictions;
                 const container = document.getElementById('soilList');
                 container.innerHTML = ""; 
-
+                
                 let sortedSoil = Object.keys(preds).sort((a, b) => {
                     let valA = typeof preds[a] === 'number' ? preds[a] : preds[a].confidence;
                     let valB = typeof preds[b] === 'number' ? preds[b] : preds[b].confidence;
                     return valB - valA;
                 });
 
-               sortedSoil.forEach(soilKey => {
-    const p = preds[soilKey];
-    const cVal = ((typeof p === 'number' ? p : p.confidence) * 100).toFixed(2);
-    
-    // Mengambil nama asli Bahasa Indonesia dari Kamus Tanah
-    // Jika tidak ada di kamus, gunakan nama asli dari AI (dengan format rapi)
-    const namaIndonesia = kamusTanah[soilKey.toLowerCase()] 
-                          ? kamusTanah[soilKey.toLowerCase()].nama 
-                          : soilKey.toUpperCase().replace(/_/g, ' ');
+                sortedSoil.forEach(soilKey => {
+                    const p = preds[soilKey];
+                    const cVal = ((typeof p === 'number' ? p : p.confidence) * 100).toFixed(2);
+                    const nIndo = kamusTanah[soilKey.toLowerCase()] ? kamusTanah[soilKey.toLowerCase()].nama : soilKey.toUpperCase();
+                    container.innerHTML += `
+                        <div style="margin-bottom:8px;">
+                            <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+                                <span>${nIndo}</span><span>${cVal}%</span>
+                            </div>
+                            <div style="background:#333;height:6px;border-radius:3px;margin-top:4px;overflow:hidden;">
+                                <div style="background:var(--accent-soil);width:${cVal}%;height:100%;"></div>
+                            </div>
+                        </div>`;
+                });
 
-    container.innerHTML += `
-        <div style="margin-bottom: 8px;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
-                <span style="color: var(--text-main); font-weight: 600;">${namaIndonesia}</span>
-                <span style="color: var(--accent-soil);">${cVal}%</span>
-            </div>
-            <div style="background: #333; height: 6px; border-radius: 3px; margin-top: 4px; overflow: hidden;">
-                <div style="background: linear-gradient(90deg, #ffd700, #ff8c00); width: ${cVal}%; height: 100%; border-radius: 3px; transition: width 1s ease-in-out;"></div>
-            </div>
-        </div>`;
-});
-
-                const topLabel = foundBlock.predicted_classes[0].toLowerCase().replace(/ /g, "_");
-                const info = kamusTanah[topLabel] || kamusTanah.unlabeled;
-                label = topLabel;
-                conf = ((typeof preds[foundBlock.predicted_classes[0]] === 'number' ? preds[foundBlock.predicted_classes[0]] : preds[foundBlock.predicted_classes[0]].confidence) * 100).toFixed(1);
+                const topKey = foundBlock.predicted_classes[0].toLowerCase().replace(/ /g, "_");
+                const info = kamusTanah[topKey] || kamusTanah.unlabeled;
                 
+                // MENCETAK DATA TEKNIS KE TABEL TANAH
                 document.getElementById('resLabel').innerText = info.nama;
                 document.getElementById('resPenjelasan').innerText = info.penjelasan;
-                document.getElementById('resSubur').innerText = info.subur;
-                document.getElementById('resOrganik').innerText = info.organik;
-                document.getElementById('resPH').innerText = info.pH;
-                document.getElementById('resSaran').innerText = info.saran;
-                drawTriangle(label);
+                
+                // Menyusun ulang tabel agar menampilkan baris NPK dan Tanaman yang Bapak minta
+                const tableResult = document.querySelector("#boxTanah table");
+                tableResult.innerHTML = `
+                    <tr><td>Kesuburan</td><td class="row-val">${info.subur || "-"}</td></tr>
+                    <tr><td>Bahan Organik</td><td class="row-val">${info.organik || "-"}</td></tr>
+                    <tr><td>Kandungan NPK</td><td class="row-val" style="color:var(--accent-green)">${info.npk || "-"}</td></tr>
+                    <tr><td>Estimasi pH</td><td class="row-val">${info.pH || "-"}</td></tr>
+                    <tr><td style="padding-top:10px;">Cocok untuk Tanaman</td><td class="row-val" style="color:#00ff88; padding-top:10px;">${info.tanaman || "-"}</td></tr>
+                `;
+                
+                document.getElementById('resSaranTanah').innerText = info.saran;
+                conf = ((typeof preds[foundBlock.predicted_classes[0]] === 'number' ? preds[foundBlock.predicted_classes[0]] : preds[foundBlock.predicted_classes[0]].confidence) * 100).toFixed(1);
+                drawTriangle(topKey);
+            } // Penutup blok if (foundBlock)
+        } // Penutup blok else if (currentMode === 'tanah')
+
+       // --- LOGIKA 3: BWD SISTEM VOTING (SAMA PERSIS DENGAN VERSI ASLI) ---
+      else if (currentMode === 'bwd') {
+            const list = document.getElementById('leafList');
+            list.innerHTML = '';
+            document.getElementById('boxBWD').style.display = 'block';
+
+            const colors = out.leafColors || out.leaf_colors || [];
+            const dets = Array.isArray(out.detections) ? out.detections : (out.detections?.predictions || []);
+
+            if (colors.length === 0) {
+                document.getElementById('voteInfo').innerText = "⚠️ Daun tidak terdeteksi";
+                return;
             }
+
+            const voteCount = {};
+            
+            // Map warna dari AI ke Class CSS Bapak
+            const colorToClass = {
+                "yellow": "skala-1",
+                "yellowish green": "skala-2",
+                "light green": "skala-3",
+                "green": "skala-4",
+                "dark green": "skala-5"
+            };
+
+            colors.forEach((c, i) => {
+                const key = c.toLowerCase().trim();
+                voteCount[key] = (voteCount[key] || 0) + 1;
+                
+                const info = RECOMMENDATIONS[key] || { label: c };
+                const warnaIndo = kamusWarna[key] || c;
+                const confidence = dets[i] ? (dets[i].confidence * 100).toFixed(1) : "0.0";
+                
+                // AMBIL CLASS WARNA DI SINI
+                const styleClass = colorToClass[key] || "skala-3";
+
+                list.innerHTML += `
+                    <div class="leaf-card">
+                        <div class="badge ${styleClass}">${info.label}</div>
+                        <div class="info-row">
+                            <span>Warna Daun Terdeteksi: <strong>${warnaIndo}</strong></span>
+                            <span style="opacity:0.6; font-size:0.75rem;"> (Akurasi: ${confidence}%)</span>
+                        </div>
+                    </div>`;
+            });
+
+            let winnerKey = "";
+            let maxVotes = 0;
+            for (const key in voteCount) {
+                if (voteCount[key] > maxVotes) {
+                    maxVotes = voteCount[key];
+                    winnerKey = key;
+                }
+            }
+
+            const winData = RECOMMENDATIONS[winnerKey];
+            
+            // Render Rekomendasi Utama persis gambar.png
+            const bwdContainer = document.getElementById('boxBWD');
+            bwdContainer.innerHTML = `
+                <div id="leafList">${list.innerHTML}</div>
+                <div class="recommendation-box">
+                    <h4 style="color:var(--accent-green); margin:0 0 5px 0; font-size:0.9rem;">📋 Rekomendasi Utama:</h4>
+                    <div class="vote-summary">📊 Mayoritas: ${kamusWarna[winnerKey]} (${maxVotes} dari ${colors.length} daun)</div>
+                    <div style="font-size: 0.85rem; display: flex; gap: 8px; align-items: flex-start;">
+                        <span>✅</span>
+                        <span>${winData?.rec || "-"}</span>
+                    </div>
+                </div>`;
+
+            document.getElementById('resLabel').innerText = "Analisis Selesai";
+            conf = 100;
         }
         document.getElementById('resConf').innerText = `Akurasi: ${conf}%`;
     }
 
-    function drawTriangle(label) {
+     function drawTriangle(label) {
     const canvas = document.getElementById('textureTriangle');
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
