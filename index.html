@@ -202,17 +202,38 @@
         <span id="lokasiSawah" style="font-size: 0.8rem; opacity: 0.7;">-</span><br>
         <span id="alamatDesa" style="color: var(--accent-green); font-weight: 300;">Mencari alamat...</span>
     </div>
-        <div class="info-box"><strong>🌡️ Suhu</strong><br><span id="suhuNow">-</span></div>
-        <div class="info-box"><strong>💧 Kelembapan</strong><br><span id="humidityNow">-</span></div>
-                <div class="info-box"><strong>🌧️ Curah Hujan</strong><br><span id="rainNow">-</span></div>
-               <div class="info-box"><strong>💨 Kecepatan Angin</strong><br><span id="windNow">-</span></div>
-<div class="info-box"><strong>🧭 Arah Angin</strong><br><span id="windDir">-</span></div>
+        <div class="info-box" style="border-left-color: var(--accent-green); padding: 15px;">
+    <strong>📊 Parameter Cuaca Saat Ini</strong>
+    <table style="width: 100%; margin-top: 10px; border: none;">
+         <tr>
+            <td style="border: none; padding: 5px 0;">🌧️ Curah Hujan</td>
+            <td class="row-val" id="rainNow" style="color: var(--text-main);">-</td>
+        </tr>
+        <tr>
+            <td style="border: none; padding: 5px 0;">🌡️ Suhu</td>
+            <td class="row-val" id="suhuNow" style="color: var(--text-main);">-</td>
+        </tr>
+        <tr>
+            <td style="border: none; padding: 5px 0;">💧 Kelembapan</td>
+            <td class="row-val" id="humidityNow" style="color: var(--text-main);">-</td>
+        </tr>
+       
+        <tr>
+            <td style="border: none; padding: 5px 0;">💨 Kec. Angin</td>
+            <td class="row-val" id="windNow" style="color: var(--text-main);">-</td>
+        </tr>
+        <tr>
+            <td style="border: none; padding: 5px 0;">🧭 Arah Angin</td>
+            <td class="row-val" id="windDir" style="color: var(--accent-soil); font-size: 0.75rem;">-</td>
+        </tr>
+    </table>
+</div>
 <div id="prediksiHujan" class="info-box" style="border-left-color: var(--accent-soil); background: rgba(255, 215, 0, 0.05); display: none;">
     <strong>🔮 Prediksi 1 Jam Ke Depan</strong><br>
     <span id="hujanNext">-</span>
 </div>
         <div class="info-box" style="border-left-color:var(--red-alert);">
-            <strong>⚠️ Risiko Penyakit</strong><br><span id="riskResult">-</span>
+            <strong>⚠️ Risiko Penyakit Tanaman</strong><br><span id="riskResult">-</span>
         </div>
     </div>
 </div>
@@ -549,17 +570,19 @@ async function loadWeather() {
             const sectors = ["Utara", "Timur Laut", "Timur", "Tenggara", "Selatan", "Barat Daya", "Barat", "Barat Laut"];
             return sectors[Math.round(degree / 45) % 8];
         };
-        const arahTeks = getDirection(cur.wind_direction_10m);
-        
-        document.getElementById('windDir').innerHTML = `
-            <div style="display:flex; align-items:center; gap:10px;">
-                <span style="display:inline-block; transform:rotate(${cur.wind_direction_10m + 180}deg); font-size:1.2rem; transition: 1s ease;">⬆️</span>
-                <span>Dari ${arahTeks} (${cur.wind_direction_10m}°)</span>
-            </div>
-        `;
+        // Logika Arah Angin (Sesuaikan agar pas di dalam tabel)
+const arahTeks = getDirection(cur.wind_direction_10m);
 
-        document.getElementById('resLabel').innerText = "Laporan Cuaca Digital";
-        document.getElementById('resConf').innerText = "Data Cuaca Terhubung";
+document.getElementById('windDir').innerHTML = `
+    <div style="display:flex; align-items:center; justify-content: flex-end; gap:5px;">
+        
+        <span style="display:inline-block; transform:rotate(${cur.wind_direction_10m + 180}deg); transition: 1s ease;">⬆️</span>
+        <span>Dari ${arahTeks}</span>
+    </div>
+`;
+
+        document.getElementById('resLabel').innerText = "Laporan Cuaca Lokasi Anda";
+        document.getElementById('resConf').innerText = "Terhubung dengan Satelit";
         
         analyzeDiseaseRisk(cur);
 
