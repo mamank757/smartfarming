@@ -247,6 +247,14 @@
                 <td class="row-val" id="windNow" style="color: var(--text-main);">-</td>
             </tr>
             <tr>
+    <td style="border: none; padding: 5px 0;">⏲️ Tekanan Udara</td>
+    <td class="row-val" id="pressNow" style="color: var(--text-main);">-</td>
+</tr>
+            <tr>
+    <td style="border: none; padding: 5px 0;">☁️ Suhu Atas (850hPa)</td>
+    <td class="row-val" id="tempUpper" style="color: var(--accent-bwd);">-</td>
+</tr>
+            <tr>
                 <td style="border: none; padding: 5px 0;">🧭 Arah Angin</td>
                 <td class="row-val" id="windDir" style="color: var(--accent-soil); font-size: 0.75rem;">-</td>
             </tr>
@@ -510,19 +518,22 @@
         };
         reader.readAsDataURL(file);
     }
+
+// ... (Bagian Kamus Tani, Tanah, BWD, dan switchMode tetap sama) ...
+
+// SATU FUNGSI AKTIFKAN GPS (Versi Hidup & Stabil)
 async function aktifkanGPS() {
-    const btn = event.target; // Ambil elemen tombol yang diklik
-    const originalText = btn.innerText;
+    const btn = document.querySelector('.btn-live'); 
+    const originalText = "SINKRONKAN GPS & SATELIT";
     
     try {
-        // Efek visual saat ditekan
         btn.innerText = "⏳ MENCARI SINYAL...";
         btn.style.opacity = "0.7";
         btn.disabled = true;
 
         document.getElementById('resLabel').innerText = "Menghubungkan Satelit...";
         
-        await loadWeather();
+        await loadWeather(); // Memanggil fungsi pengambil data
         
         document.getElementById('gpsPrompt').style.display = 'none';
         document.getElementById('weatherData').style.display = 'block';
@@ -531,25 +542,13 @@ async function aktifkanGPS() {
         btn.innerText = originalText;
         btn.style.opacity = "1";
         btn.disabled = false;
-        alert("Aktifkan izin GPS di pengaturan HP Anda.");
+        alert("Gagal Sinkronisasi. Pastikan GPS HP Aktif.");
+        console.error(err);
     }
 }
-    async function aktifkanGPS() {
-        try {
-            document.getElementById('resLabel').innerText = "Menghubungkan Satelit...";
-            await loadWeather();
-            document.getElementById('gpsPrompt').style.display = 'none';
-            document.getElementById('weatherData').style.display = 'block';
-        } catch (err) {
-            document.getElementById('resLabel').innerText = "GPS Gagal";
-            alert("Aktifkan izin GPS di pengaturan HP Anda.");
-        }
-    }
 
 async function getWeather(lat, lon) {
-    // Menambahkan parameter hourly
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,rain,wind_speed_10m,wind_direction_10m&hourly=precipitation_probability,precipitation&timezone=auto`;
-    
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,rain,wind_speed_10m,wind_direction_10m,surface_pressure&hourly=precipitation_probability,precipitation,temperature_850hPa&timezone=auto`;
     const res = await fetch(url);
     if (!res.ok) throw new Error("Gagal data satelit");
     return await res.json();
@@ -557,10 +556,6 @@ async function getWeather(lat, lon) {
 
 async function loadWeather() {
     try {
-        document.getElementById('lokasiSawah').innerText = "📡 Menghubungkan Satelit...";
-        document.getElementById('alamatDesa').innerText = "🔍 Mencari Alamat...";
-        
-        // 1. Ambil Koordinat GPS
         const pos = await new Promise((res, rej) => {
             navigator.geolocation.getCurrentPosition(res, rej, { 
                 enableHighAccuracy: true,
@@ -572,64 +567,60 @@ async function loadWeather() {
         const lon = pos.coords.longitude;
         document.getElementById('lokasiSawah').innerText = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
         
-        // 2. Ambil Nama Desa Otomatis (Reverse Geocoding)
+        // Alamat Desa
         try {
             const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`);
             const geoData = await geoRes.json();
             const addr = geoData.address;
-            
             const desa = addr.village || addr.suburb || addr.hamlet || addr.town || "Desa tidak terdeteksi";
             const kecamatan = addr.city_district || addr.district || "Bola";
-            
             document.getElementById('alamatDesa').innerHTML = `<b>Desa ${desa}</b>, Kec. ${kecamatan}`;
-        } catch (geoErr) {
-            document.getElementById('alamatDesa').innerText = "Gagal memuat nama desa (Cek Sinyal)";
+        } catch (e) {
+            document.getElementById('alamatDesa').innerText = "Gagal memuat alamat";
         }
 
-        // 3. Ambil Data Cuaca Satelit (Termasuk Data Per Jam untuk Prediksi)
         const weatherData = await getWeather(lat, lon);
         const cur = weatherData.current;
         const hourly = weatherData.hourly;
 
-        // --- LOGIKA PREDIKSI HUJAN 1 JAM KE DEPAN ---
-        // Ambil data jam berikutnya dengan pengaman (index [1])
-const nextHourProb = (hourly && hourly.precipitation_probability) ? hourly.precipitation_probability[1] : 0; 
-const nextHourRain = (hourly && hourly.precipitation) ? hourly.precipitation[1] : 0;
+        // Prediksi Hujan
+        const nextHourProb = (hourly && hourly.precipitation_probability) ? hourly.precipitation_probability[1] : 0; 
+        const nextHourRain = (hourly && hourly.precipitation) ? hourly.precipitation[1] : 0;
         const elHujan = document.getElementById('prediksiHujan');
         const txtHujan = document.getElementById('hujanNext');
 
-        if (elHujan && txtHujan) {
+        if (elHujan) {
             elHujan.style.display = 'block';
             if (nextHourProb > 30) {
                 txtHujan.innerHTML = `🌧️ <b>Peluang Hujan ${nextHourProb}%</b><br><small> (${nextHourRain} mm).</small>`;
                 elHujan.style.borderLeftColor = 'var(--red-alert)';
             } else {
-                txtHujan.innerHTML = `🌤 <b>Cerah/Berawan</b><br><small>(Peluang hujan ${nextHourProb}%).️</small>`;
+                txtHujan.innerHTML = `🌤 <b>Cerah/Berawan</b><br><small>(Peluang hujan ${nextHourProb}%).</small>`;
                 elHujan.style.borderLeftColor = 'var(--accent-green)';
             }
         }
 
-        // 4. Tampilkan Data Cuaca Saat Ini ke UI
+        // Update UI Tabel
         document.getElementById('suhuNow').innerText = `${cur.temperature_2m} °C`;
         document.getElementById('humidityNow').innerText = `${cur.relative_humidity_2m}%`;
         document.getElementById('rainNow').innerText = `${cur.rain} mm`;
         document.getElementById('windNow').innerText = `${cur.wind_speed_10m} km/jam`;
+        document.getElementById('pressNow').innerText = `${cur.surface_pressure} hPa`;
+        
+        const cloudTemp = (hourly && hourly.temperature_850hPa) ? hourly.temperature_850hPa[0] : "-";
+        document.getElementById('tempUpper').innerText = `${cloudTemp} °C`;
 
-        // Logika Arah Angin
         const getDirection = (degree) => {
             const sectors = ["Utara", "Timur Laut", "Timur", "Tenggara", "Selatan", "Barat Daya", "Barat", "Barat Laut"];
             return sectors[Math.round(degree / 45) % 8];
         };
-        // Logika Arah Angin (Sesuaikan agar pas di dalam tabel)
-const arahTeks = getDirection(cur.wind_direction_10m);
 
-document.getElementById('windDir').innerHTML = `
-    <div style="display:flex; align-items:center; justify-content: flex-end; gap:5px;">
-        
-        <span style="display:inline-block; transform:rotate(${cur.wind_direction_10m + 180}deg); transition: 1s ease;">⬆️</span>
-        <span>Dari ${arahTeks}</span>
-    </div>
-`;
+        document.getElementById('windDir').innerHTML = `
+            <div style="display:flex; align-items:center; justify-content: flex-end; gap:5px;">
+                <span style="display:inline-block; transform:rotate(${cur.wind_direction_10m + 180}deg); transition: 1s ease;">⬆️</span>
+                <span>Dari ${getDirection(cur.wind_direction_10m)}</span>
+            </div>
+        `;
 
         document.getElementById('resLabel').innerText = "Laporan Cuaca Lokasi Anda";
         document.getElementById('resConf').innerText = "Terhubung dengan Satelit";
@@ -637,9 +628,8 @@ document.getElementById('windDir').innerHTML = `
         analyzeDiseaseRisk(cur);
 
     } catch (err) {
-        document.getElementById('resLabel').innerText = "GPS Gagal";
-        alert("Pastikan GPS HP Aktif.");
         console.error(err);
+        throw err;
     }
 }
 
