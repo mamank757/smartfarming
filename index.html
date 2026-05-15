@@ -511,7 +511,7 @@ const arahTeks = getDirection(cur.wind_direction_10m);
 
 document.getElementById('windDir').innerHTML = `
     <div style="display:flex; align-items:center; gap:10px;">
-        <span style="display:inline-block; transform:rotate(${cur.wind_direction_10m + 180}deg); font-size:1.2rem; transition: 1s ease;">⬇️</span>
+        <span style="display:inline-block; transform:rotate(${cur.wind_direction_10m + 180}deg); font-size:1.2rem; transition: 1s ease;">⬆️</span>
         <span><strong>Dari</strong> ${arahTeks} (${cur.wind_direction_10m}°)</span>
     </div>
 `;
