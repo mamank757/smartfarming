@@ -184,16 +184,29 @@
             </div>
 
             <!-- BOX 4: CUACA -->
-            <div id="boxCuaca" style="display:none;">
-                <div class="info-box"><strong>📍 Lokasi Sawah</strong><br><span id="lokasiSawah">Mengambil lokasi...</span></div>
-                <div class="info-box"><strong>🌡️ Suhu</strong><br><span id="suhuNow">-</span></div>
-                <div class="info-box"><strong>💧 Kelembapan</strong><br><span id="humidityNow">-</span></div>
-                <div class="info-box"><strong>🌧️ Curah Hujan</strong><br><span id="rainNow">-</span></div>
-                <div class="info-box"><strong>💨 Kecepatan Angin</strong><br><span id="windNow">-</span></div>
-                <div class="info-box" style="border-left-color:var(--red-alert);"><strong>⚠️ Risiko Penyakit</strong><br><span id="riskResult">-</span></div>
-            </div>
+            <div id="boxCuaca" style="display:none; text-align: center;">
+    <div id="gpsPrompt" style="padding: 20px 10px;">
+        <div style="font-size: 2rem; margin-bottom: 10px;">🛰️</div>
+        <h4 style="margin: 0; color: var(--accent-green);">Akses Lokasi Sawah</h4>
+        <p style="font-size: 0.75rem; color: #8b949e; margin: 10px 0 20px;">
+            Kami memerlukan koordinat GPS untuk mengambil data cuaca dan risiko penyakit Blast langsung dari satelit di titik sawah Anda.
+        </p>
+        <button class="btn-main" onclick="aktifkanGPS()" style="background: var(--accent-bwd); color: white;">
+            SINKRONKAN GPS & SATELIT
+        </button>
+    </div>
+
+    <div id="weatherData" style="display: none; text-align: left;">
+        <div class="info-box"><strong>📍 Lokasi Sawah</strong><br><span id="lokasiSawah">-</span></div>
+        <div class="info-box"><strong>🌡️ Suhu</strong><br><span id="suhuNow">-</span></div>
+        <div class="info-box"><strong>💧 Kelembapan</strong><br><span id="humidityNow">-</span></div>
+        <div class="info-box"><strong>🌧️ Curah Hujan</strong><br><span id="rainNow">-</span></div>
+        <div class="info-box"><strong>💨 Angin</strong><br><span id="windNow">-</span></div>
+        <div class="info-box" style="border-left-color:var(--red-alert);">
+            <strong>⚠️ Risiko Penyakit</strong><br><span id="riskResult">-</span>
         </div>
     </div>
+</div>
 
 <script>
     let currentMode = 'daun', base64Image = "";
@@ -382,167 +395,95 @@
     const kamusWarna = { "yellow": "Kuning", "yellowish green": "Hijau Kekuningan", "light green": "Hijau Muda", "green": "Hijau", "dark green": "Hijau Tua" };
 
     function switchMode(mode) {
-    currentMode = mode;
+        currentMode = mode;
+        let color = 'var(--accent-green)';
+        let title = 'Deteksi Penyakit Padi';
 
-    let color = 'var(--accent-green)';
-    let title = 'Deteksi Penyakit Padi';
+        if (mode === 'tanah') { color = 'var(--accent-soil)'; title = 'Analisis Jenis Tanah'; }
+        if (mode === 'bwd') { color = 'var(--accent-bwd)'; title = 'Analisis Warna Daun (BWD)'; }
+        if (mode === 'cuaca') { color = '#4fc3f7'; title = 'Cuaca & Risiko Penyakit'; }
 
-    if (mode === 'tanah') {
-        color = 'var(--accent-soil)';
-        title = 'Analisis Jenis Tanah';
-    }
+        document.getElementById('tabDaun').className = mode === 'daun' ? 'tab-btn active' : 'tab-btn';
+        document.getElementById('tabTanah').className = mode === 'tanah' ? 'tab-btn active soil-mode' : 'tab-btn';
+        document.getElementById('tabBWD').className = mode === 'bwd' ? 'tab-btn active bwd-mode' : 'tab-btn';
+        document.getElementById('tabCuaca').className = mode === 'cuaca' ? 'tab-btn active' : 'tab-btn';
 
-    if (mode === 'bwd') {
-        color = 'var(--accent-bwd)';
-        title = 'Analisis Warna Daun (BWD)';
-    }
+        document.getElementById('modeTitle').innerText = title;
+        document.getElementById('modeTitle').style.color = color;
+        document.getElementById('laser').style.background = color;
 
-    if (mode === 'cuaca') {
-        color = '#4fc3f7';
-        title = 'Cuaca & Risiko Penyakit';
-    }
+        document.getElementById('boxPenyakit').style.display = mode === 'daun' ? 'block' : 'none';
+        document.getElementById('boxTanah').style.display = mode === 'tanah' ? 'block' : 'none';
+        document.getElementById('boxBWD').style.display = mode === 'bwd' ? 'block' : 'none';
+        document.getElementById('boxCuaca').style.display = mode === 'cuaca' ? 'block' : 'none';
 
-    // Mengatur keaktifan tombol tab
-    document.getElementById('tabDaun').className = mode === 'daun' ? 'tab-btn active' : 'tab-btn';
-    document.getElementById('tabTanah').className = mode === 'tanah' ? 'tab-btn active soil-mode' : 'tab-btn';
-    document.getElementById('tabBWD').className = mode === 'bwd' ? 'tab-btn active bwd-mode' : 'tab-btn';
-    document.getElementById('tabCuaca').className = mode === 'cuaca' ? 'tab-btn active' : 'tab-btn';
-
-    // Mengatur judul dan warna laser scan
-    document.getElementById('modeTitle').innerText = title;
-    document.getElementById('modeTitle').style.color = color;
-    document.getElementById('laser').style.background = color;
-
-    // Menampilkan kotak hasil utama
-    document.getElementById('result').style.display = 'block';
-
-    // Toggle tampilan box isi berdasarkan mode
-    document.getElementById('boxPenyakit').style.display = mode === 'daun' ? 'block' : 'none';
-    document.getElementById('boxTanah').style.display = mode === 'tanah' ? 'block' : 'none';
-    document.getElementById('boxBWD').style.display = mode === 'bwd' ? 'block' : 'none';
-    document.getElementById('boxCuaca').style.display = mode === 'cuaca' ? 'block' : 'none';
-
-    // LOGIKA KHUSUS TAB CUACA (Menyembunyikan Fitur Foto)
-    if (mode === 'cuaca') {
-        document.getElementById('btnCamera').style.display = 'none';    // Sembunyikan tombol Ambil Foto
-        document.getElementById('scanWindow').style.display = 'none';   // Sembunyikan kotak Pratinjau Foto
-        document.getElementById('btnAnalisis').style.display = 'none';  // Sembunyikan tombol Analisis AI
-        loadWeather(); // Jalankan fungsi penangkap data Open-Meteo
-    } else {
-        // Tampilkan kembali fitur foto jika pindah ke tab Daun, Tanah, atau BWD
-        document.getElementById('btnCamera').style.display = 'block';
-        document.getElementById('scanWindow').style.display = 'flex';
-        
-        // Sembunyikan hasil cuaca sementara jika belum melakukan analisis di tab baru
-        document.getElementById('result').style.display = 'none';
-        
-        // Jika sudah ada gambar terunggah sebelumnya, tampilkan tombol analisis lagi
-        if (base64Image !== "") {
-            document.getElementById('btnAnalisis').style.display = 'block';
-        } else {
+        if (mode === 'cuaca') {
+            document.getElementById('btnCamera').style.display = 'none';
+            document.getElementById('scanWindow').style.display = 'none';
             document.getElementById('btnAnalisis').style.display = 'none';
+            document.getElementById('gpsPrompt').style.display = 'block';
+            document.getElementById('weatherData').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+        } else {
+            document.getElementById('btnCamera').style.display = 'block';
+            document.getElementById('scanWindow').style.display = 'flex';
+            document.getElementById('gpsPrompt').style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('btnAnalisis').style.display = base64Image !== "" ? 'block' : 'none';
         }
     }
-}
 
     function handleFile(event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = e => {
-        const img = new Image();
-        img.src = e.target.result;
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Set ukuran kompresi
-            canvas.width = 800; 
-            canvas.height = (img.height * 800) / img.width;
-            
-            // --- AKTIFKAN FILTER SEBELUM MENGGAMBAR (LEBIH AMAN & STABIL) ---
-            ctx.filter = 'brightness(0.85) contrast(1.10)';
-            
-            // Gambar foto asli langsung dengan efek redam cahaya
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            
-            // Reset filter ke normal agar tidak merusak fungsi canvas lainnya
-            ctx.filter = 'none'; 
-            
-            base64Image = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
-            document.getElementById('preview').src = canvas.toDataURL('image/jpeg');
-            document.getElementById('preview').style.display = 'block';
-            document.getElementById('msg').style.display = 'none';
-            document.getElementById('btnAnalisis').style.display = 'block';
-        }
-    };
-    reader.readAsDataURL(file);
-}
-
-   async function getLocation() {
-    return new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                resolve({
-                    lat: pos.coords.latitude,
-                    lon: pos.coords.longitude
-                });
-            },
-            (err) => {
-                // Memberikan pesan error yang lebih jelas saat gagal
-                switch(err.code) {
-                    case err.PERMISSION_DENIED:
-                        alert("Gagal: Izin GPS ditolak oleh pengguna.");
-                        break;
-                    case err.POSITION_UNAVAILABLE:
-                        alert("Gagal: Informasi lokasi tidak tersedia (Sinyal lemah).");
-                        break;
-                    case err.TIMEOUT:
-                        alert("Gagal: Waktu pengambilan lokasi habis.");
-                        break;
-                }
-                reject(err);
-            },
-            {
-                enableHighAccuracy: true, // WAJIB: Memaksa HP pakai Sinyal Satelit GPS murni
-                timeout: 10000,           // Batas waktu tunggu pencarian sinyal (10 detik)
-                maximumAge: 0             // WAJIB: Jangan gunakan cache lokasi lama, harus real-time
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 800; canvas.height = (img.height * 800) / img.width;
+                ctx.filter = 'brightness(0.9) contrast(1.1)';
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                base64Image = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+                document.getElementById('preview').src = canvas.toDataURL('image/jpeg');
+                document.getElementById('preview').style.display = 'block';
+                document.getElementById('msg').style.display = 'none';
+                document.getElementById('btnAnalisis').style.display = 'block';
             }
-        );
-    });
-}
-
-    async function getWeather(lat, lon) {
-    // Membentuk URL endpoint Open-Meteo yang bersih dan valid
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,rain,wind_speed_10m`;
-    
-    const res = await fetch(url);
-    
-    if (!res.ok) {
-        throw new Error(`Gagal mengambil data cuaca: ${res.status}`);
+        };
+        reader.readAsDataURL(file);
     }
-    
-    return await res.json();
-}
+
+    async function aktifkanGPS() {
+        try {
+            document.getElementById('resLabel').innerText = "Menghubungkan Satelit...";
+            await loadWeather();
+            document.getElementById('gpsPrompt').style.display = 'none';
+            document.getElementById('weatherData').style.display = 'block';
+        } catch (err) {
+            document.getElementById('resLabel').innerText = "GPS Gagal";
+            alert("Aktifkan izin GPS di pengaturan HP Anda.");
+        }
+    }
 
     async function loadWeather() {
-        try {
-            document.getElementById('lokasiSawah').innerText = "Mengambil GPS...";
-            const loc = await getLocation();
-            document.getElementById('lokasiSawah').innerText = `${loc.lat.toFixed(5)}, ${loc.lon.toFixed(5)}`;
-            
-            const weather = await getWeather(loc.lat, loc.lon);
-            const cur = weather.current;
+        const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej));
+        const lat = pos.coords.latitude, lon = pos.coords.longitude;
+        document.getElementById('lokasiSawah').innerText = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+        
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,rain,wind_speed_10m`);
+        const data = await res.json();
+        const cur = data.current;
 
-            document.getElementById('suhuNow').innerText = `${cur.temperature_2m} °C`;
-            document.getElementById('humidityNow').innerText = `${cur.relative_humidity_2m}%`;
-            document.getElementById('rainNow').innerText = `${cur.rain} mm`;
-            document.getElementById('windNow').innerText = `${cur.wind_speed_10m} km/h`;
-
-            analyzeDiseaseRisk(cur);
-        } catch(err) {
-            alert("GPS atau Cuaca gagal diakses");
-            console.error(err);
-        }
+        document.getElementById('suhuNow').innerText = `${cur.temperature_2m} °C`;
+        document.getElementById('humidityNow').innerText = `${cur.relative_humidity_2m}%`;
+        document.getElementById('rainNow').innerText = `${cur.rain} mm`;
+        document.getElementById('windNow').innerText = `${cur.wind_speed_10m} km/h`;
+        
+        document.getElementById('resLabel').innerText = "Analisis Cuaca Sawah";
+        document.getElementById('resConf').innerText = "Data Satelit Real-time";
+        analyzeDiseaseRisk(cur);
     }
 
     async function mulaiAnalisis() {
@@ -619,8 +560,7 @@
             document.getElementById('resAplikasi').innerText = info.aplikasi || "-";
         } 
 
-        // --- LOGIKA 2: ANALISIS TANAH ---
-       // --- LOGIKA 2: ANALISIS TANAH (SINKRONISASI TOTAL ROBOFLOW WORKFLOW) ---
+    
         // --- LOGIKA 2: ANALISIS TANAH ---
         else if (currentMode === 'tanah') {
             let foundBlock = null;
