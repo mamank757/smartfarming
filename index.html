@@ -196,8 +196,12 @@
         </button>
     </div>
 
-    <div id="weatherData" style="display: none; text-align: left;">
-        <div class="info-box"><strong>📍 Lokasi Anda Sekarang</strong><br><span id="lokasiSawah">-</span></div>
+   <div id="weatherData" style="display: none; text-align: left;">
+    <div class="info-box" style="border-left: 4px solid var(--accent-bwd); background: rgba(31, 111, 235, 0.05);">
+        <strong>📍 Lokasi & Alamat Sawah</strong><br>
+        <span id="lokasiSawah" style="font-size: 0.8rem; opacity: 0.7;">-</span><br>
+        <span id="alamatDesa" style="color: var(--accent-green); font-weight: 300;">Mencari alamat...</span>
+    </div>
         <div class="info-box"><strong>🌡️ Suhu</strong><br><span id="suhuNow">-</span></div>
         <div class="info-box"><strong>💧 Kelembapan</strong><br><span id="humidityNow">-</span></div>
         <div class="info-box"><strong>🌧️ Curah Hujan</strong><br><span id="rainNow">-</span></div>
@@ -478,8 +482,9 @@ async function getWeather(lat, lon) {
 async function loadWeather() {
     try {
         document.getElementById('lokasiSawah').innerText = "📡 Menghubungkan Satelit...";
+        document.getElementById('alamatDesa').innerText = "🔍 Mencari Alamat...";
         
-        // Ambil Koordinat GPS
+        // 1. Ambil Koordinat GPS
         const pos = await new Promise((res, rej) => {
             navigator.geolocation.getCurrentPosition(res, rej, { 
                 enableHighAccuracy: true,
@@ -491,11 +496,27 @@ async function loadWeather() {
         const lon = pos.coords.longitude;
         document.getElementById('lokasiSawah').innerText = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
         
-        // Ambil Data Cuaca
+        // 2. Ambil Nama Desa Otomatis (Reverse Geocoding)
+        // Kita gunakan API gratis dari Nominatim OpenStreetMap
+        try {
+            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`);
+            const geoData = await geoRes.json();
+            const addr = geoData.address;
+            
+            // Logika mengambil Nama Desa/Kelurahan
+            const desa = addr.village || addr.suburb || addr.hamlet || addr.town || "Desa tidak terdeteksi";
+            const kecamatan = addr.city_district || addr.district || "Bola";
+            
+            document.getElementById('alamatDesa').innerHTML = `<b>Desa ${desa}</b>, Kec. ${kecamatan}`;
+        } catch (geoErr) {
+            document.getElementById('alamatDesa').innerText = "Gagal memuat nama desa (Cek Sinyal)";
+        }
+
+        // 3. Ambil Data Cuaca Satelit
         const weatherData = await getWeather(lat, lon);
         const cur = weatherData.current;
 
-        // Tampilkan Data ke UI
+        // Tampilkan Data Cuaca ke UI
         document.getElementById('suhuNow').innerText = `${cur.temperature_2m} °C`;
         document.getElementById('humidityNow').innerText = `${cur.relative_humidity_2m}%`;
         document.getElementById('rainNow').innerText = `${cur.rain} mm`;
@@ -506,25 +527,23 @@ async function loadWeather() {
             const sectors = ["Utara", "Timur Laut", "Timur", "Tenggara", "Selatan", "Barat Daya", "Barat", "Barat Laut"];
             return sectors[Math.round(degree / 45) % 8];
         };
-        // Tampilkan Arah Angin dengan tambahan kata "Dari"
-const arahTeks = getDirection(cur.wind_direction_10m);
-
-document.getElementById('windDir').innerHTML = `
-    <div style="display:flex; align-items:center; gap:10px;">
-        <span style="display:inline-block; transform:rotate(${cur.wind_direction_10m + 180}deg); font-size:1.2rem; transition: 1s ease;">⬆️</span>
-        <span><strong>Dari</strong> ${arahTeks} (${cur.wind_direction_10m}°)</span>
-    </div>
-`;
-
-        document.getElementById('resLabel').innerText = "Laporan Cuaca Lokasi Anda";
-        document.getElementById('resConf').innerText = "Sinkronisasi Cuaca Berhasil";
+        const arahTeks = getDirection(cur.wind_direction_10m);
         
-        // Analisis Risiko Penyakit
+        document.getElementById('windDir').innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="display:inline-block; transform:rotate(${cur.wind_direction_10m + 180}deg); font-size:1.2rem; transition: 1s ease;">⬆️</span>
+                <span>Dari ${arahTeks} (${cur.wind_direction_10m}°)</span>
+            </div>
+        `;
+
+        document.getElementById('resLabel').innerText = "Laporan Digital BPP Bola";
+        document.getElementById('resConf').innerText = "Data Lokasi & Cuaca Valid";
+        
         analyzeDiseaseRisk(cur);
 
     } catch (err) {
-        document.getElementById('resLabel').innerText = "Koneksi Terputus";
-        alert("Gagal mengakses lokasi. Pastikan GPS HP Aktif dan beri izin pada browser.");
+        document.getElementById('resLabel').innerText = "GPS Gagal";
+        alert("Pastikan GPS HP Aktif.");
         console.error(err);
     }
 }
