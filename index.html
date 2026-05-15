@@ -503,7 +503,7 @@ async function loadWeather() {
 
         // Logika Arah Angin
         const getDirection = (degree) => {
-            const sectors = ["Selatan", "Barat Daya", "Barat", "Barat Laut", "Utara", "Timur Laut", "Timur", "Tenggara"];
+            const sectors = ["Utara", "Timur Laut", "Timur", "Tenggara", "Selatan", "Barat Daya", "Barat", "Barat Laut"];
             return sectors[Math.round(degree / 45) % 8];
         };
         // Tampilkan Arah Angin dengan tambahan kata "Dari"
