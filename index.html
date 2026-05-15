@@ -593,37 +593,49 @@ async function loadWeather() {
         const cur = weatherData.current;
         const hourly = weatherData.hourly;
 
-        // --- LOGIKA DEW POINT SPREAD ---
-        // Selisih Suhu dan Titik Embun untuk deteksi kejenuhan udara (embun daun)
+        // --- SOLUSI MASALAH 1: SINKRONISASI WAKTU (nowIndex) ---
+        // Mencari index yang sesuai dengan jam sekarang dalam format ISO (YYYY-MM-DDTHH)
+        const nowISO = new Date().toISOString().slice(0, 13); 
+        const nowIndex = hourly.time.findIndex(t => t.startsWith(nowISO));
+        const activeIndex = nowIndex >= 0 ? nowIndex : 0;
+
+        // --- DATA BERDASARKAN JAM SAAT INI ---
+        const currentCape = (hourly && hourly.cape) ? hourly.cape[activeIndex] : 0;
         const dpSpread = (cur.temperature_2m - cur.dew_point_2m).toFixed(1);
+        const cloudTemp = (hourly && hourly.temperature_850hPa) ? hourly.temperature_850hPa[activeIndex] : "-";
+
+        // Update UI Parameter Tambahan
         if(document.getElementById('dpSpread')) {
             document.getElementById('dpSpread').innerText = `${dpSpread} °C`;
         }
 
-        // --- LOGIKA CAPE (ENERGI BADAI) ---
-        const currentCape = (hourly && hourly.cape) ? hourly.cape[0] : 0;
-        let capeStatus = "";
-        if (currentCape > 2500) capeStatus = "‼️ EKSTREM";
-        else if (currentCape > 1000) capeStatus = "⚠️ WASPADA";
-        else capeStatus = "✅ STABIL";
-
         if(document.getElementById('capeVal')) {
+            let capeStatus = currentCape > 2500 ? "‼️ EKSTREM" : (currentCape > 1000 ? "⚠️ WASPADA" : "✅ STABIL");
             document.getElementById('capeVal').innerHTML = `${currentCape} J/kg <br><small style="font-size:0.65rem;">Status: ${capeStatus}</small>`;
         }
 
-        // 3. Prediksi Hujan 1 Jam Ke Depan
-        const nextHourProb = (hourly && hourly.precipitation_probability) ? hourly.precipitation_probability[1] : 0; 
-        const nextHourRain = (hourly && hourly.precipitation) ? hourly.precipitation[1] : 0;
+        // --- SOLUSI MASALAH 2: HYBRID RAIN SCORING ---
+        let rainScore = 0;
+        const nextHourProb = (hourly && hourly.precipitation_probability) ? hourly.precipitation_probability[activeIndex + 1] || 0 : 0;
+
+        if (nextHourProb >= 30) rainScore += 40;
+        if (currentCape >= 1000) rainScore += 30;
+        if (parseFloat(dpSpread) <= 2) rainScore += 20;
+        if (cur.relative_humidity_2m >= 90) rainScore += 10;
+
         const elHujan = document.getElementById('prediksiHujan');
         const txtHujan = document.getElementById('hujanNext');
 
         if (elHujan) {
             elHujan.style.display = 'block';
-            if (nextHourProb > 30) {
-                txtHujan.innerHTML = `🌧️ <b>Peluang Hujan ${nextHourProb}%</b><br><small> (${nextHourRain} mm).</small>`;
+            if (rainScore >= 70) {
+                txtHujan.innerHTML = `⛈️ <b>Hujan Sangat Mungkin</b><br><small>(Skor Atmosfer: ${rainScore}/100)</small>`;
                 elHujan.style.borderLeftColor = 'var(--red-alert)';
+            } else if (rainScore >= 40) {
+                txtHujan.innerHTML = `🌦️ <b>Potensi Hujan Lokal</b><br><small>(Skor Atmosfer: ${rainScore}/100)</small>`;
+                elHujan.style.borderLeftColor = 'var(--accent-soil)';
             } else {
-                txtHujan.innerHTML = `🌤 <b>Cerah/Berawan</b><br><small>(Peluang hujan ${nextHourProb}%).</small>`;
+                txtHujan.innerHTML = `🌤️ <b>Cerah / Berawan</b><br><small>(Skor Atmosfer: ${rainScore}/100)</small>`;
                 elHujan.style.borderLeftColor = 'var(--accent-green)';
             }
         }
@@ -634,8 +646,6 @@ async function loadWeather() {
         document.getElementById('rainNow').innerText = `${cur.rain} mm`;
         document.getElementById('windNow').innerText = `${cur.wind_speed_10m} km/jam`;
         document.getElementById('pressNow').innerText = `${cur.surface_pressure} hPa`;
-        
-        const cloudTemp = (hourly && hourly.temperature_850hPa) ? hourly.temperature_850hPa[0] : "-";
         document.getElementById('tempUpper').innerText = `${cloudTemp} °C`;
 
         // Logika Arah Angin
@@ -655,7 +665,6 @@ async function loadWeather() {
         document.getElementById('resLabel').innerText = "Laporan Cuaca Lokasi Anda";
         document.getElementById('resConf').innerText = "Terhubung dengan Satelit";
         
-        // Memanggil fungsi risiko dengan parameter tambahan dpSpread
         analyzeDiseaseRisk(cur, dpSpread);
 
     } catch (err) {
@@ -664,7 +673,6 @@ async function loadWeather() {
         throw err;
     }
 }
-
     async function mulaiAnalisis() {
         document.getElementById('scanWindow').classList.add('is-scanning');
         document.getElementById('loader').style.display = 'block';
@@ -680,30 +688,26 @@ async function loadWeather() {
     
    
 // PERBAIKAN FUNGSI ANALISIS RISIKO
-// Ganti definisi fungsi analyzeDiseaseRisk yang lama
+// PERBAIKAN FUNGSI ANALISIS RISIKO
 function analyzeDiseaseRisk(cur, dpSpread) {
-    // Pastikan dpSpread diteruskan ke blastRisk
-    const result = blastRisk(cur.temperature_2m, cur.relative_humidity_2m, cur.rain, dpSpread);
+    // Mengonversi dpSpread menjadi angka (float) agar skoring akurat
+    const spreadNum = parseFloat(dpSpread);
+    const result = blastRisk(cur.temperature_2m, cur.relative_humidity_2m, cur.rain, spreadNum);
+    
     const el = document.getElementById('riskResult');
     if (el) {
         el.innerHTML = `<span style="color:${result.color}; font-weight:800;">${result.level}</span><br>${result.msg}`;
     }
 }
-// PERBAIKAN LOGIKA BLAST RISK (Skoring yang lebih akurat)
-function blastRisk(temp, humidity, rain, dpSpread) {
+
+// PERBAIKAN LOGIKA BLAST RISK
+function blastRisk(temp, humidity, rain, spreadNum) {
     let score = 0;
     
-    // Bobot 1: Kelembapan Tinggi (Fav jamur)
     if (humidity >= 85) score += 30;
-    
-    // Bobot 2: Dew Point Spread Rendah (Daun Basah oleh Embun)
-    // Jika selisih suhu & titik embun <= 2, spora jamur sangat mudah berkecambah
-    if (parseFloat(dpSpread) <= 2) score += 30; 
-    
-    // Bobot 3: Hujan
+    // Deteksi embun daun: jika selisih suhu & titik embun <= 2 derajat
+    if (spreadNum <= 2) score += 30; 
     if (rain >= 1) score += 20;
-    
-    // Bobot 4: Suhu Sejuk (Optimal bagi Pyricularia oryzae)
     if (temp <= 27) score += 20;
 
     if (score >= 70) {
