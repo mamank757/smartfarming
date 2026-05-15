@@ -201,7 +201,8 @@
         <div class="info-box"><strong>🌡️ Suhu</strong><br><span id="suhuNow">-</span></div>
         <div class="info-box"><strong>💧 Kelembapan</strong><br><span id="humidityNow">-</span></div>
         <div class="info-box"><strong>🌧️ Curah Hujan</strong><br><span id="rainNow">-</span></div>
-        <div class="info-box"><strong>💨 Angin</strong><br><span id="windNow">-</span></div>
+               <div class="info-box"><strong>💨 Kecepatan Angin</strong><br><span id="windNow">-</span></div>
+<div class="info-box"><strong>🧭 Arah Angin</strong><br><span id="windDir">-</span></div>
         <div class="info-box" style="border-left-color:var(--red-alert);">
             <strong>⚠️ Risiko Penyakit</strong><br><span id="riskResult">-</span>
         </div>
@@ -467,24 +468,66 @@
         }
     }
 
-    async function loadWeather() {
-        const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej));
-        const lat = pos.coords.latitude, lon = pos.coords.longitude;
-        document.getElementById('lokasiSawah').innerText = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
-        
-        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,rain,wind_speed_10m`);
-        const data = await res.json();
-        const cur = data.current;
+async function getWeather(lat, lon) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,rain,wind_speed_10m,wind_direction_10m`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Gagal mengambil data satelit");
+    return await res.json();
+}
 
+async function loadWeather() {
+    try {
+        document.getElementById('lokasiSawah').innerText = "📡 Menghubungkan Satelit...";
+        
+        // Ambil Koordinat GPS
+        const pos = await new Promise((res, rej) => {
+            navigator.geolocation.getCurrentPosition(res, rej, { 
+                enableHighAccuracy: true,
+                timeout: 10000 
+            });
+        });
+        
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        document.getElementById('lokasiSawah').innerText = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+        
+        // Ambil Data Cuaca
+        const weatherData = await getWeather(lat, lon);
+        const cur = weatherData.current;
+
+        // Tampilkan Data ke UI
         document.getElementById('suhuNow').innerText = `${cur.temperature_2m} °C`;
         document.getElementById('humidityNow').innerText = `${cur.relative_humidity_2m}%`;
         document.getElementById('rainNow').innerText = `${cur.rain} mm`;
-        document.getElementById('windNow').innerText = `${cur.wind_speed_10m} km/h`;
+        document.getElementById('windNow').innerText = `${cur.wind_speed_10m} km/jam`;
+
+        // Logika Arah Angin
+        const getDirection = (degree) => {
+            const sectors = ["Selatan", "Barat Daya", "Barat", "Barat Laut", "Utara", "Timur Laut", "Timur", "Tenggara"];
+            return sectors[Math.round(degree / 45) % 8];
+        };
+        // Tampilkan Arah Angin dengan tambahan kata "Dari"
+const arahTeks = getDirection(cur.wind_direction_10m);
+
+document.getElementById('windDir').innerHTML = `
+    <div style="display:flex; align-items:center; gap:10px;">
+        <span style="display:inline-block; transform:rotate(${cur.wind_direction_10m + 180}deg); font-size:1.2rem; transition: 1s ease;">⬇️</span>
+        <span><strong>Dari</strong> ${arahTeks} (${cur.wind_direction_10m}°)</span>
+    </div>
+`;
+
+        document.getElementById('resLabel').innerText = "Laporan Cuaca BPP Bola";
+        document.getElementById('resConf').innerText = "Sinkronisasi Berhasil";
         
-        document.getElementById('resLabel').innerText = "Analisis Cuaca Sawah";
-        document.getElementById('resConf').innerText = "Data Satelit Real-time";
+        // Analisis Risiko Penyakit
         analyzeDiseaseRisk(cur);
+
+    } catch (err) {
+        document.getElementById('resLabel').innerText = "Koneksi Terputus";
+        alert("Gagal mengakses lokasi. Pastikan GPS HP Aktif dan beri izin pada browser.");
+        console.error(err);
     }
+}
 
     async function mulaiAnalisis() {
         document.getElementById('scanWindow').classList.add('is-scanning');
