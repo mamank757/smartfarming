@@ -254,6 +254,14 @@
     <td style="border: none; padding: 5px 0;">☁️ Suhu Atas (850hPa)</td>
     <td class="row-val" id="tempUpper" style="color: var(--accent-bwd);">-</td>
 </tr>
+<tr>
+    <td style="border: none; padding: 5px 0;">💧 Dew Point Spread</td>
+    <td class="row-val" id="dpSpread" style="color: var(--text-main);">-</td>
+</tr>
+<tr>
+    <td style="border: none; padding: 5px 0;">⚡ Energi Badai (CAPE)</td>
+    <td class="row-val" id="capeVal" style="color: var(--accent-soil);">-</td>
+</tr>
             <tr>
                 <td style="border: none; padding: 5px 0;">🧭 Arah Angin</td>
                 <td class="row-val" id="windDir" style="color: var(--accent-soil); font-size: 0.75rem;">-</td>
@@ -548,7 +556,8 @@ async function aktifkanGPS() {
 }
 
 async function getWeather(lat, lon) {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,rain,wind_speed_10m,wind_direction_10m,surface_pressure&hourly=precipitation_probability,precipitation,temperature_850hPa&timezone=auto`;
+    // Menambahkan dew_point_2m di current dan cape di hourly
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,dew_point_2m,rain,wind_speed_10m,wind_direction_10m,surface_pressure&hourly=precipitation_probability,precipitation,temperature_850hPa,cape&timezone=auto`;
     const res = await fetch(url);
     if (!res.ok) throw new Error("Gagal data satelit");
     return await res.json();
@@ -567,7 +576,7 @@ async function loadWeather() {
         const lon = pos.coords.longitude;
         document.getElementById('lokasiSawah').innerText = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
         
-        // Alamat Desa
+        // 1. Ambil Nama Desa (Reverse Geocoding)
         try {
             const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`);
             const geoData = await geoRes.json();
@@ -579,11 +588,30 @@ async function loadWeather() {
             document.getElementById('alamatDesa').innerText = "Gagal memuat alamat";
         }
 
+        // 2. Ambil Data Cuaca Satelit
         const weatherData = await getWeather(lat, lon);
         const cur = weatherData.current;
         const hourly = weatherData.hourly;
 
-        // Prediksi Hujan
+        // --- LOGIKA DEW POINT SPREAD ---
+        // Selisih Suhu dan Titik Embun untuk deteksi kejenuhan udara (embun daun)
+        const dpSpread = (cur.temperature_2m - cur.dew_point_2m).toFixed(1);
+        if(document.getElementById('dpSpread')) {
+            document.getElementById('dpSpread').innerText = `${dpSpread} °C`;
+        }
+
+        // --- LOGIKA CAPE (ENERGI BADAI) ---
+        const currentCape = (hourly && hourly.cape) ? hourly.cape[0] : 0;
+        let capeStatus = "";
+        if (currentCape > 2500) capeStatus = "‼️ EKSTREM";
+        else if (currentCape > 1000) capeStatus = "⚠️ WASPADA";
+        else capeStatus = "✅ STABIL";
+
+        if(document.getElementById('capeVal')) {
+            document.getElementById('capeVal').innerHTML = `${currentCape} J/kg <br><small style="font-size:0.65rem;">Status: ${capeStatus}</small>`;
+        }
+
+        // 3. Prediksi Hujan 1 Jam Ke Depan
         const nextHourProb = (hourly && hourly.precipitation_probability) ? hourly.precipitation_probability[1] : 0; 
         const nextHourRain = (hourly && hourly.precipitation) ? hourly.precipitation[1] : 0;
         const elHujan = document.getElementById('prediksiHujan');
@@ -600,7 +628,7 @@ async function loadWeather() {
             }
         }
 
-        // Update UI Tabel
+        // 4. Update UI Tabel Utama
         document.getElementById('suhuNow').innerText = `${cur.temperature_2m} °C`;
         document.getElementById('humidityNow').innerText = `${cur.relative_humidity_2m}%`;
         document.getElementById('rainNow').innerText = `${cur.rain} mm`;
@@ -610,6 +638,7 @@ async function loadWeather() {
         const cloudTemp = (hourly && hourly.temperature_850hPa) ? hourly.temperature_850hPa[0] : "-";
         document.getElementById('tempUpper').innerText = `${cloudTemp} °C`;
 
+        // Logika Arah Angin
         const getDirection = (degree) => {
             const sectors = ["Utara", "Timur Laut", "Timur", "Tenggara", "Selatan", "Barat Daya", "Barat", "Barat Laut"];
             return sectors[Math.round(degree / 45) % 8];
@@ -622,13 +651,16 @@ async function loadWeather() {
             </div>
         `;
 
+        // 5. Update Status & Analisis Risiko
         document.getElementById('resLabel').innerText = "Laporan Cuaca Lokasi Anda";
         document.getElementById('resConf').innerText = "Terhubung dengan Satelit";
         
-        analyzeDiseaseRisk(cur);
+        // Memanggil fungsi risiko dengan parameter tambahan dpSpread
+        analyzeDiseaseRisk(cur, dpSpread);
 
     } catch (err) {
-        console.error(err);
+        console.error("Gagal sinkronisasi satelit:", err);
+        document.getElementById('resLabel').innerText = "GPS Gagal";
         throw err;
     }
 }
@@ -646,39 +678,53 @@ async function loadWeather() {
         document.getElementById('loader').style.display = 'none';
     }
     
-    function blastRisk(temp, humidity, rain, wind = 0) {
-        let score = 0;
-        if (humidity >= 85) score += 40;
-        if (rain >= 5) score += 30;
-        if (temp <= 27) score += 20;
-        if (wind <= 10) score += 10;
-
-        if (score >= 70) {
-            return {
-                level: "TINGGI",
-                color: "#f85149",
-                msg: "Risiko Blast sangat tinggi. Hindari pemupukan Nitrogen berlebih."
-            };
-        }
-        if (score >= 40) {
-            return {
-                level: "SEDANG",
-                color: "#ffd700",
-                msg: "Kondisi mendukung perkembangan jamur."
-            };
-        }
-        return {
-            level: "RENDAH",
-            color: "#00ff88",
-            msg: "Kondisi sawah relatif aman."
-        };
-    }
-
-    function analyzeDiseaseRisk(cur) {
-        const result = blastRisk(cur.temperature_2m, cur.relative_humidity_2m, cur.rain, cur.wind_speed_10m);
-        const el = document.getElementById('riskResult');
+   
+// PERBAIKAN FUNGSI ANALISIS RISIKO
+// Ganti definisi fungsi analyzeDiseaseRisk yang lama
+function analyzeDiseaseRisk(cur, dpSpread) {
+    // Pastikan dpSpread diteruskan ke blastRisk
+    const result = blastRisk(cur.temperature_2m, cur.relative_humidity_2m, cur.rain, dpSpread);
+    const el = document.getElementById('riskResult');
+    if (el) {
         el.innerHTML = `<span style="color:${result.color}; font-weight:800;">${result.level}</span><br>${result.msg}`;
     }
+}
+// PERBAIKAN LOGIKA BLAST RISK (Skoring yang lebih akurat)
+function blastRisk(temp, humidity, rain, dpSpread) {
+    let score = 0;
+    
+    // Bobot 1: Kelembapan Tinggi (Fav jamur)
+    if (humidity >= 85) score += 30;
+    
+    // Bobot 2: Dew Point Spread Rendah (Daun Basah oleh Embun)
+    // Jika selisih suhu & titik embun <= 2, spora jamur sangat mudah berkecambah
+    if (parseFloat(dpSpread) <= 2) score += 30; 
+    
+    // Bobot 3: Hujan
+    if (rain >= 1) score += 20;
+    
+    // Bobot 4: Suhu Sejuk (Optimal bagi Pyricularia oryzae)
+    if (temp <= 27) score += 20;
+
+    if (score >= 70) {
+        return { 
+            level: "TINGGI", 
+            color: "#f85149", 
+            msg: "Risiko Blast Tinggi: Udara sangat jenuh (embun tebal). Hindari Urea berlebih!" 
+        };
+    } else if (score >= 40) {
+        return { 
+            level: "SEDANG", 
+            color: "#ffd700", 
+            msg: "Kondisi mendukung perkembangan jamur. Pantau gejala bercak belah ketupat." 
+        };
+    }
+    return { 
+        level: "RENDAH", 
+        color: "#00ff88", 
+        msg: "Kondisi sawah relatif aman dari serangan Blast saat ini." 
+    };
+}
 
     function tampilkanHasil(data) {
         let out = Array.isArray(data) ? data[0] : data;
