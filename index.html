@@ -198,44 +198,46 @@
 
    <div id="weatherData" style="display: none; text-align: left;">
     <div class="info-box" style="border-left: 4px solid var(--accent-bwd); background: rgba(31, 111, 235, 0.05);">
-        <strong>📍 Lokasi</strong><br>
-        <span id="lokasiSawah" style="font-size: 0.8rem; opacity: 0.7;">-</span><br>
-        <span id="alamatDesa" style="color: var(--accent-green); font-weight: 300;">Mencari alamat...</span>
+        <strong>📍 Lokasi & Alamat Lahan</strong><br>
+        <span id="lokasiSawah" style="font-size: 0.75rem; opacity: 0.7;">-</span><br>
+        <span id="alamatDesa" style="color: var(--accent-green); font-weight: 600;">Mencari alamat...</span>
     </div>
-        <div class="info-box" style="border-left-color: var(--accent-green); padding: 15px;">
-    <strong>📊 Parameter Cuaca Saat Ini</strong>
-    <table style="width: 100%; margin-top: 10px; border: none;">
-         <tr>
-            <td style="border: none; padding: 5px 0;">🌧️ Curah Hujan</td>
-            <td class="row-val" id="rainNow" style="color: var(--text-main);">-</td>
-        </tr>
-        <tr>
-            <td style="border: none; padding: 5px 0;">🌡️ Suhu</td>
-            <td class="row-val" id="suhuNow" style="color: var(--text-main);">-</td>
-        </tr>
-        <tr>
-            <td style="border: none; padding: 5px 0;">💧 Kelembapan</td>
-            <td class="row-val" id="humidityNow" style="color: var(--text-main);">-</td>
-        </tr>
-       
-        <tr>
-            <td style="border: none; padding: 5px 0;">💨 Kec. Angin</td>
-            <td class="row-val" id="windNow" style="color: var(--text-main);">-</td>
-        </tr>
-        <tr>
-            <td style="border: none; padding: 5px 0;">🧭 Arah Angin</td>
-            <td class="row-val" id="windDir" style="color: var(--accent-soil); font-size: 0.75rem;">-</td>
-        </tr>
-    </table>
-</div>
-<div id="prediksiHujan" class="info-box" style="border-left-color: var(--accent-soil); background: rgba(255, 215, 0, 0.05); display: none;">
-    <strong>🔮 Prediksi 1 Jam Ke Depan</strong><br>
-    <span id="hujanNext">-</span>
-</div>
-        <div class="info-box" style="border-left-color:var(--red-alert);">
-            <strong>⚠️ Risiko Penyakit Tanaman</strong><br><span id="riskResult">-</span>
-        </div>
+
+    <div class="info-box" style="border-left-color: var(--accent-green); padding: 15px;">
+        <strong>📊 Parameter Cuaca Saat Ini</strong>
+        <table style="width: 100%; margin-top: 10px; border: none;">
+             <tr>
+                <td style="border: none; padding: 5px 0;">🌧️ Curah Hujan</td>
+                <td class="row-val" id="rainNow" style="color: var(--text-main);">-</td>
+            </tr>
+            <tr>
+                <td style="border: none; padding: 5px 0;">🌡️ Suhu</td>
+                <td class="row-val" id="suhuNow" style="color: var(--text-main);">-</td>
+            </tr>
+            <tr>
+                <td style="border: none; padding: 5px 0;">💧 Kelembapan</td>
+                <td class="row-val" id="humidityNow" style="color: var(--text-main);">-</td>
+            </tr>
+            <tr>
+                <td style="border: none; padding: 5px 0;">💨 Kec. Angin</td>
+                <td class="row-val" id="windNow" style="color: var(--text-main);">-</td>
+            </tr>
+            <tr>
+                <td style="border: none; padding: 5px 0;">🧭 Arah Angin</td>
+                <td class="row-val" id="windDir" style="color: var(--accent-soil); font-size: 0.75rem;">-</td>
+            </tr>
+        </table>
     </div>
+
+    <div id="prediksiHujan" class="info-box" style="border-left-color: var(--accent-soil); background: rgba(255, 215, 0, 0.05); display: none;">
+        <strong>🔮 Prediksi 1 Jam Ke Depan</strong><br>
+        <span id="hujanNext">-</span>
+    </div>
+
+    <div class="info-box" style="border-left-color:var(--red-alert);">
+        <strong>⚠️ Risiko Penyakit Tanaman</strong><br><span id="riskResult">-</span>
+    </div>
+</div>
 </div>
 
 <script>
@@ -543,8 +545,9 @@ async function loadWeather() {
         const hourly = weatherData.hourly;
 
         // --- LOGIKA PREDIKSI HUJAN 1 JAM KE DEPAN ---
-        const nextHourProb = hourly.precipitation_probability[1]; 
-        const nextHourRain = hourly.precipitation[1]; 
+        // Ambil data jam berikutnya dengan pengaman (index [1])
+const nextHourProb = (hourly && hourly.precipitation_probability) ? hourly.precipitation_probability[1] : 0; 
+const nextHourRain = (hourly && hourly.precipitation) ? hourly.precipitation[1] : 0;
         const elHujan = document.getElementById('prediksiHujan');
         const txtHujan = document.getElementById('hujanNext');
 
