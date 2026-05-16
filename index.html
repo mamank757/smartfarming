@@ -575,16 +575,22 @@ async function loadWeather() {
         document.getElementById('lokasiSawah').innerText = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
         
         // 1. Ambil Nama Desa (Reverse Geocoding)
-        try {
-            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`);
-            const geoData = await geoRes.json();
-            const addr = geoData.address;
-            const desa = addr.village || addr.suburb || addr.hamlet || addr.town || "Desa tidak terdeteksi";
-            const kecamatan = addr.city_district || addr.district || "...";
-            document.getElementById('alamatDesa').innerHTML = `<b>Desa ${desa}</b>, Kec. ${kecamatan}`;
-        } catch (e) {
-            document.getElementById('alamatDesa').innerText = "Gagal memuat alamat";
-        }
+        // 1. Ambil Nama Desa & Kecamatan (Reverse Geocoding)
+try {
+    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`);
+    const geoData = await geoRes.json();
+    const addr = geoData.address;
+    
+    // Ambil data Desa/Kelurahan
+    const desa = addr.village || addr.suburb || addr.hamlet || addr.town || addr.municipality || "Desa tidak terdeteksi";
+    
+    // PERBAIKAN DI SINI: Menambahkan addr.subdistrict agar Kecamatan di Wajo (seperti Bola) bisa terbaca
+    const kecamatan = addr.subdistrict || addr.city_district || addr.district || "...";
+    
+    document.getElementById('alamatDesa').innerHTML = `<b>Desa ${desa}</b>, Kec. ${kecamatan}`;
+} catch (e) {
+    document.getElementById('alamatDesa').innerText = "Gagal memuat alamat";
+}
 
         // 2. Ambil Data Cuaca Satelit
         const weatherData = await getWeather(lat, lon);
