@@ -133,15 +133,16 @@
     </div>
 
     <div class="tab-container">
+        <button class="tab-btn" id="tabCuaca" onclick="switchMode('cuaca')">🌦️ CUACA & RISIKO</button>
         <button class="tab-btn active" id="tabDaun" onclick="switchMode('daun')">🍃 PENYAKIT PADI</button>
         <button class="tab-btn" id="tabTanah" onclick="switchMode('tanah')">🏜️ KESUBURAN TANAH</button>
         <button class="tab-btn" id="tabBWD" onclick="switchMode('bwd')">📊 UJI BWD NITROGEN</button>
-        <button class="tab-btn" id="tabCuaca" onclick="switchMode('cuaca')">🌦️ CUACA & RISIKO</button>
+        
     </div>
 
     <div class="card">
         <h3 id="modeTitle" style="margin-top:0; color: var(--accent-green); font-size: 1rem;">Deteksi Penyakit Padi</h3>
-        
+         
         <input type="file" id="fileInput" accept="image/*" hidden onchange="handleFile(event)">
         <button id="btnCamera" class="btn-main btn-camera" onclick="document.getElementById('fileInput').click()">📸 AMBIL FOTO / GALERI</button>
 
@@ -161,7 +162,7 @@
             <div id="boxPenyakit">
                 <div class="info-box"><strong>🔍 Gejala:</strong><br><span id="resGejala">-</span></div>
                 <div class="info-box" style="border-left-color:var(--red-alert);"><strong>🧬 Penyebab:</strong><br><span id="resPenyebab">-</span></div>
-                <div class="info-box" style="border-left-color:var(--accent-soil);"><strong>✅ Solusi PPL:</strong><br><span id="resSolusi">-</span></div>
+                <div class="info-box" style="border-left-color:var(--accent-soil);"><strong>✅ Solusi:</strong><br><span id="resSolusi">-</span></div>
                 <div class="info-box" style="border-left-color:var(--accent-soil);"><strong>✅ Merek Produk:</strong><br><span id="resMerek">-</span></div>
                 <div class="info-box" style="border-left-color:var(--accent-soil);"><strong>✅ Waktu Aplikasi:</strong><br><span id="resAplikasi">-</span></div>
             </div>
@@ -252,6 +253,20 @@
                         </table>
                     </div>
 
+                    <div class="info-box" style="border-left-color: var(--accent-bwd); padding: 5px; margin-top: 15px; overflow: hidden;">
+                        <strong>🛰️ Analisis Satelit Mikro Spasial Lahan</strong>
+                        <div style="position: relative; width: 100%; height: 600px; margin-top: 10px; border-radius: 15px; overflow: hidden; border: 1px solid var(--border);">
+                            <iframe id="radarMap" width="100%" height="100%" frameborder="0" style="border:0; background: #0d1117;" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box" id="boxHamaPBP" style="border-left-color: var(--accent-green); margin-top: 15px;">
+                        <strong>🐛 Peringatan Dini Penggerek Batang (PBP)</strong><br>
+                        <div id="hamaLevel" style="font-size: 1.1rem; font-weight: 800; margin-top: 5px;">-</div>
+                        <p id="hamaDetail" style="margin: 5px 0; font-size: 0.75rem; opacity: 0.8;">-</p>
+                        <div id="hamaSaran" style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; border-left: 3px solid var(--accent-soil); font-size: 0.75rem; margin-top: 8px;">-</div>
+                    </div>
+
                     <div class="info-box" style="border-left-color:var(--red-alert);">
                         <strong>⚠️ Risiko Penyakit Tanaman</strong><br><span id="riskResult">-</span>
                     </div>
@@ -261,7 +276,7 @@
     </div>
 
     <script>
-        let currentMode = 'daun', base64Image = "";
+        let currentMode = 'cuaca', base64Image = "";
 
         const URL_DAUN = "https://script.google.com/macros/s/AKfycbyCYh65h_3lT4iWr97_RHJNZmaPTSHDp_uFPy_pAP_rvC5BxYHI1n3dn5iwrnNcER1X/exec";
         const URL_TANAH = "https://script.google.com/macros/s/AKfycbz11zWKGj2xxgS5_W8GmBU8qqWV3r4WDP9mOK8drEiMs5xLeX871y5liqDsdD0qGz_N/exec";
@@ -269,9 +284,9 @@
 
         const kamusTani = {
             "healthy": { nama: "Tanaman Sehat", gejala: "Warna hijau segar, pertumbuhan normal tanpa bercak.", penyebab: "Kondisi lingkungan dan nutrisi optimal.", solusi: "Lanjutkan pemupukan berimbang dan pantau secara rutin." },
-            "bacterial_leaf_blight": { nama: "HDB - Hawar Daun Bakteri (Kresek)", gejala: "Garis kuning/oranye di sepanjang pinggir daun yang mengering. Penyakit ini dinamai kresek karena daun yang terserang akan berubah warna menjadi cokelat kekuningan, menggulung, dan mengering seperti kertas kresek.", penyebab: "Bakteri Xanthomonas oryzae yang sangat cepat berkembang biak pada lingkungan dengan tingkat kelembapan tinggi pada musim hujan, dan tanaman padi kelebihan pemupukan Nitrogen.", solusi: "Gunakan bakterisida, pastikan sirkulasi air sawah lancar, kurangi Urea.", merek: "Kuproxat 345 SC, Nordox 56 WP, Blast 200 SC, Biopatek (Hayati)", aplikasi: "Waktu Aplikasi: Sebaiknya diaplikasikan segera setelah muncul gejala awal atau sebagai langkah pencegahan dengan interval 7–10 hari." },
+            "bacterial_leaf_blight": { nama: "HDB - Hawar Daun Bakteri (Kresek)", gejala: "Garis kuning/oranye di sepanjang pinggir daun yang mengering. Penyakit ini dinamai kresek karena daun yang terserang akan berubah warna menjadi cokelat kekuningan, menggulung, dan mengering seperti kertas kresek.", penyebab: "Bakteri Xanthomonas oryzae yang sangat cepat berkembang biak pada lingkungan dengan tingkat kelembapan tinggi pada musim hujan, dan tanaman padi kelebihan pemupukan Nitrogen.", solusi: "Gunakan bakterisida, pastikan sirikulasi air sawah lancar, kurangi Urea.", merek: "Kuproxat 345 SC, Nordox 56 WP, Blast 200 SC, Biopatek (Hayati)", aplikasi: "Waktu Aplikasi: Sebaiknya diaplikasikan segera setelah muncul gejala awal atau sebagai langkah pencegahan dengan interval 7–10 days." },
             "brown_spot": { nama: "Bercak Cokelat (Brown Spot)", gejala: "Bintik cokelat bulat atau oval merata di permukaan daun.", penyebab: "Jamur Bipolaris oryzae. Sering terjadi karena ketidakseimbangan nutrisi tanah dan kelembapan udara yang tinggi serta suhu hangat sangat mendukung penyebaran jamur.", solusi: "Cukupi kebutuhan Kalium dan pastikan drainase lancar.", merek: "Amistar Top 325 SC, Tandem 325 SC, atau alternatif lain seperti WUZ, Vitro, dan Torbinol.", aplikasi: "Jika serangan sudah terjadi, gunakan fungisida yang tepat, seperti yang mengandung bahan aktif kombinasi Azoksistrobin dan Difenokonazol." },
-            "leaf_blast": { nama: "Penyakit Blast", gejala: "Bercak cokelat berbentuk belah ketupat dengan pusat abu-abu.", penyebab: "Jamur patogen Pyricularia oryzae yang berkembang pesat pada kelembapan tinggi, suhu malam yang sejuk, dan pemupukan nitrogen berlebih.", solusi: "Semprot fungisida sistemik (Trisiklazol), kurangi dosis Nitrogen.", merek: "Blast 200 SC (bahan aktif trisiklazol), Envoy 80 WP, dan Amistar Top 325 SC.", aplikasi: "1. Fase Vegetatif (Blast Daun): Semprot sejak dini saat gejala awal bercak cokelat berbentuk belah ketupat muncul, atau lakukan tindakan pencegahan jika lingkungan lembap. 2. Fase Bunting hingga Awal Keluar Malai (Blast Leher): Sangat krusial untuk mencegah leher malai membusuk (potong leher)." },
+            "leaf_blast": { nama: "Penyakit Blast", gejala: "Bercak cokelat berbentuk belah ketupat dengan pusat abu-abu.", penyebab: "Jamur patogen Pyricularia oryzae yang berkembang pesat pada kelembapan tinggi, suhu malam yang sejuk, dan pemupukan nitrogen berlebih.", solusi: "Semprot fungisida sistemik (Trisiklazol), kurangi dosis Nitrogen.", merek: "Blast 200 SC (bahan aktif trisiklazol), Envoy 80 WP, and Amistar Top 325 SC.", aplikasi: "1. Fase Vegetatif (Blast Daun): Semprot sejak dini saat gejala awal bercak cokelat berbentuk belah ketupat muncul, atau lakukan tindakan pencegahan jika lingkungan lembap. 2. Fase Bunting hingga Awal Keluar Malai (Blast Leher): Sangat krusial untuk mencegah leher malai membusuk (potong leher)." },
             "leaf_scald": { nama: "Luka Daun (Leaf Scald)", gejala: "Bercak besar berbentuk perahu yang mengering di ujung daun.", penyebab: "Jamur Microdochium oryzae berkembang sangat cepat dalam kondisi Kelembapan Tinggi, Pemupukan Nitrogen Berlebihdan Jarak Tanam Terlalu Rapat.", solusi: "Gunakan varietas tahan dan atur jarak tanam jangan terlalu rapat.", merek: "Dithane M-45 80 WP (Bahan Aktif Mankozeb), Score 250 EC (Difenokonazol-Sistemik), Amistar Top 325 SC (Kombinasi Azoksistrobin + Difenokonazol).", aplikasi: "Pada kondisi serangan yang parah, gunakan fungisida yang direkomendasikan untuk penyakit jamur daun (misalnya berbahan aktif mankozeb atau difenokonazol)." },
             "narrow_brown_spot": { nama: "Bercak Cokelat Sempit", gejala: "Garis-garis cokelat sempit searah dengan tulang daun.", penyebab: "Jamur Cercospora oryzae (Cercospora janseana) yang mudah berkembang saat suhu lingkungan rendah dengan kelembapan tinggi dan tanaman kekurangan Kalium.", solusi: "Tambah dosis pupuk Kalium dan perbaiki sistem pengairan.", merek: "Score 250 EC dan Manic 62,5 WG (Difenokonazol), Qiutane 80 WP. (Mankozeb + Trisiklazol), DKAztrozol Plus 375 SC (Azoksistrobin + Difenokonazol).", aplikasi: "Penyakit bercak coklat sempit pada padi (disebabkan oleh jamur Cercospora oryzae) dapat dikendalikan secara efektif menggunakan fungisida berbahan aktif seperti difenokonazol, propikonazol, atau mankozeb." },
             "unlabeled": { nama: "Objek Tidak Dikenali", gejala: "-", penyebab: "-", solusi: "Pastikan foto DAUN fokus, dekat, dan cahaya terang." }
@@ -302,6 +317,61 @@
         };
 
         const kamusWarna = { "yellow": "Kuning", "yellowish green": "Hijau Kekuningan", "light green": "Hijau Muda", "green": "Hijau", "dark green": "Hijau Tua" };
+        
+        // Fungsi menghitung hari setelah Bulan Mati (New Moon) secara matematis
+        function dapatkanHariSiklusBulan() {
+            const kranBulanMati = new Date("2026-01-18T17:00:00Z"); 
+            const sekarang = new Date();
+            
+            const selisihWaktu = sekarang.getTime() - kranBulanMati.getTime();
+            const selisihHari = selisihWaktu / (1000 * 60 * 60 * 24);
+            
+            const hariSiklus = selisihHari % 29.53059;
+            return hariSiklus < 0 ? hariSiklus + 29.53059 : hariSiklus;
+        }
+
+        // Fungsi penentu bobot parameter ledakan hama PBP
+        function hitungRisikoHamaPBP(suhu, kelembapan) {
+            const hariBulan = dapatkanHariSiklusBulan();
+            let skorHama = 0;
+            let analisisTeks = "";
+            let tindakanPPL = "";
+            let warnaStatus = "var(--accent-green)";
+
+            if (hariBulan >= 26 || hariBulan <= 3) {
+                skorHama += 45;
+                analisisTeks = "Diprediksi sedang puncak penerbangan ngengat dewasa untuk kawin dan peletakan telur massal di pesemaian/lahan.";
+                tindakanPPL = "Pasang lampu perangkap (light trap) di pematang sawah malam ini untuk menangkap kaper sebelum bertelur. Semprot agens hayati Beauveria bassiana.";
+            } else if (hariBulan >= 12 && hariBulan <= 17) {
+                skorHama += 40;
+                analisisTeks = "Diprediksi sedang puncak penetasan telur menjadi larva (ulat kecil). Ulat mulai merayap mencari batang padi.";
+                tindakanPPL = "Kondisi kritis! Lakukan pengamatan intensif pada rumpun padi. Jika ditemukan kelompok telur atau gejala Sundep > 5%, segera aplikasikan insektisida sistemik.";
+            } else {
+                skorHama += 15;
+                analisisTeks = "Diprediksi aktivitas ngengat sedang. Larva yang berada di dalam batang sedang berganti kulit (instar).";
+                tindakanPPL = "Lakukan pemupukan berimbang (jangan over Urea) dan jaga air sawah agar tidak terlalu menggenang tinggi.";
+            }
+
+            if (kelembapan >= 80) skorHama += 25;
+            if (suhu >= 25 && suhu <= 30) skorHama += 30;
+
+            let tingkatRisiko = "RENDAH";
+            if (skorHama >= 75) {
+                tingkatRisiko = "BAHAYA / TINGGI";
+                warnaStatus = "var(--red-alert)";
+            } else if (skorHama >= 45) {
+                tingkatRisiko = "WASPADA / SEDANG";
+                warnaStatus = "var(--accent-soil)";
+            }
+
+            return {
+                skor: skorHama,
+                level: tingkatRisiko,
+                warna: warnaStatus,
+                detail: analisisTeks,
+                saran: tindakanPPL
+            };
+        }
 
         function switchMode(mode) {
             currentMode = mode;
@@ -414,22 +484,18 @@
                 const lon = pos.coords.longitude;
                 document.getElementById('lokasiSawah').innerText = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
                 
-                // 1. Ambil Nama Desa & Kecamatan (Sensor Wilayah Super Sensitif)
-try {
-    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`);
-    const geoData = await geoRes.json();
-    const addr = geoData.address;
-    
-    // Ambil data Desa / Kelurahan / Kampung / Dusun
-    const desa = addr.village || addr.suburb || addr.hamlet || addr.neighborhood || addr.town || addr.municipality || "Desa tidak terdeteksi";
-    
-    // PERBAIKAN TOTAL: Melacak semua kemungkinan istilah Kecamatan di database pemetaan dunia
-    const kecamatan = addr.subdistrict || addr.city_district || addr.district || addr.county || addr.state_district || "";
-    
-    document.getElementById('alamatDesa').innerHTML = `<b>Desa ${desa}</b>, Kec. ${kecamatan}`;
-} catch (e) {
-    document.getElementById('alamatDesa').innerText = "Gagal memuat alamat";
-}
+                try {
+                    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`);
+                    const geoData = await geoRes.json();
+                    const addr = geoData.address;
+                    
+                    const desa = addr.village || addr.suburb || addr.hamlet || addr.neighborhood || addr.town || addr.municipality || "Desa tidak terdeteksi";
+                    const kecamatan = addr.subdistrict || addr.city_district || addr.district || addr.county || addr.state_district || "";
+                    
+                    document.getElementById('alamatDesa').innerHTML = `<b>Desa ${desa}</b>, Kec. ${kecamatan}`;
+                } catch (e) {
+                    document.getElementById('alamatDesa').innerText = "Gagal memuat alamat";
+                }
 
                 const weatherData = await getWeather(lat, lon);
                 const cur = weatherData.current;
@@ -525,6 +591,21 @@ try {
                 document.getElementById('resConf').innerText = "Terhubung dengan Satelit";
                 analyzeDiseaseRisk(cur, dpSpread);
 
+                // Eksekusi Pemicu Peringatan Dini Serangan Penggerek Batang (PBP)
+                const analisisHama = hitungRisikoHamaPBP(cur.temperature_2m, cur.relative_humidity_2m);
+                document.getElementById('hamaLevel').innerText = analisisHama.level;
+                document.getElementById('hamaLevel').style.color = analisisHama.warna;
+                document.getElementById('hamaDetail').innerHTML = analisisHama.detail;
+                document.getElementById('hamaSaran').innerHTML = `<b>💡 Rekomendasi:</b> ${analisisHama.saran}`;
+                document.getElementById('boxHamaPBP').style.borderLeftColor = analisisHama.warna;
+
+                // Penyaluran data koordinat GPS ke Iframe Peta Mandiri GitHub Pages
+                const radarIframe = document.getElementById('radarMap');
+                if (radarIframe) {
+                    const urlPetaMandiri = "https://mamank757.github.io/peta";
+                    radarIframe.src = `${urlPetaMandiri}?lat=${lat}&lon=${lon}`;
+                }
+
                 loadGlobalClimateIndices();
 
             } catch (err) {
@@ -535,100 +616,85 @@ try {
         }
 
         async function loadGlobalClimateIndices() {
-    const containers = document.querySelectorAll('#ensoIodBox');
-    if (containers.length === 0) return;
-    
-    const ensoContainer = containers[0];
-    ensoContainer.style.display = 'block';
-    ensoContainer.innerHTML = `<div class="info-box" style="border-left-color: var(--accent-bwd);">🔄 Mengambil Data Indeks Iklim Global...</div>`;
-
-    try {
-        const URL_IKLIM_MAKRO = "https://script.google.com/macros/s/AKfycbwWvVR1T3TpguRi8d5eg5qlCJoR5GkGBD2Upie7tYJfaqOMJJujTmD3y9H2q8nHJitI/exec";
-        
-        // Coba ambil data lewat Apps Script terlebih dahulu
-        const res = await fetch(URL_IKLIM_MAKRO, { 
-            method: 'GET',
-            headers: { 'Accept': 'application/json' }
-        });
-        
-        if (!res.ok) throw new Error("Redirect terblokir browser");
-        const data = await res.json();
-        renderClimateUI(ensoContainer, data);
-
-    } catch (err) {
-            console.warn("Jembatan Apps Script diblokir CORS browser. Mengaktifkan Mode Satelit Langsung frontend...");
+            const containers = document.querySelectorAll('#ensoIodBox');
+            if (containers.length === 0) return;
             
+            const ensoContainer = containers[0];
+            ensoContainer.style.display = 'block';
+            ensoContainer.innerHTML = `<div class="info-box" style="border-left-color: var(--accent-bwd);">🔄 Mengambil Data Indeks Iklim Global...</div>`;
+
             try {
-                // 1. Ambil Data Pasifik (ENSO)
-                const resPasifik = await fetch('https://api.open-meteo.com/v1/forecast?latitude=0.0&longitude=-145.0&current=temperature_2m&timezone=auto');
-                const jsonPasifik = await resPasifik.json();
-                const nino34Anomali = parseFloat((jsonPasifik.current.temperature_2m - 27.2).toFixed(2));
-
-                // 2. Ambil Data Samudra Hindia (IOD)
-                const resHindia = await fetch('https://api.open-meteo.com/v1/forecast?latitude=0.0&longitude=60.0&current=temperature_2m&timezone=auto');
-                const jsonHindia = await resHindia.json();
-                const iodAnomali = parseFloat((jsonHindia.current.temperature_2m - 28.1).toFixed(2));
-
-                // Logika Klasifikasi Berdasarkan Format Baru Anda
-                let ensoStatus = "NEUTRAL [0.00 °C] (Normal)", ensoColor = "#00ff88";
-                if (nino34Anomali >= 0.5) { 
-                    ensoStatus = `EL NIÑO [${nino34Anomali >= 0 ? '+' : ''}${nino34Anomali.toFixed(2)} °C] (Kering)`; 
-                    ensoColor = "#f85149"; 
-                } else if (nino34Anomali <= -0.5) { 
-                    ensoStatus = `LA NIÑA [${nino34Anomali.toFixed(2)} °C] (Basah)`; 
-                    ensoColor = "#1f6feb"; 
-                }
-
-                let iodStatus = "NEUTRAL [0.00 °C] (Normal)", iodColor = "#00ff88";
-                if (iodAnomali >= 0.4) { 
-                    iodStatus = `IOD POSITIF [${iodAnomali >= 0 ? '+' : ''}${iodAnomali.toFixed(2)} °C] (Kering)`; 
-                    iodColor = "#ffd700"; 
-                } else if (iodAnomali <= -0.4) { 
-                    iodStatus = `IOD NEGATIF [${iodAnomali.toFixed(2)} °C] (Basah)`; 
-                    iodColor = "#1f6feb"; 
-                }
-
-                const dataCadangan = {
-                    enso: ensoStatus,
-                    ensoColor: ensoColor,
-                    iod: iodStatus,
-                    iodColor: iodColor
-                };
-
-                renderClimateUI(ensoContainer, dataCadangan);
+                const URL_IKLIM_MAKRO = "https://script.google.com/macros/s/AKfycbwWvVR1T3TpguRi8d5eg5qlCJoR5GkGBD2Upie7tYJfaqOMJJujTmD3y9H2q8nHJitI/exec";
+                const res = await fetch(URL_IKLIM_MAKRO, { method: 'GET', headers: { 'Accept': 'application/json' } });
                 
-        } catch (errFatal) {
-            ensoContainer.innerHTML = `
-                <div class="info-box" style="border-left-color: var(--red-alert); padding: 12px; margin-top: 15px;">
+                if (!res.ok) throw new Error("Redirect terblokir browser");
+                const data = await res.json();
+                renderClimateUI(ensoContainer, data);
+
+            } catch (err) {
+                    console.warn("Jembatan Apps Script diblokir CORS browser. Mengaktifkan Mode Satelit Langsung frontend...");
+                    try {
+                        const resPasifik = await fetch('https://api.open-meteo.com/v1/forecast?latitude=0.0&longitude=-145.0&current=temperature_2m&timezone=auto');
+                        const jsonPasifik = await resPasifik.json();
+                        const nino34Anomali = parseFloat((jsonPasifik.current.temperature_2m - 27.2).toFixed(2));
+
+                        const resHindia = await fetch('https://api.open-meteo.com/v1/forecast?latitude=0.0&longitude=60.0&current=temperature_2m&timezone=auto');
+                        const jsonHindia = await resHindia.json();
+                        const iodAnomali = parseFloat((jsonHindia.current.temperature_2m - 28.1).toFixed(2));
+
+                        let ensoStatus = "NEUTRAL [0.00 °C] (Normal)", ensoColor = "#00ff88";
+                        if (nino34Anomali >= 0.5) { 
+                            ensoStatus = `EL NIÑO [${nino34Anomali >= 0 ? '+' : ''}${nino34Anomali.toFixed(2)} °C] (Kering)`; 
+                            ensoColor = "#f85149"; 
+                        } else if (nino34Anomali <= -0.5) { 
+                            ensoStatus = `LA NIÑA [${nino34Anomali.toFixed(2)} °C] (Basah)`; 
+                            ensoColor = "#1f6feb"; 
+                        }
+
+                        let iodStatus = "NEUTRAL [0.00 °C] (Normal)", iodColor = "#00ff88";
+                        if (iodAnomali >= 0.4) { 
+                            iodStatus = `IOD POSITIF [${iodAnomali >= 0 ? '+' : ''}${iodAnomali.toFixed(2)} °C] (Kering)`; 
+                            iodColor = "#ffd700"; 
+                        } else if (iodAnomali <= -0.4) { 
+                            iodStatus = `IOD NEGATIF [${iodAnomali.toFixed(2)} °C] (Basah)`; 
+                            iodColor = "#1f6feb"; 
+                        }
+
+                        const dataCadangan = { enso: ensoStatus, ensoColor: ensoColor, iod: iodStatus, iodColor: iodColor };
+                        renderClimateUI(ensoContainer, dataCadangan);
+                        
+                } catch (errFatal) {
+                    ensoContainer.innerHTML = `
+                        <div class="info-box" style="border-left-color: var(--red-alert); padding: 12px; margin-top: 15px;">
+                            <strong>🌊 Analisis Makro Iklim Global (ENSO & IOD)</strong>
+                            <p style="font-size: 0.75rem; margin: 5px 0 0; color: #8b949e;">Status: Koneksi Satelit Terputus Sempurna</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function renderClimateUI(container, data) {
+            container.innerHTML = `
+                <div class="info-box" style="border-left-color: var(--accent-soil); background: rgba(255, 215, 0, 0.02); padding: 12px; margin-top: 15px;">
                     <strong>🌊 Analisis Makro Iklim Global (ENSO & IOD)</strong>
-                    <p style="font-size: 0.75rem; margin: 5px 0 0; color: #8b949e;">Status: Koneksi Satelit Terputus Sempurna</p>
+                    <table style="width: 100%; margin-top: 8px; border: none;">
+                        <tr>
+                            <td style="border: none; padding: 4px 0;">🔴 Status ENSO (Pasifik)</td>
+                            <td class="row-val" style="color: ${data.ensoColor || 'var(--text-main)'}; font-weight: 700; font-size: 0.75rem;">${data.enso}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: none; padding: 4px 0;">🔵 Indeks IOD (Hindia)</td>
+                            <td class="row-val" style="color: ${data.iodColor || 'var(--text-main)'}; font-weight: 700; font-size: 0.75rem;">${data.iod}</td>
+                        </tr>
+                    </table>
+                    <small style="font-size:0.6rem; opacity:0.5; display:block; margin-top:6px; line-height: 1.2;">
+                        *Data dihitung via koordinat anomali suhu permukaan laut lepas Pasifik Tengah & Samudra Hindia.
+                    </small>
                 </div>
             `;
         }
-    }
-}
 
-// Fungsi pembantu untuk merender tampilan data ke komponen aplikasi
-function renderClimateUI(container, data) {
-    container.innerHTML = `
-        <div class="info-box" style="border-left-color: var(--accent-soil); background: rgba(255, 215, 0, 0.02); padding: 12px; margin-top: 15px;">
-            <strong>🌊 Analisis Makro Iklim Global (ENSO & IOD)</strong>
-            <table style="width: 100%; margin-top: 8px; border: none;">
-                <tr>
-                    <td style="border: none; padding: 4px 0;">🔴 Status ENSO (Pasifik)</td>
-                    <td class="row-val" style="color: ${data.ensoColor || 'var(--text-main)'}; font-weight: 700; font-size: 0.75rem;">${data.enso}</td>
-                </tr>
-                <tr>
-                    <td style="border: none; padding: 4px 0;">🔵 Indeks IOD (Hindia)</td>
-                    <td class="row-val" style="color: ${data.iodColor || 'var(--text-main)'}; font-weight: 700; font-size: 0.75rem;">${data.iod}</td>
-                </tr>
-            </table>
-            <small style="font-size:0.6rem; opacity:0.5; display:block; margin-top:6px; line-height: 1.2;">
-                *Data dihitung via koordinat anomali suhu permukaan laut lepas Pasifik Tengah & Samudra Hindia.
-            </small>
-        </div>
-    `;
-}
         async function mulaiAnalisis() {
             document.getElementById('scanWindow').classList.add('is-scanning');
             document.getElementById('loader').style.display = 'block';
@@ -905,6 +971,8 @@ function renderClimateUI(container, data) {
             ctx.fillStyle = '#ff4d4d';
             ctx.fill();
         }
+        // Pemicu otomatis agar mode cuaca langsung aktif saat aplikasi dibuka
+switchMode('cuaca');
     </script>
 </body>
 </html>
