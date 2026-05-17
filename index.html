@@ -174,7 +174,7 @@
                     <tr><td>Bahan Organik</td><td class="row-val" id="resOrganik">-</td></tr>
                     <tr><td>Estimasi pH</td><td class="row-val" id="resPH">-</td></tr>
                 </table>
-                <div class="info-box" style="border-left-color: var(--accent-bwd);"><strong>📖 Deskripsi Utama:</strong><br><span id="resPenjelasan">-</span></div>
+                <div class="info-box" style="border-left-color: var(--accent-bwd);"><strong>📖 Penjelasan Tanah:</strong><br><span id="resPenjelasan">-</span></div>
                 <div class="info-box" style="border-left-color: var(--accent-soil);"><strong>💡 Saran Tanah:</strong><br><span id="resSaranTanah">-</span></div>
                 <canvas id="textureTriangle" width="300" height="250" style="width: 100%; margin-top: 15px;"></canvas>
             </div>
@@ -192,7 +192,7 @@
                     <div style="font-size: 2rem; margin-bottom: 10px;">🛰️</div>
                     <h4 style="margin: 0; color: var(--accent-green);">Akses Lokasi/Lahan Anda</h4>
                     <p style="font-size: 0.75rem; color: #8b949e; margin: 10px 0 20px;">
-                        Kami memerlukan koordinat GPS untuk mengambil data cuaca dan risiko penyakit Blast langsung dari satelit di titik sawah Anda.
+                        Kami memerlukan titik koordinat GPS untuk mengambil data cuaca dan risiko penyakit dari lokasi Anda.
                     </p>
                     <button class="btn-main btn-live" onclick="aktifkanGPS()" style="background: var(--accent-bwd); color: white;">SINKRONKAN GPS & SATELIT</button>
                 </div>
@@ -341,7 +341,7 @@
             if (hariBulan >= 26 || hariBulan <= 3) {
                 skorHama += 45;
                 analisisTeks = "Diprediksi sedang puncak penerbangan ngengat dewasa untuk kawin dan peletakan telur massal di pesemaian/lahan.";
-                tindakanPPL = "Pasang lampu perangkap (light trap) di pematang sawah malam ini untuk menangkap kaper sebelum bertelur. Semprot agens hayati Beauveria bassiana.";
+                tindakanPPL = "Pasang lampu perangkap (light trap) di pematang sawah malam ini untuk menangkap ngengat sebelum bertelur. Semprot agens hayati Beauveria bassiana.";
             } else if (hariBulan >= 12 && hariBulan <= 17) {
                 skorHama += 40;
                 analisisTeks = "Diprediksi sedang puncak penetasan telur menjadi larva (ulat kecil). Ulat mulai merayap mencari batang padi.";
