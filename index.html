@@ -300,9 +300,13 @@
                         <strong>📊 Parameter Cuaca di Lokasi Anda Saat Ini (Real time)</strong>
                         <table style="width: 100%; margin-top: 10px; border: none;">
                             <tr>
-                                <td style="border: none; padding: 5px 0;">🌧️ Curah Hujan</td>
-                                <td class="row-val" id="rainNow" style="color: var(--text-main);">-</td>
-                            </tr>
+    <td style="border: none; padding: 5px 0;">🌧️ Curah Hujan Saat Ini</td>
+    <td class="row-val" id="rainNow" style="color: var(--text-main);">-</td>
+</tr>
+<tr>
+    <td style="border: none; padding: 5px 0;">📊 Akumulasi 30 Hari Terakhir</td>
+    <td class="row-val" id="rainMonthly" style="color: var(--accent-bwd);">-</td>
+</tr>
                             <tr>
                                 <td style="border: none; padding: 5px 0;">🌡️ Suhu</td>
                                 <td class="row-val" id="suhuNow" style="color: var(--text-main);">-</td>
@@ -431,11 +435,12 @@
                 skor += 15;
             }
 
-            if (curahHujan >= 20) {
-                skor -= 10;
-            } else if (curahHujan >= 5 && curahHujan < 20) {
-                skor += 10;
-            }
+            // Perbaikan logika curah hujan untuk wereng
+if (curahHujan >= 20) {
+    skor += 15; // Curah hujan tinggi meningkatkan kelembapan mikro pangkal batang
+} else if (curahHujan >= 5 && curahHujan < 20) {
+    skor += 10;
+}
 
             if (skor >= 70) {
                 level = "TINGGI";
@@ -548,41 +553,45 @@
         }
 
         // ==================== RISIKO HAMA PBP ====================
-        function hitungRisikoHamaPBP(suhu, kelembapan) {
-            const hariBulan = dapatkanHariSiklusBulan();
-            let skorHama = 0;
-            let analisisTeks = "";
-            let tindakanPPL = "";
-            let warnaStatus = "var(--accent-green)";
+       function hitungRisikoHamaPBP(suhu, kelembapan) {
+    const hariBulan = dapatkanHariSiklusBulan();
+    let skorHama = 0;
+    let analisisTeks = "";
+    let tindakanPPL = "";
+    let warnaStatus = "var(--accent-green)";
 
-            if (hariBulan >= 26 || hariBulan <= 3) {
-                skorHama += 45;
-                analisisTeks = "Diprediksi sedang puncak penerbangan ngengat dewasa untuk kawin dan peletakan telur massal di pesemaian/lahan.";
-                tindakanPPL = "Pasang lampu perangkap (light trap) di pematang sawah malam ini untuk menangkap kaper sebelum bertelur. Semprot agens hayati Beauveria bassiana.";
-            } else if (hariBulan >= 12 && hariBulan <= 17) {
-                skorHama += 40;
-                analisisTeks = "Diprediksi sedang puncak penetasan telur menjadi larva (ulat kecil). Ulat mulai merayap mencari batang padi.";
-                tindakanPPL = "Kondisi kritis! Lakukan pengamatan intensif pada rumpun padi. Jika ditemukan kelompok telur atau gejala Sundep > 5%, segera aplikasikan insektisida sistemik.";
-            } else {
-                skorHama += 15;
-                analisisTeks = "Diprediksi aktivitas ngengat sedang. Larva yang berada di dalam batang sedang berganti kulit (instar).";
-                tindakanPPL = "Lakukan pemupukan berimbang (jangan over Urea) dan jaga air sawah agar tidak terlalu menggenang tinggi.";
-            }
+    // === LOGIKA SIKLUS BULAN YANG SUDAH DIOPTIMALKAN SECARA ILMIAH ===
+    if (hariBulan >= 26 || hariBulan <= 3) {
+        skorHama += 45;
+        analisisTeks = "Puncak penerbangan ngengat dewasa (kaper). Peletakan kelompok telur massal sedang terjadi di lapangan.";
+        tindakanPPL = "Pasang lampu perangkap (light trap) massal di pematang sawah malam ini untuk menangkap kaper sebelum bertelur.";
+    } else if (hariBulan >= 5 && hariBulan <= 11) { 
+        // Perbaikan dari 12-17 menjadi 5-11 agar pas dengan masa inkubasi telur 6-8 hari
+        skorHama += 40;
+        analisisTeks = "Puncak penetasan telur menjadi larva (ulat kecil). Ulat mulai bergerak mencari dan menggerek batang padi.";
+        tindakanPPL = "Fase Kritis Sundep! Amati rumpun padi. Jika ditemukan kelompok telur atau sundep > 5%, segera aplikasikan insektisida sistemik berbahan aktif ramah lingkungan.";
+    } else {
+        skorHama += 15;
+        analisisTeks = "Diprediksi aktivitas ngengat sedang. Larva yang berada di dalam batang sedang berkembang dan berganti kulit (instar).";
+        tindakanPPL = "Lakukan pemupukan berimbang (jangan over Urea) dan jaga air sawah agar tidak terlalu menggenang tinggi.";
+    }
 
-            if (kelembapan >= 80) skorHama += 25;
-            if (suhu >= 24 && suhu <= 29) skorHama += 30;
+    // Korelasi Faktor Cuaca Pendukung
+    if (kelembapan >= 80) skorHama += 25;
+    if (suhu >= 24 && suhu <= 29) skorHama += 30;
 
-            let tingkatRisiko = "RENDAH";
-            if (skorHama >= 75) {
-                 tingkatRisiko = "BAHAYA / TINGGI";
-                 warnaStatus = "var(--red-alert)";
-            } else if (skorHama >= 45) {
-                  tingkatRisiko = "WASPADA / SEDANG";
-                 warnaStatus = "var(--accent-soil)";
-            }
+    // Penentuan Tingkat Risiko Akhir
+    let tingkatRisiko = "RENDAH";
+    if (skorHama >= 75) {
+         tingkatRisiko = "BAHAYA / TINGGI";
+         warnaStatus = "var(--red-alert)";
+    } else if (skorHama >= 45) {
+          tingkatRisiko = "WASPADA / SEDANG";
+         warnaStatus = "var(--accent-soil)";
+    }
 
-            return { skor: skorHama, level: tingkatRisiko, warna: warnaStatus, detail: analisisTeks, saran: tindakanPPL };
-        }
+    return { skor: skorHama, level: tingkatRisiko, warna: warnaStatus, detail: analisisTeks, saran: tindakanPPL };
+}
          
         // ==================== RISIKO TIKUS SAWAH ====================
         function hitungRisikoTikus(curahHujan, faseTanaman) {
@@ -763,12 +772,23 @@
             }
         }
 
-        async function getWeather(lat, lon) {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,dew_point_2m,rain,showers,wind_speed_10m,wind_direction_10m,surface_pressure&hourly=precipitation_probability,precipitation,temperature_850hPa,cape&timezone=auto`;
-            const res = await fetch(url);
-            if (!res.ok) throw new Error("Gagal data satelit");
-            return await res.json();
-        }
+        function getFormatTanggal(selisihHari) {
+    const d = new Date();
+    d.setDate(d.getDate() - selisihHari);
+    return d.toISOString().split('T')[0];
+}
+
+async function getWeather(lat, lon) {
+    const tglHariIni = getFormatTanggal(0);
+    const tgl30HariLalu = getFormatTanggal(30);
+    
+    // URL gabungan: mengambil data real-time (current) dan data 30 hari ke belakang (daily)
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,dew_point_2m,rain,showers,wind_speed_10m,wind_direction_10m,surface_pressure&hourly=precipitation_probability,precipitation,temperature_850hPa,cape&daily=precipitation_sum&start_date=${tgl30HariLalu}&end_date=${tglHariIni}&timezone=auto`;
+    
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Gagal mengambil data satelit");
+    return await res.json();
+}
 
         // ==================== WEATHER CORE LOGIC ====================
         async function loadWeather() {
@@ -852,30 +872,49 @@
                 document.getElementById('suhuNow').innerText = `${cur.temperature_2m} °C`;
                 document.getElementById('humidityNow').innerText = `${cur.relative_humidity_2m}%`;
 
-                const rainCurrent = cur.rain || 0;
-                const rainHourly = (hourly && hourly.precipitation) ? hourly.precipitation[0] : 0;
-                const rainProb = (hourly && hourly.precipitation_probability) ? hourly.precipitation_probability[0] : 0;
+               // ==================== 1. LOGIKA HUJAN REAL-TIME (PER JAM) ====================
+const rainCurrent = cur.rain || 0;
+const rainHourly = (hourly && hourly.precipitation) ? hourly.precipitation[0] : 0;
+const rainProb = (hourly && hourly.precipitation_probability) ? hourly.precipitation_probability[0] : 0;
 
-                let finalRain = rainCurrent;
-                let rainStatus = "Tidak Hujan";
+let finalRain = rainCurrent;
+let rainStatus = "Cerah / Berawan";
 
-                if (rainCurrent > 0) {
-                    rainStatus = "Hujan Terdeteksi";
-                } else if (rainHourly > 0.2 || rainProb > 80 || cur.relative_humidity_2m >= 98) {
-                    finalRain = rainHourly;
-                    rainStatus = "Gerimis/Hujan Lokal";
-                }
+if (rainCurrent > 0) {
+    if (rainCurrent < 0.5) rainStatus = "Gerimis Tipis";
+    else if (rainCurrent >= 0.5 && rainCurrent < 2.0) rainStatus = "Hujan Ringan";
+    else rainStatus = "Hujan Lebat";
+} else if (rainHourly > 0.2 || rainProb > 80) {
+    finalRain = rainHourly;
+    rainStatus = "Potensi Gerimis Lokal";
+}
 
-                const isLikelyRaining = cur.relative_humidity_2m >= 98 && parseFloat(dpSpread) <= 0.5 && currentCape > 1000;
-                if (isLikelyRaining && finalRain === 0) {
-                    rainStatus = "Hujan Lokal Terdeteksi Atmosfer";
-                }
+// Tampilkan ke elemen Real-time
+document.getElementById('rainNow').innerHTML = `
+    ${finalRain > 0 ? finalRain.toFixed(1) + ' mm/jam' : '0.0 mm/jam'}
+    <br>
+    <small style="font-size:0.65rem; color:var(--accent-soil);">${rainStatus}</small>
+`;
 
-                document.getElementById('rainNow').innerHTML = `
-                    ${finalRain > 0 ? finalRain.toFixed(1) + ' mm' : '0.0 mm'}
-                    <br>
-                    <small style="font-size:0.65rem; color:var(--accent-soil);">${rainStatus}</small>
-                `;
+// ==================== 2. LOGIKA AKUMULASI BULANAN (30 HARI) ====================
+const listHujanHarian = weatherData.daily.precipitation_sum;
+const totalHujanBulanan = listHujanHarian.reduce((total, nilai) => total + (nilai || 0), 0);
+
+let statusKarakteristikHujan = "";
+if (totalHujanBulanan > 200) {
+    statusKarakteristikHujan = "Kriteria Bulan Basah (Padi)";
+} else if (totalHujanBulanan >= 100 && totalHujanBulanan <= 200) {
+    statusKarakteristikHujan = "Kriteria Bulan Lembab (Transisi)";
+} else {
+    statusKarakteristikHujan = "Kriteria Bulan Kering (Palawija)";
+}
+
+// Tampilkan ke elemen Akumulasi
+document.getElementById('rainMonthly').innerHTML = `
+    <b>${totalHujanBulanan.toFixed(1)} mm</b>
+    <br>
+    <small style="font-size:0.65rem; color:#8b949e;">${statusKarakteristikHujan}</small>
+`;
 
                 document.getElementById('windNow').innerText = `${cur.wind_speed_10m} km/jam`;
                 document.getElementById('pressNow').innerText = `${cur.surface_pressure} hPa`;
