@@ -676,50 +676,56 @@ if (curahHujan >= 20) {
             }
         }
 
-        function switchMode(mode) {
-            currentMode = mode;
-            let color = 'var(--accent-green)';
-            let title = 'Deteksi Penyakit Padi';
+    function switchMode(mode) {
+    currentMode = mode;
+    let color = 'var(--accent-green)';
+    let title = 'Deteksi Penyakit Padi';
 
-            if (mode === 'tanah') { color = 'var(--accent-soil)'; title = 'Analisis Jenis Tanah'; }
-            if (mode === 'bwd') { color = 'var(--accent-bwd)'; title = 'Analisis Warna Daun (BWD)'; }
-            if (mode === 'cuaca') { color = '#4fc3f7'; title = 'Cuaca & Risiko Penyakit Tanaman'; }
-            if (mode === 'malai') { color = 'var(--accent-malai)'; title = 'Estimasi Panen - Ambil 3 foto malai'; }
+    if (mode === 'tanah') { color = 'var(--accent-soil)'; title = 'Analisis Jenis Tanah'; }
+    if (mode === 'bwd') { color = 'var(--accent-bwd)'; title = 'Analisis Warna Daun (BWD)'; }
+    if (mode === 'cuaca') { color = '#4fc3f7'; title = 'Cuaca & Risiko Penyakit Tanaman'; }
+    if (mode === 'malai') { color = 'var(--accent-malai)'; title = 'Estimasi Panen - Ambil 3 foto malai'; }
 
-            document.getElementById('tabDaun').className = mode === 'daun' ? 'tab-btn active' : 'tab-btn';
-            document.getElementById('tabTanah').className = mode === 'tanah' ? 'tab-btn active soil-mode' : 'tab-btn';
-            document.getElementById('tabBWD').className = mode === 'bwd' ? 'tab-btn active bwd-mode' : 'tab-btn';
-            document.getElementById('tabCuaca').className = mode === 'cuaca' ? 'tab-btn active' : 'tab-btn';
-            document.getElementById('tabMalai').className = mode === 'malai' ? 'tab-btn active malai-mode' : 'tab-btn';
+    // RESET SAMPEL MALAI HANYA SAAT PENGGUNA PINDAH KE MODE LAIN
+    if (mode !== 'malai') {
+        hasilSampelBulir = [];
+        const listM = document.getElementById('listMalai');
+        if (listM) listM.innerHTML = "";
+    }
 
-            document.getElementById('modeTitle').innerText = title;
-            document.getElementById('modeTitle').style.color = color;
-            document.getElementById('laser').style.background = color;
+    document.getElementById('tabDaun').className = mode === 'daun' ? 'tab-btn active' : 'tab-btn';
+    document.getElementById('tabTanah').className = mode === 'tanah' ? 'tab-btn active soil-mode' : 'tab-btn';
+    document.getElementById('tabBWD').className = mode === 'bwd' ? 'tab-btn active bwd-mode' : 'tab-btn';
+    document.getElementById('tabCuaca').className = mode === 'cuaca' ? 'tab-btn active' : 'tab-btn';
+    document.getElementById('tabMalai').className = mode === 'malai' ? 'tab-btn active malai-mode' : 'tab-btn';
 
-            document.getElementById('boxPenyakit').style.display = mode === 'daun' ? 'block' : 'none';
-            document.getElementById('boxTanah').style.display = mode === 'tanah' ? 'block' : 'none';
-            document.getElementById('boxBWD').style.display = mode === 'bwd' ? 'block' : 'none';
-            document.getElementById('boxCuaca').style.display = mode === 'cuaca' ? 'block' : 'none';
-            document.getElementById('boxMalai').style.display = mode === 'malai' ? 'block' : 'none';
-             
-            document.getElementById('formParameterLahan').style.display = mode === 'malai' ? 'block' : 'none';
+    document.getElementById('modeTitle').innerText = title;
+    document.getElementById('modeTitle').style.color = color;
+    document.getElementById('laser').style.background = color;
 
-            if (mode === 'cuaca') {
-                document.getElementById('btnCamera').style.display = 'none';
-                document.getElementById('scanWindow').style.display = 'none';
-                document.getElementById('btnAnalisis').style.display = 'none';
-                document.getElementById('gpsPrompt').style.display = 'block';
-                document.getElementById('weatherData').style.display = 'none';
-                document.getElementById('result').style.display = 'block';
-            } else {
-                document.getElementById('btnCamera').style.display = 'block';
-                document.getElementById('scanWindow').style.display = 'flex';
-                document.getElementById('gpsPrompt').style.display = 'none';
-                document.getElementById('result').style.display = 'none';
-                document.getElementById('btnAnalisis').style.display = base64Image !== "" ? 'block' : 'none';
-            }
-        }
+    document.getElementById('boxPenyakit').style.display = mode === 'daun' ? 'block' : 'none';
+    document.getElementById('boxTanah').style.display = mode === 'tanah' ? 'block' : 'none';
+    document.getElementById('boxBWD').style.display = mode === 'bwd' ? 'block' : 'none';
+    document.getElementById('boxCuaca').style.display = mode === 'cuaca' ? 'block' : 'none';
+    document.getElementById('boxMalai').style.display = mode === 'malai' ? 'block' : 'none';
+     
+    document.getElementById('formParameterLahan').style.display = mode === 'malai' ? 'block' : 'none';
 
+    if (mode === 'cuaca') {
+        document.getElementById('btnCamera').style.display = 'none';
+        document.getElementById('scanWindow').style.display = 'none';
+        document.getElementById('btnAnalisis').style.display = 'none';
+        document.getElementById('gpsPrompt').style.display = 'block';
+        document.getElementById('weatherData').style.display = 'none';
+        document.getElementById('result').style.display = 'block';
+    } else {
+        document.getElementById('btnCamera').style.display = 'block';
+        document.getElementById('scanWindow').style.display = 'flex';
+        document.getElementById('gpsPrompt').style.display = 'none';
+        document.getElementById('result').style.display = 'none';
+        document.getElementById('btnAnalisis').style.display = base64Image !== "" ? 'block' : 'none';
+    }
+}
         function handleFile(event) {
             const file = event.target.files[0];
             const reader = new FileReader();
@@ -782,14 +788,27 @@ async function getWeather(lat, lon) {
     const tglHariIni = getFormatTanggal(0);
     const tgl30HariLalu = getFormatTanggal(30);
     
-    // URL gabungan: mengambil data real-time (current) dan data 30 hari ke belakang (daily)
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,dew_point_2m,rain,showers,wind_speed_10m,wind_direction_10m,surface_pressure&hourly=precipitation_probability,precipitation,temperature_850hPa,cape&daily=precipitation_sum&start_date=${tgl30HariLalu}&end_date=${tglHariIni}&timezone=auto`;
+    // PERBAIKAN: Spasi pada tglHariIni sudah dirapatkan agar URL tidak rusak
+    const urlArchive = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${tgl30HariLalu}&end_date=${tglHariIni}&daily=precipitation_sum&timezone=auto`;
     
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Gagal mengambil data satelit");
-    return await res.json();
+    const urlForecast = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=rain,temperature_2m,relative_humidity_2m,dew_point_2m,wind_speed_10m,wind_direction_10m,surface_pressure&hourly=precipitation_probability,precipitation,temperature_850hPa,cape&timezone=auto`;
+    
+    const [resArchive, resForecast] = await Promise.all([
+        fetch(urlArchive),
+        fetch(urlForecast)
+    ]);
+    
+    if (!resArchive.ok || !resForecast.ok) throw new Error("Gagal mengambil data satelit");
+    
+    const dataArchive = await resArchive.json();
+    const dataForecast = await resForecast.json();
+    
+    return {
+        current: dataForecast.current,
+        hourly: dataForecast.hourly,
+        daily: dataArchive.daily
+    };
 }
-
         // ==================== WEATHER CORE LOGIC ====================
         async function loadWeather() {
             try {
@@ -873,6 +892,7 @@ async function getWeather(lat, lon) {
                 document.getElementById('humidityNow').innerText = `${cur.relative_humidity_2m}%`;
 
                // ==================== 1. LOGIKA HUJAN REAL-TIME (PER JAM) ====================
+// ==================== 1. LOGIKA HUJAN REAL-TIME (PER JAM) ====================
 const rainCurrent = cur.rain || 0;
 const rainHourly = (hourly && hourly.precipitation) ? hourly.precipitation[0] : 0;
 const rainProb = (hourly && hourly.precipitation_probability) ? hourly.precipitation_probability[0] : 0;
@@ -889,7 +909,6 @@ if (rainCurrent > 0) {
     rainStatus = "Potensi Gerimis Lokal";
 }
 
-// Tampilkan ke elemen Real-time
 document.getElementById('rainNow').innerHTML = `
     ${finalRain > 0 ? finalRain.toFixed(1) + ' mm/jam' : '0.0 mm/jam'}
     <br>
@@ -897,7 +916,11 @@ document.getElementById('rainNow').innerHTML = `
 `;
 
 // ==================== 2. LOGIKA AKUMULASI BULANAN (30 HARI) ====================
-const listHujanHarian = weatherData.daily.precipitation_sum;
+// ==================== 2. LOGIKA AKUMULASI BULANAN (30 HARI) ====================
+// Proteksi ketat: jika daily atau precipitation_sum kosong, buat sebagai array kosong []
+const dailyData = weatherData.daily || {};
+const listHujanHarian = dailyData.precipitation_sum || [];
+
 const totalHujanBulanan = listHujanHarian.reduce((total, nilai) => total + (nilai || 0), 0);
 
 let statusKarakteristikHujan = "";
@@ -909,13 +932,12 @@ if (totalHujanBulanan > 200) {
     statusKarakteristikHujan = "Kriteria Bulan Kering (Palawija)";
 }
 
-// Tampilkan ke elemen Akumulasi
+// Menampilkan hasil akumulasi riil ke ID rainMonthly
 document.getElementById('rainMonthly').innerHTML = `
     <b>${totalHujanBulanan.toFixed(1)} mm</b>
     <br>
     <small style="font-size:0.65rem; color:#8b949e;">${statusKarakteristikHujan}</small>
 `;
-
                 document.getElementById('windNow').innerText = `${cur.wind_speed_10m} km/jam`;
                 document.getElementById('pressNow').innerText = `${cur.surface_pressure} hPa`;
                 document.getElementById('tempUpper').innerText = `${cloudTemp} °C`;
