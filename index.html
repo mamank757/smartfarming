@@ -824,6 +824,12 @@ window.addEventListener('load', async function() {
             return { musim, fase, umurHari, risikoFase, bulan };
         }
 
+function getFormatTanggal(selisihHari) {
+    const d = new Date();
+    d.setDate(d.getDate() - selisihHari);
+    return d.toISOString().split('T')[0];
+}
+
         function updateEstimasiKepadatan() {
             const metode = document.getElementById('metodeTanam').value;
             const customBox = document.getElementById('customPopulasiBox');
