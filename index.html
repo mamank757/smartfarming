@@ -1028,7 +1028,7 @@ function getFormatTanggal(selisihHari) {
             document.getElementById('alamatDesa').innerText = "Satelit Cuaca Aktif"; 
         }
 
-        // API Open-Meteo
+        // API Calls
         const urlArchive = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${getFormatTanggal(30)}&end_date=${getFormatTanggal(1)}&daily=precipitation_sum&timezone=auto`;
         const urlForecast = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=rain,temperature_2m,relative_humidity_2m,dew_point_2m,wind_speed_10m,wind_direction_10m,surface_pressure,weather_code&hourly=precipitation_probability,precipitation,temperature_850hPa,cape,temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`;
         
@@ -1067,7 +1067,7 @@ function getFormatTanggal(selisihHari) {
             return { teks: "Berawan", ikon: "⛅" };
         };
 
-        // Hourly Forecast
+        // Hourly
         const hourlyContainer = document.getElementById('hourlyForecastContainer');
         if (hourlyContainer) {
             hourlyContainer.innerHTML = '';
@@ -1084,7 +1084,7 @@ function getFormatTanggal(selisihHari) {
             }
         }
 
-        // Daily Forecast
+        // Daily
         const dailyContainer = document.getElementById('dailyForecastContainer');
         if (dailyContainer) {
             dailyContainer.innerHTML = '';
@@ -1105,7 +1105,7 @@ function getFormatTanggal(selisihHari) {
             }
         }
 
-        // Parameter Cuaca
+        // Parameter
         const currentCape = hourly.cape ? hourly.cape[activeIndex] : 0;
         const dpSpread = (cur.temperature_2m - cur.dew_point_2m).toFixed(1);
         const cloudTemp = hourly.temperature_850hPa ? hourly.temperature_850hPa[activeIndex] : "-";
@@ -1122,7 +1122,7 @@ function getFormatTanggal(selisihHari) {
             document.getElementById('capeVal').innerHTML = `${currentCape} J/kg <br><small>Status: ${capeStatus}</small>`;
         }
 
-        // Prediksi Hujan
+        // Hujan
         let rainScore = 0;
         const nextHourProb = hourly.precipitation_probability ? (hourly.precipitation_probability[activeIndex + 1] || 0) : 0;
         if (nextHourProb >= 30) rainScore += 40;
@@ -1146,8 +1146,13 @@ function getFormatTanggal(selisihHari) {
             }
         }
 
+        // Akumulasi Hujan 30 Hari (PERBAIKAN DISINI)
+        const dailyData = dataArchive.daily || {};
+        const listHujanHarian = dailyData.precipitation_sum || [];
+        const totalHujanBulanan = listHujanHarian.reduce((total, nilai) => total + (nilai || 0), 0);
+
         document.getElementById('rainNow').innerHTML = `${(cur.rain || 0).toFixed(1)} mm/jam`;
-        document.getElementById('rainMonthly').innerHTML = `<b>${totalHujanBulanan ? totalHujanBulanan.toFixed(1) : '0.0'} mm</b>`;
+        document.getElementById('rainMonthly').innerHTML = `<b>${totalHujanBulanan.toFixed(1)} mm</b>`;
 
         // Arah Angin
         const getDirection = (degree) => ["Utara","Timur Laut","Timur","Tenggara","Selatan","Barat Daya","Barat","Barat Laut"][Math.round(degree/45)%8];
@@ -1158,7 +1163,7 @@ function getFormatTanggal(selisihHari) {
 
         analyzeDiseaseRisk(cur, dpSpread);
 
-        // ==================== PERINGATAN HAMA & PENYAKIT ====================
+        // ==================== SEMUA PERINGATAN HAMA & PENYAKIT ====================
         const existingBoxes = document.querySelectorAll('#weatherData .info-box-dynamic');
         existingBoxes.forEach(box => box.remove());
 
@@ -1172,7 +1177,7 @@ function getFormatTanggal(selisihHari) {
                 <small>${faseTanaman.musim} • ± ${faseTanaman.umurHari} hari</small>
             </div>`);
 
-        // Tikus
+        // Tikus, Penggerek, Sheath Blight, Wereng, Tungro (semua sudah ada)
         const analisisTikus = hitungRisikoTikus(cur.rain || 0, faseTanaman);
         document.getElementById('weatherData').insertAdjacentHTML('beforeend', `
             <div class="info-box info-box-dynamic" style="border-left-color:${analisisTikus.warna};margin-top:15px;">
@@ -1182,7 +1187,6 @@ function getFormatTanggal(selisihHari) {
                 <div style="background:rgba(255,255,255,0.02);padding:8px;border-radius:6px;"><b>💡 Rekomendasi:</b> ${analisisTikus.saran}</div>
             </div>`);
 
-        // Penggerek Batang
         const analisisHama = hitungRisikoHamaPBP(cur.temperature_2m, cur.relative_humidity_2m);
         document.getElementById('weatherData').insertAdjacentHTML('beforeend', `
             <div class="info-box info-box-dynamic" style="border-left-color:${analisisHama.warna};margin-top:15px;">
@@ -1192,7 +1196,6 @@ function getFormatTanggal(selisihHari) {
                 <div style="background:rgba(255,255,255,0.02);padding:8px;border-radius:6px;"><b>💡 Rekomendasi:</b> ${analisisHama.saran}</div>
             </div>`);
 
-        // Sheath Blight
         const analisisSheath = hitungRisikoSheathBlight(cur.temperature_2m, cur.relative_humidity_2m);
         document.getElementById('weatherData').insertAdjacentHTML('beforeend', `
             <div class="info-box info-box-dynamic" style="border-left-color:${analisisSheath.warna};margin-top:15px;">
@@ -1202,7 +1205,6 @@ function getFormatTanggal(selisihHari) {
                 <div style="background:rgba(255,255,255,0.02);padding:8px;border-radius:6px;"><b>💡 Rekomendasi:</b> ${analisisSheath.saran}</div>
             </div>`);
 
-        // Wereng
         const analisisWereng = hitungRisikoWereng(cur.temperature_2m, cur.relative_humidity_2m, cur.rain || 0);
         document.getElementById('weatherData').insertAdjacentHTML('beforeend', `
             <div class="info-box info-box-dynamic" style="border-left-color:${analisisWereng.warna};margin-top:15px;">
@@ -1212,7 +1214,6 @@ function getFormatTanggal(selisihHari) {
                 <div style="background:rgba(255,255,255,0.02);padding:8px;border-radius:6px;"><b>💡 Rekomendasi:</b> ${analisisWereng.saran}</div>
             </div>`);
 
-        // Tungro
         const analisisTungro = hitungRisikoTungro(cur.temperature_2m, cur.relative_humidity_2m, cur.rain || 0);
         document.getElementById('weatherData').insertAdjacentHTML('beforeend', `
             <div class="info-box info-box-dynamic" style="border-left-color:${analisisTungro.warna};margin-top:15px;">
