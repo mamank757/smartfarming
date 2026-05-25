@@ -971,7 +971,8 @@ window.addEventListener('load', async function() {
                     } else { document.getElementById('alamatDesa').innerText = "Koordinat luar batas server alamat"; }
                 } catch (e) { document.getElementById('alamatDesa').innerText = "Satelit Cuaca Aktif (Alamat Teks Batas Waktu)"; }
 
-                const urlArchive = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&past_days=30&daily=precipitation_sum&timezone=auto`;
+                // Lebih direkomendasikan
+const urlArchive = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${getFormatTanggal(30)}&end_date=${getFormatTanggal(1)}&daily=precipitation_sum&timezone=auto`;
                 // 1. UPDATE URL API FORECAST (Menambahkan weather_code untuk hourly & daily, serta min/max temp)
                 const urlForecast = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=rain,temperature_2m,relative_humidity_2m,dew_point_2m,wind_speed_10m,wind_direction_10m,surface_pressure,weather_code&hourly=precipitation_probability,precipitation,temperature_850hPa,cape,temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`;
                 
@@ -990,15 +991,18 @@ const bulan = String(sekarang.getMonth() + 1).padStart(2, '0');
 const tanggal = String(sekarang.getDate()).padStart(2, '0');
 const jam = String(sekarang.getHours()).padStart(2, '0');
 
-const waktuLokalTarget = `${tahun}-${bulan}-${tanggal}T${jam}:00`;
-
-// 3. Cari indeks yang pas dengan jam lokal HP kamu saat ini
+// Ganti bagian itu dengan ini
 let activeIndex = hourly.time.findIndex(t => t.startsWith(waktuLokalTarget));
 
-// Jika tidak ketemu karena batas tanggal, gunakan fallback jam terdekat
 if (activeIndex === -1) {
-    const jamSaja = sekarang.getHours();
-    activeIndex = jamSaja; // Mengambil index jam pada hari pertama
+    // Fallback: cari waktu terdekat
+    const now = new Date();
+    activeIndex = hourly.time.findIndex(t => {
+        const apiTime = new Date(t);
+        return apiTime >= now;
+    });
+    
+    if (activeIndex === -1) activeIndex = 0; // fallback paling awal
 }
 
                 // Fungsi bantu internal untuk merubah WMO Code Open-Meteo menjadi Ikon & Teks Bahasa Indonesia
