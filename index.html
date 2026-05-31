@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b1528">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>PPL Milenial Wajo - Smart Farming</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -194,11 +197,11 @@
         .btn-main:active { transform: scale(0.99); opacity: 0.9; }
         
         .btn-camera { 
-            background: #233147; 
+            background: #2563EB; 
             color: #ffffff; 
             margin-bottom: 16px; 
         }
-        .btn-camera:active { background: #2a3b55; }
+        .btn-camera:active { background: #1d4ed8; }
 
         .scan-window {
             position: relative; 
@@ -480,7 +483,14 @@
         <label>📅 TANGGAL AWAL TANAM</label>
         <input type="date" id="inputTglTanam" class="form-input">
     </div>
-    
+    <div class="form-group">
+    <label>🌱 UMUR VARIETAS PADI</label>
+    <select id="umurVarietasKalender" class="form-select">
+        <option value="genjah">Genjah (< 95 Hari)</option>
+        <option value="sedang" selected>Sedang (95 - 115 Hari)</option>
+        <option value="dalam">Dalam (>= 116 Hari)</option>
+    </select>
+</div>
     <button class="btn-main" style="background: var(--accent-kalender); color: #fff;" onclick="prosesAnalisisKalender()">
         🚀 TAMPILKAN GRAFIK ANCAMAN IKLIM
     </button>
@@ -630,10 +640,16 @@
 
         <div id="result">
             <div id="resLabel" style="font-size: 1.2rem; font-weight: 800; color: var(--accent-green); text-align: center;">-</div>
-            <div id="resConf" style="font-size: 0.8rem; text-align: center; margin-bottom: 20px; color: var(--accent-soil); font-weight: 600;">Akurasi: 0%</div>
+            <div id="resConf" class="info-box" style="border-left-color: var(--accent-kalender); background: rgba(217, 70, 239, 0.05); text-align: center; margin-bottom: 20px;">
+    </div>
              
             <div id="boxPenyakit" style="display:none;">
-                <div class="info-box"><strong>🔍 Gejala:</strong><br><span id="resGejala">-</span></div>
+    <div class="info-box" style="border-left-color:var(--red-alert); background: rgba(239, 68, 68, 0.05);">
+        <strong>⚠️ Tingkat Risiko / Keparahan:</strong><br>
+        <span id="resRisiko" style="font-size: 1.1rem; font-weight: 800;">-</span>
+    </div>
+    
+    <div class="info-box"><strong>🔍 Gejala:</strong><br><span id="resGejala">-</span></div>
                 <div class="info-box" style="border-left-color:var(--red-alert);"><strong>🧬 Penyebab:</strong><br><span id="resPenyebab">-</span></div>
                 <div class="info-box" style="border-left-color:var(--accent-soil);"><strong>✅ Solusi:</strong><br><span id="resSolusi">-</span></div>
                 <div class="info-box" style="border-left-color:var(--accent-soil);"><strong>✅ Merek Produk:</strong><br><span id="resMerek">-</span></div>
@@ -641,7 +657,12 @@
             </div>
 
             <div id="boxHama" style="display:none;">
-                <div class="info-box" style="border-left-color: var(--accent-hama);"><strong>🔍 Gejala Serangan di Sawah:</strong><br><span id="resGejalaHama">-</span></div>
+    <div class="info-box" style="border-left-color:var(--red-alert); background: rgba(239, 68, 68, 0.05);">
+        <strong>⚠️ Status Ledakan / Risiko:</strong><br>
+        <span id="resRisikoHama" style="font-size: 1.1rem; font-weight: 800;">-</span>
+    </div>
+    
+    <div class="info-box" style="border-left-color: var(--accent-hama);"><strong>🔍 Gejala Serangan di Sawah:</strong><br><span id="resGejalaHama">-</span></div>
                 <div class="info-box" style="border-left-color: var(--red-alert);"><strong>🧬 Karakteristik / Faktor Lapangan:</strong><br><span id="resPenyebabHama">-</span></div>
                 <div class="info-box" style="border-left-color: var(--accent-green);"><strong>✅ Solusi Teknis (Agens / Budidaya):</strong><br><span id="resSolusiHama">-</span></div>
                 <div class="info-box" style="border-left-color: var(--accent-soil);"><strong>🔬 Rekomendasi Insektisida:</strong><br><span id="resMerekHama">-</span></div>
@@ -661,14 +682,18 @@
             </div>
 
             <div id="boxBWD" style="display: none; text-align: center;">
-                <div id="cameraContainer" style="position: relative; width: 100%; max-width: 300px; margin: 0 auto; overflow: hidden; border-radius: 20px; background: #000;">
-                    <video id="videoElement" autoplay playsinline muted style="width: 100%; height: 300px; object-fit: cover;"></video>
-                    <div id="focusBox" style="position: absolute; top: 25%; left: 42%; width: 16%; height: 50%; border: 3px solid var(--accent-green); border-radius: 8px; box-shadow: 0 0 0 999px rgba(0,0,0,0.5);"></div>
-                </div>
-                <button class="btn-main" id="btnCapture" style="margin-top: 20px; background: var(--accent-green);">📸 AMBIL & ANALISIS DAUN</button>
-                <canvas id="hiddenCanvas" style="display:none;"></canvas>
-                <div id="outputBWD" style="margin-top: 20px; text-align: left;"></div>
-            </div>
+    <div id="cameraContainer" style="position: relative; width: 100%; max-width: 300px; margin: 0 auto; overflow: hidden; border-radius: 20px; background: #000;">
+        <video id="videoElement" autoplay playsinline muted style="width: 100%; height: 300px; object-fit: cover;"></video>
+        
+        <img id="bwdPreviewImage" style="display: none; width: 100%; height: 300px; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 10;">
+        
+        <div id="focusBox" style="position: absolute; top: 25%; left: 42%; width: 16%; height: 50%; border: 3px solid var(--accent-green); border-radius: 8px; box-shadow: 0 0 0 999px rgba(0,0,0,0.5); z-index: 15;"></div>
+    </div>
+    
+    <button class="btn-main" id="btnCapture" style="margin-top: 20px; background: var(--accent-green);">AMBIL DAN ANALISIS DAUN</button>
+    <canvas id="hiddenCanvas" style="display:none;"></canvas>
+    <div id="outputBWD" style="margin-top: 20px; text-align: left;"></div>
+</div>
 
             <div id="boxMalai" style="display:none;">
                 <div id="listMalai"></div>
@@ -692,7 +717,14 @@
         <label style="text-align: center; display: block; margin-bottom: 8px;">📅 MASUKKAN TANGGAL AWAL TANAM</label>
         <input type="date" id="tglTanamCuaca" class="form-input">
     </div>
-    
+    <div class="form-group" style="text-align: left; margin-bottom: 24px;">
+    <label style="text-align: center; display: block; margin-bottom: 8px;">🌱 UMUR VARIETAS PADI</label>
+    <select id="umurVarietasCuaca" class="form-select">
+        <option value="genjah">Genjah (< 95 Hari)</option>
+        <option value="sedang" selected>Sedang (95 - 115 Hari)</option>
+        <option value="dalam">Dalam (>= 116 Hari)</option>
+    </select>
+</div>
     <button class="btn-main btn-live" onclick="aktifkanGPS()">SINKRONKAN GPS & SATELIT</button>
 </div>
 
@@ -840,13 +872,17 @@
         let hasilTeksWAVarietas = "";
         let macroChartInstance = null;
         let localChartInstance = null;
+        
+        let currentStream = null; // Tambahan untuk memanajemen stream kamera
 
-        const URL_DAUN = "https://script.google.com/macros/s/AKfycby2arYHCsqKV3FZm14JB0W0LMGn1PfJ_26EoTAeVERAL0OsN0B0-4enXzap5KN9RMPsag/exec";
+        const URL_DAUN = "https://script.google.com/macros/s/AKfycbyoXrNqEtO5O56QcY64anDJ5ZGC2nHsfOqPr9mNMCVouNkYD57HqZcmfxPOmBIE12HK6A/exec";
         const URL_HAMA = "https://script.google.com/macros/s/AKfycbyTGmbTGlnaJWuSgrhzHneqYHlzzybJtYssAT-C4kwemFGtGnn0AR27CcsvXQKBeqU9/exec"; 
         const URL_GULMA = "https://script.google.com/macros/s/AKfycbxGBDW3g9NmpHoijkvtRC5onwV02EBDLCuszLPLu1tY8NMv74fpnKVKwc4LWQ_GQ-SGZg/exec";
         const URL_TANAH = "https://script.google.com/macros/s/AKfycbwlryQ9ZZvgc1WjZAavj1J4KbUaaJPluZorOLzIEM12fOy19bKP56mdaITAt7jDZ5XYKg/exec";
         const URL_MALAI = "https://script.google.com/macros/s/AKfycbzVPK1I_81gFU07Q_tNsWxUK1SZ_1tmwNlASp8P5_IR5hApq3XZb8koYufA46fIOacd/exec";
         const URL_IKLIM = "https://script.google.com/macros/s/AKfycbx2l8qiuAQ0vf_eeqx36VJSeDkjC61mrdoyE8fuLU8YGK_nOCBDyTwjp4MxYIRL3SkA/exec";
+        // Tambahkan baris ini di bawah URL_PUPUK / URL_IKLIM
+const URL_BWD = "https://script.google.com/macros/s/AKfycbwGAPTPnLJyg-OtcbFt1aG_I2uy6FQjd-5eE2p1UuhQTde2lEbokpAquACyutg8kBDi/exec";
         const URL_PUPUK = "https://script.google.com/macros/s/AKfycbyZkyLEeLi7Igk-JXLuYuRsV0ZqTmbevRUQu6rY10rptwNyZ7y3d-YNmJCDn3QgM0Dm/exec";
         const URL_POLA_HUJAN = "https://script.google.com/macros/s/AKfycbyc3eEBcxqr_YqRKJ6lPnS4nAzz9TVrKQwKcgBJAg3KSulTdrYKeVvQbUjDVSIjYVLI/exec";
         const URL_ZOM_LOKAL = "https://script.google.com/macros/s/AKfycbw4oqbO59e789P9KU2mucMf2jmoFEiUow_-GDqWw2lp26EwWturqzId4m87PlTHFx292g/exec";
@@ -917,6 +953,26 @@
             setTimeout(() => { warning.style.display = 'none'; }, 15000);
         }
 
+        // Tambahan fungsi stopCamera
+        function stopCamera() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+            }
+        }
+
+// Fungsi untuk menghaluskan fluktuasi (Moving Average)
+function getMovingAverage(data, windowSize = 3) {
+    let result = [];
+    for (let i = 0; i < data.length; i++) {
+        let sum = 0, count = 0;
+        for (let j = i - windowSize + 1; j <= i; j++) {
+            if (j >= 0) { sum += data[j]; count++; }
+        }
+        result.push(parseFloat((sum / count).toFixed(2)));
+    }
+    return result;
+}
         function dapatkanHariSiklusBulan() {
             const kranBulanMati = new Date("2026-01-18T17:00:00Z"); 
             const sekarang = new Date();
@@ -1026,14 +1082,12 @@
         }
 
         function analisisFaseTanaman() {
-    // Ambil data secara dinamis dari input menu Cuaca, Kalender, atau Pupuk
     let tglInput = document.getElementById("tglTanamCuaca")?.value ||
                    document.getElementById("inputTglTanam")?.value ||
                    document.getElementById("tanggalTanam")?.value;
 
     const sekarang = new Date();
 
-    // Jika user belum mengisi tanggal sama sekali, tampilkan peringatan di antarmuka
     if (!tglInput) {
         return {
             musim: "Belum Diset",
@@ -1044,7 +1098,22 @@
         };
     }
 
-    // Kalkulasi selisih hari persis seperti hitungan Kalender Iklim
+    // Tangkap nilai umur varietas berdasarkan menu yang sedang aktif
+    let umurPilihan = "sedang";
+    if (currentMode === 'cuaca') {
+        umurPilihan = document.getElementById("umurVarietasCuaca")?.value || "sedang";
+    } else if (currentMode === 'kalender') {
+        umurPilihan = document.getElementById("umurVarietasKalender")?.value || "sedang";
+    }
+
+    // Set batas umur dinamis
+    let batasVeg = 45, batasGen = 80, batasPanen = 110; 
+    if (umurPilihan === "genjah") {
+        batasVeg = 35; batasGen = 65; batasPanen = 90;
+    } else if (umurPilihan === "dalam") {
+        batasVeg = 50; batasGen = 90; batasPanen = 125;
+    }
+
     const awalTanam = new Date(tglInput);
     const selisihWaktu = sekarang.getTime() - awalTanam.getTime();
     const umurHari = Math.floor(selisihWaktu / (1000 * 3600 * 24));
@@ -1053,20 +1122,20 @@
     let fase = "";
     let risikoFase = 1;
 
-    // Klasifikasi fase berdasarkan umur tanaman (hari)
+    // Klasifikasi fase menggunakan batas dinamis
     if (umurHari < 0) {
         fase = "Pengolahan Lahan / Persiapan";
         risikoFase = 0.5;
     } else if (umurHari <= 15) {
         fase = "Penanaman / Persemaian";
         risikoFase = 1.2;
-    } else if (umurHari <= 45) {
+    } else if (umurHari <= batasVeg) {
         fase = "Vegetatif (Pertumbuhan Daun & Batang)";
         risikoFase = 1.4;
-    } else if (umurHari <= 80) {
+    } else if (umurHari <= batasGen) {
         fase = "Generatif (Bunting & Pengisian Malai)";
         risikoFase = 1.6;
-    } else if (umurHari <= 110) {
+    } else if (umurHari <= batasPanen) {
         fase = "Panen / Pasca Panen";
         risikoFase = 0.8;
     } else {
@@ -1074,7 +1143,6 @@
         risikoFase = 0.5;
     }
 
-    // Penamaan Musim Dinamis berdasarkan bulan awal tanam, bukan patokan kaku
     let musim = (bulanTanam >= 4 && bulanTanam <= 9)
         ? `Musim Gadu (Tanam: ${awalTanam.toLocaleDateString("id-ID", { month: "short", year: "numeric" })})`
         : `Musim Rendeng (Tanam: ${awalTanam.toLocaleDateString("id-ID", { month: "short", year: "numeric" })})`;
@@ -1095,6 +1163,10 @@
         }
 
         function switchMode(mode) {
+    if (mode !== 'bwd') {
+        stopCamera();
+    }
+    
     currentMode = mode;
     let color = '#4fc3f7'; 
     let title = 'Cuaca & Risiko Penyakit Tanaman';
@@ -1123,10 +1195,30 @@
         document.getElementById('result').style.display = 'block'; 
         document.getElementById('resConf').style.display = 'none';
         document.getElementById('resLabel').innerText = "Arahkan Kamera ke Daun Padi";
+        
+        // --- KODE BARU: RESET UI BWD KEMBALI KE KAMERA LIVE ---
+        const previewImg = document.getElementById('bwdPreviewImage');
+        if(previewImg) previewImg.style.display = 'none';
+        
+        const focusBox = document.getElementById('focusBox');
+        if(focusBox) focusBox.style.display = 'block';
+        
+        const outBWD = document.getElementById('outputBWD');
+        if(outBWD) outBWD.innerHTML = '';
+        // --- AKHIR KODE BARU ---
+
         startBWDCamera();
     }
 
     if (sub !== '') { subEl.innerText = sub; subEl.style.display = 'block'; } else { subEl.style.display = 'none'; }
+    // --- RESET AMAN UNTUK TOMBOL ANALISIS ---
+    const btnAnal = document.getElementById('btnAnalisis');
+    if (btnAnal) {
+        btnAnal.innerText = "🚀 MULAI ANALISIS";
+        btnAnal.onclick = mulaiAnalisis;
+        btnAnal.style.background = "#3b82f6";
+        btnAnal.style.color = "#ffffff";
+    }
 
     if (mode !== 'malai') {
         hasilSampelBulir = [];
@@ -1162,6 +1254,7 @@
     document.getElementById('boxBWD').style.display = mode === 'bwd' ? 'block' : 'none';
     document.getElementById('boxCuaca').style.display = mode === 'cuaca' ? 'block' : 'none';
     document.getElementById('boxMalai').style.display = mode === 'malai' ? 'block' : 'none';
+    document.getElementById('formParameterLahan').style.display = mode === 'malai' ? 'block' : 'none';
     document.getElementById('boxBiayaTani').style.display = mode === 'biaya' ? 'block' : 'none';
     document.getElementById('boxKalkulatorPupuk').style.display = mode === 'pupuk' ? 'block' : 'none';
     // Tambahan untuk menampilkan box kalender
@@ -1201,26 +1294,41 @@
 }
 
         function handleFile(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = e => {
-                const img = new Image();
-                img.src = e.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = 800; canvas.height = (img.height * 800) / img.width;
-                    ctx.filter = 'brightness(0.9) contrast(1.1)';
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    base64Image = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
-                    document.getElementById('preview').src = canvas.toDataURL('image/jpeg');
-                    document.getElementById('preview').style.display = 'block';
-                    document.getElementById('msg').style.display = 'none';
-                    document.getElementById('btnAnalisis').style.display = 'block';
-                }
-            };
-            reader.readAsDataURL(file);
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = e => {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 800; canvas.height = (img.height * 800) / img.width;
+            ctx.filter = 'brightness(0.9) contrast(1.1)';
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            base64Image = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+            document.getElementById('preview').src = canvas.toDataURL('image/jpeg');
+            document.getElementById('preview').style.display = 'block';
+            document.getElementById('msg').style.display = 'none';
+            
+            // --- KONTROL TOMBOL DINAMIS ---
+            const btnAnalisis = document.getElementById('btnAnalisis');
+            btnAnalisis.style.display = 'block';
+            btnAnalisis.onclick = mulaiAnalisis; // Kembalikan ke fungsi kirim AI
+            btnAnalisis.style.background = "#3b82f6"; // Kembalikan warna biru neon
+            btnAnalisis.style.color = "#ffffff";
+            
+            if (currentMode === 'malai') {
+                document.getElementById('btnCamera').style.display = 'none'; // Sembunyikan kamera asli agar rapi
+                if (hasilSampelBulir.length === 0) btnAnalisis.innerText = "🚀 ANALISIS SAMPEL 1";
+                else if (hasilSampelBulir.length === 1) btnAnalisis.innerText = "🚀 ANALISIS SAMPEL 2";
+                else if (hasilSampelBulir.length === 2) btnAnalisis.innerText = "📊 TAMPILKAN HASIL ANALISIS";
+            } else {
+                btnAnalisis.innerText = "🚀 MULAI ANALISIS";
+            }
         }
+    };
+    reader.readAsDataURL(file);
+}
 
         async function aktifkanGPS() {
     const btn = document.querySelector('.btn-live'); 
@@ -1529,10 +1637,11 @@
         async function startBWDCamera() {
             const video = document.getElementById('videoElement');
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
+                // Diupdate untuk menyimpan stream ke variabel global
+                currentStream = await navigator.mediaDevices.getUserMedia({ 
                     video: { facingMode: 'environment' } 
                 });
-                video.srcObject = stream;
+                video.srcObject = currentStream;
                 video.onloadedmetadata = () => {
                     video.play().catch(e => console.error("Gagal play video:", e));
                 };
@@ -1542,20 +1651,91 @@
             }
         }
 
-        document.getElementById('btnCapture').addEventListener('click', () => {
-            const video = document.getElementById('videoElement');
-            const canvas = document.getElementById('hiddenCanvas');
-            const ctx = canvas.getContext('2d');
+        document.getElementById('btnCapture').addEventListener('click', async () => {
+    const video = document.getElementById('videoElement');
+    const canvas = document.getElementById('hiddenCanvas');
+    const ctx = canvas.getContext('2d');
+    const btn = document.getElementById('btnCapture');
 
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0);
+    // Pastikan video sedang berjalan dan kamera aktif
+    if (!video.videoWidth || !currentStream) {
+        alert("Kamera belum siap, mohon tunggu sebentar.");
+        return;
+    }
 
-            // Nilai diselaraskan dengan masker visual (X: 42%, Y: 25%, Lebar: 16%, Tinggi: 50%)
-            const frame = ctx.getImageData(canvas.width * 0.42, canvas.height * 0.25, canvas.width * 0.16, canvas.height * 0.50);
-            analisisWarnaDaun(frame);
+    // Ambil ukuran asli frame video
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0);
+
+    // Resize gambar agar pengiriman ke server lebih ringan dan cepat
+    const exportCanvas = document.createElement('canvas');
+    const exportCtx = exportCanvas.getContext('2d');
+    const targetWidth = 800; // Resolusi aman untuk AI Roboflow
+    exportCanvas.width = targetWidth;
+    exportCanvas.height = (video.videoHeight * targetWidth) / video.videoWidth;
+    
+    // Tambahkan filter brightness & contrast sedikit agar AI lebih akurat membaca warna
+    exportCtx.filter = 'brightness(1.05) contrast(1.1)';
+    exportCtx.drawImage(canvas, 0, 0, exportCanvas.width, exportCanvas.height);
+
+    // Ubah gambar menjadi format base64
+    const base64Img = exportCanvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+
+    // --- TAMPILKAN PREVIEW FOTO ---
+    const previewImg = document.getElementById('bwdPreviewImage');
+    if (previewImg) {
+        previewImg.src = canvas.toDataURL('image/jpeg'); 
+        previewImg.style.display = 'block';
+    }
+    
+    // Sembunyikan kotak fokus hijau agar tidak menimpa hasil jepretan di layar
+    const focusBox = document.getElementById('focusBox');
+    if (focusBox) focusBox.style.display = 'none';
+
+    // Ubah status tombol UI menjadi loading
+    const originalText = btn.innerText;
+    btn.innerHTML = "MENGANALISIS AI..."; 
+    btn.disabled = true;
+    btn.style.opacity = "0.7";
+    
+    const outputDiv = document.getElementById('outputBWD');
+    outputDiv.innerHTML = `
+        <div style="text-align: center; color: var(--accent-bwd); font-size: 0.85rem; margin-top: 15px;">
+            <div class="animasi-loading-kalender" style="color:var(--accent-bwd);">Menganalisis tingkat Nitrogen daun...</div>
+        </div>`;
+
+    try {
+        // Kirim HTTP POST ke Web App Google Apps Script BWD
+        const res = await fetch(URL_BWD, {
+            method: 'POST',
+            body: JSON.stringify({ image: base64Img })
         });
+        
+        const data = await res.json();
+        
+        // Hentikan kamera perangkat untuk menghemat baterai HP
+        stopCamera();
+        
+        // Teruskan data ke fungsi global penampil hasil AI
+        currentMode = 'bwd';
+        tampilkanHasil(data);
 
+    } catch (err) {
+        console.error(err);
+        outputDiv.innerHTML = `<div class="error" style="display:block; text-align:center;">Gagal memproses gambar. Periksa koneksi internet atau URL Apps Script.</div>`;
+        
+        // Jika terjadi error (misal sinyal putus), kembalikan UI ke mode kamera live
+        if (previewImg) previewImg.style.display = 'none';
+        if (focusBox) focusBox.style.display = 'block';
+        
+    } finally {
+        // Kembalikan tombol ke kondisi semula
+        btn.innerText = originalText;
+        btn.disabled = false;
+        btn.style.opacity = "1";
+    }
+});
         async function mulaiAnalisis() {
             document.getElementById('scanWindow').classList.add('is-scanning');
             document.getElementById('loader').style.display = 'block';
@@ -2002,6 +2182,9 @@ async function getLocalSSTTimeseries() {
                     getLocalSSTTimeseries()
                 ]);
                 
+                const ensoSmooth = getMovingAverage(enso.anomalies, 2);
+const iodSmooth = getMovingAverage(iod.anomalies, 2);
+
                 renderMacroChart(enso.labels, enso.anomalies, iod.anomalies);
                 renderLocalChart(sstLokal.labels, sstLokal.boneData, sstLokal.makassarData);
                 
@@ -2116,15 +2299,17 @@ async function getLocalSSTTimeseries() {
         }
 
         function tampilkanHasil(data) {
-            let out = data;
-            if (currentMode !== 'gulma') {
-                out = Array.isArray(data) ? data[0] : data;
-                if (out.outputs && out.outputs[0]) out = out.outputs[0];
-            }
+    let out = data;
+    if (currentMode !== 'gulma') {
+        out = Array.isArray(data) ? data[0] : data;
+        if (out.outputs && out.outputs[0]) out = out.outputs[0];
+    }
 
-            document.getElementById('result').style.display = 'block';
-            document.getElementById('boxPenyakit').style.display = currentMode === 'daun' ? 'block' : 'none';
-            document.getElementById('boxHama').style.display = currentMode === 'hama' ? 'block' : 'none'; 
+    document.getElementById('result').style.display = 'block';
+    document.getElementById('resConf').style.display = 'block'; // 👈 TAMBAHKAN BARIS INI
+
+    document.getElementById('boxPenyakit').style.display = currentMode === 'daun' ? 'block' : 'none';
+    document.getElementById('boxHama').style.display = currentMode === 'hama' ? 'block' : 'none'; 
             document.getElementById('boxGulma').style.display = currentMode === 'gulma' ? 'block' : 'none';
             document.getElementById('boxTanah').style.display = currentMode === 'tanah' ? 'block' : 'none';
             document.getElementById('boxBWD').style.display = currentMode === 'bwd' ? 'block' : 'none';
@@ -2152,8 +2337,8 @@ async function getLocalSSTTimeseries() {
                     }
                     document.getElementById('resGejala').innerHTML = hasil.gejala;
                     let warnaKepaparan = hasil.tingkat_keparahan === "Sangat Tinggi" || hasil.tingkat_keparahan === "Tinggi" ? "var(--red-alert)" : "var(--accent-soil)";
-                    let keparahanText = hasil.tingkat_keparahan && hasil.tingkat_keparahan !== "-" ? `<span style="color: ${warnaKepaparan}; font-weight: 700;">[Risiko: ${hasil.tingkat_keparahan}]</span><br>` : "";
-                    document.getElementById('resPenyebab').innerHTML = keparahanText + (hasil.penyebab || "-");
+document.getElementById('resRisiko').innerHTML = `<span style="color: ${warnaKepaparan};">${hasil.tingkat_keparahan || "-"}</span>`;
+document.getElementById('resPenyebab').innerHTML = (hasil.penyebab || "-");
                     document.getElementById('resSolusi').innerHTML = hasil.solusi;
                     document.getElementById('resMerek').innerHTML = hasil.merek || "-";
                     
@@ -2195,8 +2380,8 @@ async function getLocalSSTTimeseries() {
                     }
                     document.getElementById('resGejalaHama').innerHTML = hasilHama.gejala || "-";
                     let warnaKepaparan = hasilHama.tingkat_keparahan === "Sangat Tinggi" || hasilHama.tingkat_keparahan === "Tinggi" ? "var(--red-alert)" : "var(--accent-soil)";
-                    let keparahanText = hasilHama.tingkat_keparahan && hasilHama.tingkat_keparahan !== "-" ? `<span style="color: ${warnaKepaparan}; font-weight: 700;">[Status Ledakan: ${hasilHama.tingkat_keparahan}]</span><br>` : "";
-                    document.getElementById('resPenyebabHama').innerHTML = keparahanText + (hasilHama.penyebab || "-");
+document.getElementById('resRisikoHama').innerHTML = `<span style="color: ${warnaKepaparan};">${hasilHama.tingkat_keparahan || "-"}</span>`;
+document.getElementById('resPenyebabHama').innerHTML = (hasilHama.penyebab || "-");
                     document.getElementById('resSolusiHama').innerHTML = hasilHama.solusi || "-";
                     document.getElementById('resMerekHama').innerHTML = hasilHama.merek || "-";
                     
@@ -2222,7 +2407,10 @@ async function getLocalSSTTimeseries() {
                     document.getElementById('resLabel').innerText = "Gagal Identifikasi";
                     document.getElementById('containerListGulma').innerHTML = `<div class="info-box" style="border-left-color: var(--red-alert);"><strong>⚠️ Error:</strong><br>${out.error}</div>`;
                     conf = 0;
-                    document.getElementById('resConf').innerText = `Tingkat Keyakinan: ${conf}%`;
+                    document.getElementById('resConf').innerHTML = `
+    <strong style="color: var(--accent-kalender); font-size: 0.75rem; letter-spacing: 1px;">🤖 SKOR KEPERCAYAAN DIRI AI</strong><br>
+    <span style="font-size: 1.8rem; color: var(--accent-kalender); font-weight: 800; text-shadow: 0 0 10px rgba(217, 70, 239, 0.4);">${parseFloat(conf).toFixed(1)}%</span>
+`;
                     return;
                 }
 
@@ -2380,7 +2568,7 @@ async function getLocalSSTTimeseries() {
                 let finalConfidence = (1 - akumulasiSalah) * 100; if (finalConfidence > 99.9) finalConfidence = 99.9;
                 conf = finalConfidence.toFixed(1);
             }
-            else if (currentMode === 'malai') {
+           else if (currentMode === 'malai') {
                 const listM = document.getElementById('listMalai'); let totalBulirFotoIni = out.count || 0; 
                 if (hasilSampelBulir.length < 3) { hasilSampelBulir.push(totalBulirFotoIni); }
                 listM.innerHTML = "";
@@ -2389,6 +2577,8 @@ async function getLocalSSTTimeseries() {
                 });
 
                 document.getElementById('resLabel').innerText = `Sampel ke-${hasilSampelBulir.length} Tersimpan`; conf = 100;
+
+                const btnAnalisis = document.getElementById('btnAnalisis');
 
                 if (hasilSampelBulir.length === 3) {
                     let rataBulir = (hasilSampelBulir[0] + hasilSampelBulir[1] + hasilSampelBulir[2]) / 3;
@@ -2417,11 +2607,37 @@ async function getLocalSSTTimeseries() {
                         🌾 <b>Karakteristik:</b> ${namaVarietas} (Bobot G1000: ${berat1000Butir}g | Faktor Bernas: ${(persenBernas*100)}%)<br>
                         <div style="margin-top:8px; font-size:0.75rem; opacity:0.6; border-top:1px dashed rgba(255,255,255,0.1); padding-top:5px;">⚠️ <i>Sudah dipotong faktor luasan pematang (-15%) & susut tercecer panen (-10%).</i></div>
                         <h3 style="color:var(--accent-green); margin:12px 0 0 0; font-size:1.25rem;">🌾 Estimasi Riil Lahan: ${hasilRiilTonPerHa.toFixed(2)} Ton/Ha</h3>`;
+                    
                     hasilSampelBulir = []; 
+                    
+                    // Reset tombol dengan gaya tulisan standar
+                    btnAnalisis.innerText = "HITUNG LAHAN LAIN";
+                    btnAnalisis.onclick = () => {
+                        document.getElementById('preview').style.display = 'none';
+                        document.getElementById('msg').style.display = 'block';
+                        document.getElementById('result').style.display = 'none';
+                        document.getElementById('btnCamera').style.display = 'block';
+                        btnAnalisis.style.display = 'none';
+                        listM.innerHTML = "";
+                        document.getElementById('resUbinanTeks').innerHTML = "Ambil 3 foto malai padi secara bergantian untuk memunculkan estimasi produktivitas lahan per Hektar.";
+                        btnAnalisis.onclick = mulaiAnalisis;
+                        btnAnalisis.style.background = "#3b82f6";
+                    };
+                    btnAnalisis.style.background = "var(--accent-biaya)"; 
+
                 } else {
-                    document.getElementById('resUbinanTeks').innerHTML = `⏳ <b>Antrean Sampel:</b> Baru terkumpul <b>${hasilSampelBulir.length} dari 3</b> foto sampel.<br>Silakan ambil foto sampel malai berikutnya lalu klik analisis kembali.`;
+                    document.getElementById('resUbinanTeks').innerHTML = `⏳ <b>Antrean Sampel:</b> Baru terkumpul <b>${hasilSampelBulir.length} dari 3</b> foto sampel.<br>Silakan ambil foto sampel malai berikutnya.`;
+                    
+                    if (hasilSampelBulir.length === 1) {
+                        btnAnalisis.innerText = "AMBIL FOTO KEDUA";
+                    } else if (hasilSampelBulir.length === 2) {
+                        btnAnalisis.innerText = "AMBIL FOTO KETIGA";
+                    }
+                    
+                   btnAnalisis.onclick = bukaKamera; 
+                    btnAnalisis.style.background = "#2563EB"; 
                 }
-            }
+            } // Penutup dari blok malai
 
             document.getElementById('resConf').innerText = `Tingkat Keyakinan: ${parseFloat(conf).toFixed(1)}%`;
         }
@@ -2590,7 +2806,7 @@ async function getLocalSSTTimeseries() {
             let rc = (pendapatan / totalBiaya).toFixed(2);
 
             let bepProduksi = totalBiaya / harga; 
-            let bepHarga = totalBiaya / hasil;    
+            let bepHarga = totalBiaya / hasil;   
 
             let status = "";
             if(rc < 1) status = "❌ Rugi";
@@ -2769,11 +2985,20 @@ async function prosesAnalisisKalender() {
             baselineData = polaTerpilih.baseline;
         }
 
-        // 4. Kalkulasi Fase Tanam
+        // 4. Kalkulasi Fase Tanam secara Dinamis
+        const umurPilihan = document.getElementById("umurVarietasKalender").value;
+        let offsetVeg = 35, offsetGen = 50, offsetPanen = 110;
+
+        if (umurPilihan === "genjah") { 
+            offsetVeg = 25; offsetGen = 40; offsetPanen = 90; 
+        } else if (umurPilihan === "dalam") { 
+            offsetVeg = 40; offsetGen = 60; offsetPanen = 125; 
+        }
+
         const awalTanam = new Date(tglInput);
-        const tglVegetatif = new Date(awalTanam); tglVegetatif.setDate(tglVegetatif.getDate() + 35);
-        const tglGeneratif = new Date(awalTanam); tglGeneratif.setDate(tglGeneratif.getDate() + 50);
-        const tglPanen = new Date(awalTanam); tglPanen.setDate(tglPanen.getDate() + 110);
+        const tglVegetatif = new Date(awalTanam); tglVegetatif.setDate(tglVegetatif.getDate() + offsetVeg);
+        const tglGeneratif = new Date(awalTanam); tglGeneratif.setDate(tglGeneratif.getDate() + offsetGen);
+        const tglPanen = new Date(awalTanam); tglPanen.setDate(tglPanen.getDate() + offsetPanen);
 
         const formatTgl = (d) => d.toLocaleDateString("id-ID", { day: 'numeric', month: 'short' });
         const labels = [
@@ -2848,17 +3073,17 @@ async function prosesAnalisisKalender() {
             </div>
             <div class="info-box" style="border-left-color: ${getWarnaRisiko(riskVeg.skor)};">
                 <strong>🌱 Vegetatif (${tglVegetatif.toLocaleDateString("id-ID", {month: 'long'})})</strong><br>
-                <span style="color: var(--accent-kalender); font-size: 0.75rem; font-weight: bold;">[ Iklim: ${riskVeg.statusCuaca} ]</span><br>
+                <span style="color: var(--accent-kalender); font-size: 0.75rem; font-weight: bold;">Iklim: ${riskVeg.statusCuaca} </span><br>
                 <span style="color: #cbd5e1; font-size: 0.8rem;">Dampak: ${riskVeg.masalah}</span>
             </div>
             <div class="info-box" style="border-left-color: ${getWarnaRisiko(riskGen.skor)};">
                 <strong>🌾 Generatif (${tglGeneratif.toLocaleDateString("id-ID", {month: 'long'})})</strong><br>
-                <span style="color: var(--accent-kalender); font-size: 0.75rem; font-weight: bold;">[ Iklim: ${riskGen.statusCuaca} ]</span><br>
+                <span style="color: var(--accent-kalender); font-size: 0.75rem; font-weight: bold;">Iklim: ${riskGen.statusCuaca} </span><br>
                 <span style="color: #cbd5e1; font-size: 0.8rem;">Dampak: <b>${riskGen.masalah}</b></span>
             </div>
             <div class="info-box" style="border-left-color: ${getWarnaRisiko(riskPanen.skor)};">
                 <strong>🚜 Panen (${tglPanen.toLocaleDateString("id-ID", {month: 'long'})})</strong><br>
-                <span style="color: var(--accent-kalender); font-size: 0.75rem; font-weight: bold;">[ Iklim: ${riskPanen.statusCuaca} ]</span><br>
+                <span style="color: var(--accent-kalender); font-size: 0.75rem; font-weight: bold;">Iklim: ${riskPanen.statusCuaca} </span><br>
                 <span style="color: #cbd5e1; font-size: 0.8rem;">Dampak: ${riskPanen.masalah}</span>
             </div>
         `;
@@ -2989,7 +3214,6 @@ async function prosesAnalisisKalender() {
         }
         
         // 1. Fungsi untuk merender grafik batang (Bar Chart) Kalender Iklim
-// 1. Fungsi untuk merender grafik batang (Bar Chart) Kalender Iklim
 function renderKalenderChart(labels, dataSkor) {
     const ctx = document.getElementById('kalenderChart').getContext('2d');
     
