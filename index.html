@@ -2587,12 +2587,12 @@ async function getLocalSSTTimeseries() {
 
         // Deteksi kondisi upwelling aktif
         // Kriteria: SST Selat < 27.5°C di bulan Jun–Okt = upwelling aktif
-        const bulanSekarang = now.getMonth();
-        const upwellingAktif = (
-            suhuSekarangMks < 27.5 &&
-            bulanSekarang >= 5 &&  // Juni
-            bulanSekarang <= 9     // Oktober
-        );
+        const bulanSekarang = new Date().getMonth(); // 0=Jan, 5=Jun, 9=Okt
+const upwellingAktif = (
+    (suhuSekarangMks < 27.5 || suhuSekarangBone < 27.2) &&
+    bulanSekarang >= 5 &&
+    bulanSekarang <= 9
+);
 
         return {
             labels: labelsMasaDepan,
@@ -2792,7 +2792,7 @@ const iodSmooth = getMovingAverage(iod.anomalies, 2);
                 updateENSOIODStatus(enso, iod);
                 updateLocalWarning(sstLokal);
                 
-                showSSTRekomendasi(sstLokal.boneData[sstLokal.boneData.length - 1]);
+                showSSTRekomendasi(sstLokal);
                 simpulkanPrediksiIklimTerpadu(enso, iod, sstLokal);
                 
             } catch (error) {
@@ -2946,9 +2946,9 @@ const iodSmooth = getMovingAverage(iod.anomalies, 2);
 
         function showSSTRekomendasi(sstLokal) {
     // Ambil nilai dan status upwelling dari objek hasil getLocalSSTTimeseries
-    const boneSST        = sstLokal.sstBoneTerkini   || sstLokal;
-    const makassarSST    = sstLokal.sstMksTerkini     || null;
-    const upwellingAktif = sstLokal.upwellingAktif    || false;
+    const boneSST        = sstLokal.sstBoneTerkini   ?? sstLokal.boneData?.[0];
+const makassarSST    = sstLokal.sstMksTerkini     ?? sstLokal.makassarData?.[0];
+const upwellingAktif = sstLokal.upwellingAktif   ?? false;
 
     if (!boneSST) return;
 
@@ -2974,10 +2974,10 @@ const iodSmooth = getMovingAverage(iod.anomalies, 2);
             `Waspadai potensi defisit air irigasi di wilayah tadah hujan.`;
         warna = 'var(--accent-bwd)';
 
-    } else if (musimTimur && boneSST >= 29.5) {
-        // Musim timur tapi SST justru hangat = anomali, potensi El Niño
-        rekomendasi = `⚠️ <b>ANOMALI SST MUSIM TIMUR</b> — Teluk Bone lebih hangat ` +
-            `dari normal (${boneSST}°C vs baseline ~27.0–27.5°C). ` +
+    } else if (musimTimur && makassarSST !== null && makassarSST >= 28.5) {
+    rekomendasi = `⚠️ <b>ANOMALI SST MUSIM TIMUR</b> — Selat Makassar lebih hangat ` +
+        `dari normal (${makassarSST}°C, baseline Jun ~27.2°C). ` +
+        `Teluk Bone juga hangat (${boneSST}°C). ` +
             `Ini mengindikasikan upwelling tertekan, berpotensi terkait El Niño. ` +
             `Risiko defisit curah hujan di Sulsel meningkat signifikan.`;
         warna = 'var(--red-alert)';
