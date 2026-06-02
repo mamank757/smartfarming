@@ -2945,92 +2945,84 @@ const iodSmooth = getMovingAverage(iod.anomalies, 2);
         }
 
         function showSSTRekomendasi(sstLokal) {
-    const boneSST        = sstLokal.sstBoneTerkini ?? sstLokal.boneData?.[0] ?? null;
-    const makassarSST    = sstLokal.sstMksTerkini ?? sstLokal.makassarData?.[0] ?? null;
+    const boneSST        = parseFloat(sstLokal.sstBoneTerkini ?? sstLokal.boneData?.[0]);
+    const makassarSST    = parseFloat(sstLokal.sstMksTerkini ?? sstLokal.makassarData?.[0]);
     const upwellingAktif = sstLokal.upwellingAktif ?? false;
 
-    if (!boneSST || !makassarSST) {
-        console.warn("Data SST lokal tidak lengkap");
-        return;
-    }
+    if (isNaN(boneSST) || isNaN(makassarSST)) return;
 
-    const bulanSekarang = new Date().getMonth(); // 0 = Januari
-    const musimTimur = bulanSekarang >= 5 && bulanSekarang <= 9; // Juni - Oktober
+    const bulan = new Date().getMonth(); // 0-11
+    const musimTimur = bulan >= 5 && bulan <= 9; // Juni - Oktober
 
     let judul = "";
     let rekomendasi = "";
     let warna = "var(--accent-green)";
     let tingkatRisiko = "RENDAH";
 
-    // ====================== LOGIKA UTAMA ======================
+    // ====================== LOGIKA ANALISIS YANG DIPERBAIKI ======================
 
-    if (upwellingAktif) {
-        judul = "🌊 UPWELLING AKTIF DI SELAT MAKASSAR";
+    // 1. Upwelling Aktif (Prioritas Tertinggi)
+    if (upwellingAktif && makassarSST < 28.5) {
+        judul = "🌊 UPWELLING AKTIF - KONDISI BAIK";
         warna = "var(--accent-bwd)";
-        tingkatRisiko = "NORMAL (MUSIM TIMUR)";
-        rekomendasi = `
-            Suhu Selat Makassar sedang mendingin (${makassarSST}°C). 
-            Kondisi ini normal pada musim timur dan menguntungkan karena membawa nutrisi naik ke permukaan. 
-            Namun massa udara dingin dapat menekan pembentukan awan hujan di daratan Sulsel. 
-            <b>Rekomendasi:</b> Waspadai defisit air di lahan tadah hujan. Siapkan pompa jika diperlukan.`;
+        tingkatRisiko = "RENDAH";
+        rekomendasi = `Selat Makassar sedang mengalami upwelling (${makassarSST}°C). Kondisi normal musim timur yang menguntungkan (nutrisi naik). Namun hujan di daratan cenderung berkurang.`;
     } 
+    // 2. Anomali Hangat Kuat (Kasus Anda: 29.87 & 29.98)
+    else if (makassarSST >= 29.0 || boneSST >= 29.7) {
+        judul = "⚠️ ANOMALI SUHU LAUT HANGAT";
+        warna = "var(--red-alert)";
+        tingkatRisiko = "TINGGI";
+
+        if (musimTimur) {
+            rekomendasi = `
+                Suhu Teluk Bone <b>${boneSST}°C</b> dan Selat Makassar <b>${makassarSST}°C</b> <b>terlalu hangat</b> untuk musim timur.<br><br>
+                Upwelling di Selat Makassar <b>tertekan kuat</b>. Massa air dingin dan nutrisi sulit naik ke permukaan.<br><br>
+                <b>Dampak Utama:</b> Curah hujan di Sulsel cenderung <b>di bawah normal</b>, risiko kekeringan sedang-tinggi meningkat.<br><br>
+                <b>Rekomendasi Petani:</b><br>
+                • Prioritaskan varietas tahan kering (Inpari 42, Inpari 43, Cakrabuana)<br>
+                • Efisiensi irigasi & siapkan cadangan air<br>
+                • Pantau wereng batang coklat (populasi cenderung naik saat kekeringan)
+            `;
+        } else {
+            rekomendasi = `Suhu laut sangat hangat (${boneSST}°C di Teluk Bone). Potensi hujan deras dan kelembapan tinggi. Waspadai banjir lokal & penyakit daun.`;
+        }
+    } 
+    // 3. Hangat Sedang di Musim Timur
     else if (musimTimur && makassarSST >= 28.3) {
-        judul = "⚠️ ANOMALI HANGAT MUSIM TIMUR";
-        warna = "var(--red-alert)";
-        tingkatRisiko = "TINGGI";
-        rekomendasi = `
-            Suhu Selat Makassar terlalu hangat (${makassarSST}°C) di musim timur. 
-            Upwelling tertekan → curah hujan cenderung di bawah normal. 
-            <b>Risiko:</b> Kekeringan, padi stress air, wereng meningkat. 
-            <b>Rekomendasi:</b> Prioritaskan varietas tahan kering (Inpari 42, Inpari 43, Cakrabuana). Terapkan irigasi hemat air.`;
-    } 
-    else if (!musimTimur && boneSST >= 29.8) {
-        judul = "🚨 SUHU TELUK BONE SANGAT HANGAT";
-        warna = "var(--red-alert)";
-        tingkatRisiko = "TINGGI";
-        rekomendasi = `
-            Suhu Teluk Bone sangat tinggi (${boneSST}°C). 
-            Kondisi ini meningkatkan evaporasi dan kelembapan udara secara signifikan. 
-            <b>Risiko:</b> Hujan deras, banjir lokal, dan ledakan penyakit Blast & Hawar Pelepah. 
-            <b>Rekomendasi:</b> Kurangi pupuk Nitrogen, perbaiki drainase, waspadai genangan.`;
-    } 
-    else if (!musimTimur && boneSST >= 29.0) {
-        judul = "⚠️ SUHU LAUT HANGAT (MUSIM BARAT)";
+        judul = "⚠️ ANOMALI HANGAT SEDANG";
         warna = "var(--accent-soil)";
         tingkatRisiko = "SEDANG";
-        rekomendasi = `
-            Suhu Teluk Bone hangat (${boneSST}°C). Kondisi ini mendukung pembentukan hujan konvektif. 
-            <b>Risiko:</b> Kelembapan tinggi → rawan serangan penyakit daun. 
-            <b>Rekomendasi:</b> Batasi Urea, tingkatkan sirkulasi udara (Legowo), pantau Blast rutin.`;
+        rekomendasi = `Selat Makassar (${makassarSST}°C) hangat untuk musim timur. Upwelling mulai melemah. Curah hujan diperkirakan normal hingga sedikit di bawah normal.`;
     } 
-    else if (!musimTimur && makassarSST <= 27.0) {
-        judul = "🌧️ ANOMALI DINGIN DI LUAR MUSIM TIMUR";
+    // 4. Kondisi Hangat di Musim Barat
+    else if (!musimTimur && boneSST >= 29.3) {
+        judul = "🌧️ SUHU TELUK BONE HANGAT";
+        warna = "var(--accent-bwd)";
+        tingkatRisiko = "SEDANG";
+        rekomendasi = `Teluk Bone (${boneSST}°C) hangat. Kondisi ini mendukung pembentukan hujan konvektif. Waspadai kelembapan tinggi yang memicu Blast dan Hawar Pelepah.`;
+    } 
+    // 5. Anomali Dingin
+    else if (makassarSST <= 27.2 && !musimTimur) {
+        judul = "🌧️ ANOMALI DINGIN";
         warna = "var(--accent-bwd)";
         tingkatRisiko = "SEDANG-TINGGI";
-        rekomendasi = `
-            Suhu laut lebih dingin dari biasanya di musim barat. 
-            Kondisi ini jarang terjadi dan biasanya terkait La Niña. 
-            <b>Risiko:</b> Curah hujan di atas normal, potensi banjir. 
-            <b>Rekomendasi:</b> Gunakan varietas tahan rendaman (Inpari 30, Inpari 33).`;
+        rekomendasi = `Suhu laut lebih dingin dari normal. Potensi curah hujan di atas normal (pengaruh La Niña-like). Siapkan drainase yang baik.`;
     } 
+    // 6. Kondisi Normal
     else {
         judul = "✅ KONDISI SST LOKAL NORMAL";
         warna = "var(--accent-green)";
         tingkatRisiko = "RENDAH";
-        rekomendasi = `
-            Suhu Teluk Bone ${boneSST}°C dan Selat Makassar ${makassarSST}°C berada dalam kisaran normal klimatologi untuk bulan ini. 
-            Pola hujan diperkirakan mengikuti musim yang berjalan. 
-            <b>Rekomendasi:</b> Lanjutkan pemupukan dan pengelolaan lahan sesuai kalender tanam standar. Tetap pantau cuaca harian.`;
+        rekomendasi = `Suhu Teluk Bone ${boneSST}°C dan Selat Makassar ${makassarSST}°C berada dalam kisaran wajar untuk bulan ini. Pola cuaca relatif stabil.`;
     }
 
     // ====================== TAMPILKAN KE UI ======================
     let rekomBox = document.getElementById('sstRekomendasiBox');
     if (!rekomBox) {
-        const weatherData = document.getElementById('weatherData');
-        if (weatherData) {
-            weatherData.insertAdjacentHTML('beforeend', `
-                <div id="sstRekomendasiBox" class="info-box" style="margin-top: 16px;"></div>
-            `);
+        const container = document.getElementById('weatherData');
+        if (container) {
+            container.insertAdjacentHTML('beforeend', `<div id="sstRekomendasiBox" class="info-box" style="margin-top:16px;"></div>`);
             rekomBox = document.getElementById('sstRekomendasiBox');
         }
     }
@@ -3038,10 +3030,10 @@ const iodSmooth = getMovingAverage(iod.anomalies, 2);
     if (rekomBox) {
         rekomBox.style.borderLeftColor = warna;
         rekomBox.innerHTML = `
-            <strong>${judul}</strong><br>
-            <span style="font-size: 0.825rem; line-height:1.65;">${rekomendasi}</span>
-            <div style="margin-top: 10px; font-size: 0.7rem; opacity: 0.6; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 6px;">
-                📍 Data SST real-time • ${tingkatRisiko}
+            <strong style="font-size:0.95rem;">${judul}</strong><br><br>
+            <span style="font-size:0.82rem; line-height:1.65;">${rekomendasi}</span>
+            <div style="margin-top:12px; padding-top:8px; border-top:1px dashed rgba(255,255,255,0.15); font-size:0.73rem; opacity:0.7;">
+                📍 Analisis SST Real-time • ${tingkatRisiko}
             </div>`;
     }
 }
