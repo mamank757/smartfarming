@@ -71,7 +71,7 @@ body.light-mode .text-malam { display: inline; }
 /* Tab container tidak sticky */
 .tab-container {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 6px;
     background: #111c2e;
     padding: 8px;
@@ -125,7 +125,7 @@ body {
 
        .tab-container {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Membagi menu jadi 3 kolom sama rata */
+    grid-template-columns: repeat(6, 1fr); /* Membagi menu jadi 3 kolom sama rata */
     gap: 6px;
     background: #111c2e;
     padding: 6px; 
@@ -843,22 +843,22 @@ body.light-mode .harga-table td { color: #334155 !important; border-bottom: 1px 
 <div class="tab-container">
     <button class="tab-btn" id="tabCuaca" onclick="switchMode('cuaca')">RISIKO CUACA</button>
     <button class="tab-btn" id="tabKalender" onclick="switchMode('kalender')">RISIKO IKLIM</button>
-    <button class="tab-btn" id="tabBiaya" onclick="switchMode('biaya')">BIAYA TANI</button>
-    <button class="tab-btn" id="tabUkur" onclick="switchMode('ukur')">UKUR LAHAN</button>
+    <button class="tab-btn" id="tabBiaya" onclick="switchMode('biaya')">BIAYA USAHA TANI</button>
+    <button class="tab-btn" id="tabUkur" onclick="switchMode('ukur')">UKUR LUAS LAHAN</button>
     <button class="tab-btn" id="tabVarietas" onclick="switchMode('varietas')">VARIETAS PADI</button>
     <button class="tab-btn" id="tabPupuk" onclick="switchMode('pupuk')">DOSIS PUPUK</button> 
     <button class="tab-btn" id="tabBWD" onclick="switchMode('bwd')">UJI BWD UREA</button>
-    <button class="tab-btn" id="tabTanah" onclick="switchMode('tanah')">FISIK TANAH</button>
-    <button class="tab-btn" id="tabMalai" onclick="switchMode('malai')">HASIL PANEN</button>
-    <button class="tab-btn" id="tabHama" onclick="switchMode('hama')">HAMA PADI</button>
-    <button class="tab-btn" id="tabDaun" onclick="switchMode('daun')">PENYAKIT PADI</button>
+    <button class="tab-btn" id="tabTanah" onclick="switchMode('tanah')">UJI FISIK TANAH</button>
+    <button class="tab-btn" id="tabMalai" onclick="switchMode('malai')">EST. HASIL PANEN</button>
+    <button class="tab-btn" id="tabHama" onclick="switchMode('hama')">HAMA TAN. PADI</button>
+    <button class="tab-btn" id="tabDaun" onclick="switchMode('daun')">PENYAKIT TAN. PADI</button>
     <button class="tab-btn" id="tabGulma" onclick="switchMode('gulma')">JENIS GULMA</button>
-    <button class="tab-btn" id="tabPestisida" onclick="switchMode('pestisida')">💊 HARGA PESTISIDA</button>
-    <button class="tab-btn" id="tabGabah" onclick="switchMode('gabah')">🌾 HARGA GABAH</button>
-    <button class="tab-btn" id="tabChat1" onclick="toggleChatbox(1)">KONSULTASI 1</button>
-    <button class="tab-btn" id="tabChat2" onclick="toggleChatbox(2)">KONSULTASI 2</button>
-    <button class="tab-btn" id="tabChat3" onclick="toggleChatbox(3)">KONSULTASI 3</button>
-    <button class="tab-btn" id="tabChat4" onclick="toggleChatbox(4)">KONSULTASI 4</button>
+    <button class="tab-btn" id="tabPestisida" onclick="switchMode('pestisida')">HARGA PESTISIDA</button>
+    <button class="tab-btn" id="tabGabah" onclick="switchMode('gabah')">HARGA GABAH</button>
+    <button class="tab-btn" id="tabChat1" onclick="toggleChatbox(1)">KONSUL ASIST 1</button>
+    <button class="tab-btn" id="tabChat2" onclick="toggleChatbox(2)">KONSUL ASIST 2</button>
+    <button class="tab-btn" id="tabChat3" onclick="toggleChatbox(3)">KONSUL ASIST 3</button>
+    <button class="tab-btn" id="tabChat4" onclick="toggleChatbox(4)">KONSUL ASIST 4</button>
 </div>
 
     <div class="card">
