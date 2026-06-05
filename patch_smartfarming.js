@@ -320,7 +320,7 @@ body.light-mode .toast-notif { background: #ffffff; }
         <button class="fab-kecil fab-lahan" onclick="bukaPanel('multiLahan')">🌾 <span>Lahan Saya</span></button>
         <button class="fab-kecil fab-riwayat" onclick="bukaPanel('riwayat')">📋 <span>Riwayat</span></button>
         <button class="fab-kecil fab-notif" onclick="bukaPanel('notif')" id="fabNotifBtn">🔔 <span>Pengingat</span></button>
-        <button class="fab-kecil fab-harga" onclick="bukaPanel('harga')">💰 <span>Harga Pupuk</span></button>
+        <button class="fab-kecil fab-harga" onclick="bukaPanel('harga')">💰 <span>Harga Dasar</span></button>
     </div>
 
     <!-- ── PANEL MULTI-LAHAN ── -->
