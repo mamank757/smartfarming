@@ -489,7 +489,43 @@ body.light-mode {
     --text-main: #0f172a;
     --text-muted: #475569;
 }
+/* === PERBAIKAN KONTRAS MENU HARGA GABAH DI LIGHT MODE === */
+body.light-mode #boxGabah,
+body.light-mode #gabahHasil {
+    background-color: #ffffff !important;
+    color: #0f172a !important; /* Paksa teks hasil jadi biru gelap/hitam */
+}
 
+/* Memperbaiki input wilayah dan select dropdown harga gabah */
+body.light-mode #inputWilayahGabah,
+body.light-mode #selectJenisGabah {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+    border: 1px solid #94a3b8 !important;
+}
+
+/* Memperbaiki teks di dalam info-box hasil gabah atau tabel yang muncul */
+body.light-mode #gabahHasil .info-box,
+body.light-mode #gabahHasil table,
+body.light-mode #gabahHasil td {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+}
+
+/* Memperbaiki tulisan HPP GKP & GKG agar kotak backgroundnya terang dan teksnya gelap */
+body.light-mode #gabahHasil div[style*="background"] {
+    background: #e2e8f0 !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+body.light-mode #gabahHasil div[style*="color:#fff"] {
+    color: #0f172a !important; /* Mengubah angka Rp dari putih ke gelap */
+}
+
+/* Memperbaiki teks loading pas lagi nyari harga gabah */
+body.light-mode #gabahLoaderTeks {
+    color: #b45309 !important; /* Warna oranye tua kontras */
+}
 /* === HEADER & STICKY === */
 body.light-mode .sticky-header,
 body.light-mode .sticky-top {
