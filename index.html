@@ -804,6 +804,26 @@ body.light-mode #pestisidaHasil .info-box {
     background: #f8fafc !important;
     color: #0f172a !important;
 }
+/* --- STYLE TAMBAHAN HARGA REALTIME AI --- */
+.harga-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 10px; }
+.harga-table th { padding: 10px 8px; text-align: left; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; }
+.harga-table td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-main); }
+.harga-table tr:last-child td { border-bottom: none; }
+
+.hpp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.hpp-card { border-radius: 14px; padding: 16px; text-align: center; }
+.hpp-card .label { font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; }
+.hpp-card .value { font-size: 1.2rem; font-weight: 800; color: var(--text-main); }
+.hpp-card .unit  { font-size: 0.7rem; opacity: 0.6; margin-top: 4px; color: var(--text-muted); }
+
+.stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.stat-card { background: rgba(0,0,0,0.15); border-radius: 14px; padding: 14px; border: 1px solid rgba(255,255,255,0.02); }
+.stat-card .stat-lbl { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+.stat-card .stat-val { font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
+
+body.light-mode .stat-card { background: #f8fafc; border-color: #cbd5e1; }
+body.light-mode .hpp-card .value, body.light-mode .stat-card .stat-val { color: #0f172a !important; }
+body.light-mode .harga-table td { color: #334155 !important; border-bottom: 1px solid #e2e8f0; }
     </style>
 </head>
 <body>
@@ -1155,18 +1175,18 @@ body.light-mode #pestisidaHasil .info-box {
     <div style="margin-bottom: 20px;">
         <div style="font-size: 0.72rem; color: #64748b; margin-bottom: 8px; font-weight: 600; letter-spacing: 0.5px;">⚡ WILAYAH POPULER — KLIK CEPAT:</div>
         <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+           <!-- Lanjutan dari shortcut wilayah yang terpotong -->
             <button onclick="cariGabahCepat('Wajo')" style="background:#1b273a; color:#94a3b8; border:1px solid rgba(255,255,255,0.08); padding:6px 12px; border-radius:8px; font-size:0.75rem; cursor:pointer; font-weight:600;">Kab. Wajo</button>
             <button onclick="cariGabahCepat('Bone')" style="background:#1b273a; color:#94a3b8; border:1px solid rgba(255,255,255,0.08); padding:6px 12px; border-radius:8px; font-size:0.75rem; cursor:pointer; font-weight:600;">Kab. Bone</button>
             <button onclick="cariGabahCepat('Soppeng')" style="background:#1b273a; color:#94a3b8; border:1px solid rgba(255,255,255,0.08); padding:6px 12px; border-radius:8px; font-size:0.75rem; cursor:pointer; font-weight:600;">Kab. Soppeng</button>
             <button onclick="cariGabahCepat('Sidrap')" style="background:#1b273a; color:#94a3b8; border:1px solid rgba(255,255,255,0.08); padding:6px 12px; border-radius:8px; font-size:0.75rem; cursor:pointer; font-weight:600;">Kab. Sidrap</button>
             <button onclick="cariGabahCepat('Pinrang')" style="background:#1b273a; color:#94a3b8; border:1px solid rgba(255,255,255,0.08); padding:6px 12px; border-radius:8px; font-size:0.75rem; cursor:pointer; font-weight:600;">Kab. Pinrang</button>
             <button onclick="cariGabahCepat('Luwu')" style="background:#1b273a; color:#94a3b8; border:1px solid rgba(255,255,255,0.08); padding:6px 12px; border-radius:8px; font-size:0.75rem; cursor:pointer; font-weight:600;">Kab. Luwu</button>
-            <button onclick="cariGabahCepat('Makassar')" style="background:#1b273a; color:#94a3b8; border:1px solid rgba(255,255,255,0.08); padding:6px 12px; border-radius:8px; font-size:0.75rem; cursor:pointer; font-weight:600;">Makassar</button>
             <button onclick="cariGabahCepat('Sulawesi Selatan')" style="background:#1b273a; color:#94a3b8; border:1px solid rgba(255,255,255,0.08); padding:6px 12px; border-radius:8px; font-size:0.75rem; cursor:pointer; font-weight:600;">Sulsel (Rata-rata)</button>
         </div>
     </div>
 
-    <!-- Loading -->
+    <!-- Area Loading -->
     <div id="gabahLoader" style="display:none; text-align:center; padding: 24px 0;">
         <div style="font-size: 2rem; margin-bottom: 10px;">🌾</div>
         <div id="gabahLoaderTeks" style="color: #10b981; font-weight: 700; font-size: 0.9rem; letter-spacing: 1px; animation: kedipTeks 1.2s infinite;">
@@ -1175,8 +1195,8 @@ body.light-mode #pestisidaHasil .info-box {
         <div style="color: #64748b; font-size: 0.75rem; margin-top: 8px;">AI sedang mencari data pasar terbaru...</div>
     </div>
 
-    <!-- Hasil -->
-    <div id="gabahHasil" style="display:none;"></div>
+    <!-- Area Hasil -->
+    <div id="gabahHasil" style="display:none; margin-top: 15px;"></div>
 
     <!-- Tombol WA -->
     <button id="btnKirimWAGabah" class="btn-main"
@@ -1185,9 +1205,9 @@ body.light-mode #pestisidaHasil .info-box {
         💬 KIRIM/SIMPAN KE WHATSAPP
     </button>
 
-    <!-- Disclaimer -->
-    <div style="background: rgba(100,116,139,0.1); border-radius: 12px; padding: 12px; margin-top: 16px; font-size: 0.72rem; color: #64748b; line-height: 1.6; border: 1px solid rgba(255,255,255,0.04);">
-        ⚠️ <strong style="color: #94a3b8;">Disclaimer:</strong> Data harga gabah bersifat referensi berdasarkan HPP Kementan, data BPS, dan laporan pasar. Harga aktual di lapangan bisa berbeda. Konfirmasi ke penggilingan/pedagang setempat.
+    <!-- Info disclaimer -->
+    <div style="background: rgba(100, 116, 139, 0.1); border-radius: 12px; padding: 12px; margin-top: 16px; font-size: 0.72rem; color: #64748b; line-height: 1.6; border: 1px solid rgba(255,255,255,0.04);">
+        ⚠️ <strong style="color: #94a3b8;">Disclaimer:</strong> Data bersumber dari HPP Kementan, BPS, dan pencarian pasar realtime. Harga aktual di penggilingan/pedagang setempat bisa berbeda.
     </div>
 </div>
         <!-- ============================================================ -->
@@ -5613,6 +5633,7 @@ const GAS_URL_1 = "https://script.google.com/macros/s/AKfycbzJfQzgWnMJKqiaT8YP-G
 const GAS_URL_2 = "https://script.google.com/macros/s/AKfycbyvSjJziHRXDf_sj0HX1zKOr3P57uzvBBwT1EZzedVhzykUB4JN5H-WCuJNH43dhXcX/exec"; 
 const GAS_URL_3 = "https://script.google.com/macros/s/AKfycbwYXgFAiXbbkjrOlXsrvKu2jTrefxO3NeVxW9gYF3iQbK7mcwGomViuhAOBR4f0c5lI/exec"; 
 const GAS_URL_4 = "https://script.google.com/macros/s/AKfycbyYawG41kIjswwpL0Bv0zDKGfpimOBoLdq7n8jwJQ54WkDEMUASQGCgpvuuBFJrrbOQ/exec";
+const GAS_URL_5 = "https://script.google.com/macros/s/AKfycbwPI3uhV130RHB26qbiXiCZdCK843DBOA9zn3-MvXSbFy8wKATXJOiQzSnKT4JC-vInFQ/exec";
 
 const chatboxAI = document.getElementById('chatboxAI');
 const btnBukaChat = document.getElementById('btnBukaChat');
@@ -5817,441 +5838,313 @@ function startBWDCamera() {
     });
 }
 
-// ====================== FITUR HARGA PESTISIDA & GABAH ======================
-// Menggunakan Google Apps Script sebagai proxy untuk menghindari CORS
-// GAS_URL_4 sudah ada di file ini — kita gunakan URL baru khusus harga
+// ====================================================================
+// KODE FULL HARGA PESTISIDA & HARGA GABAH (SUDAH DIPERBAIKI)
+// ====================================================================
 
-// ⚙️ URL Google Apps Script PROXY — ganti dengan URL GAS Anda sendiri
-// GAS perlu meneruskan request ke Groq/OpenRouter atau menjawab langsung
-// Untuk sementara kita gunakan GAS_URL_4 yang sudah ada, dengan payload berbeda
-// Atau: gunakan endpoint publik seperti api.groq.com lewat GAS proxy
+// Variabel penampung teks untuk WhatsApp
+let waPestisidaTeks = '';
+let waGabahTeks = '';
 
-const GAS_HARGA_URL = "https://script.google.com/macros/s/AKfycbzJfQzgWnMJKqiaT8YP-GEPI_PNyYgjMkdL7LWQeostDueXwhRcY8ihHsPxNVTvIgRv/exec";
-
-let hasilPestisidaTeks = "";
-let hasilGabahTeks = "";
-
-// ────────────────────────────────────────────
-// FUNGSI GENERIK: Kirim prompt ke GAS proxy
-// ────────────────────────────────────────────
-async function kirimKeGAS(prompt, gasUrl) {
-    const response = await fetch(gasUrl, {
-        method: "POST",
-        body: JSON.stringify({ pesan: prompt })
-    });
-    if (!response.ok) throw new Error(`Server error: ${response.status}`);
-    const rawText = await response.text();
-    let data;
-    try { data = JSON.parse(rawText); } catch(e) { return rawText; }
-
-    // Format Groq direct
-    if (data.choices && data.choices[0]?.message?.content) {
-        return data.choices[0].message.content;
-    }
-    // Format GAS custom
-    if (data.status === "sukses" && data.jawaban) {
-        return data.jawaban;
-    }
-    // Fallback: kembalikan raw JSON string
-    return rawText;
+// ── Fungsi format rupiah (HILANG di HTML asli) ──────────────────
+function rp(angka) {
+  if (!angka || angka === '-') return '-';
+  var n = parseInt(String(angka).replace(/\D/g, ''));
+  if (isNaN(n)) return angka;
+  return 'Rp ' + n.toLocaleString('id-ID');
 }
 
-// ────────────────────────────────────────────
-// HARGA PESTISIDA
-// ────────────────────────────────────────────
-function cariCepat(namaPestisida) {
-    document.getElementById('inputNamaPestisida').value = namaPestisida;
-    document.getElementById('inputWilayahPestisida').value = '';
-    cariHargaPestisida();
-}
+// ── Render hasil pestisida ke halaman ───────────────────────────
+function renderPestisida(info, namaInput, wilayahInput, tgl) {
+  var hasil = document.getElementById('pestisidaHasil');
 
-async function cariHargaPestisida() {
-    const nama = document.getElementById('inputNamaPestisida').value.trim();
-    const wilayah = document.getElementById('inputWilayahPestisida').value.trim();
-    if (!nama) { alert("⚠️ Nama pestisida tidak boleh kosong!"); return; }
+  var ikonTren = info.tren === 'naik' ? '📈' : info.tren === 'turun' ? '📉' : '➡️';
 
-    const loader    = document.getElementById('pestisidaLoader');
-    const hasil     = document.getElementById('pestisidaHasil');
-    const btnCari   = document.getElementById('btnCariPestisida');
-    const btnWA     = document.getElementById('btnKirimWAPestisida');
-    const loaderTeks = document.getElementById('pestisidaLoaderTeks');
+  var html =
+    '<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);' +
+    'border-radius:18px;padding:18px;margin-bottom:14px;">' +
+      '<div style="font-size:11px;color:#f59e0b;font-weight:700;letter-spacing:1px;margin-bottom:6px;">HASIL PENCARIAN PESTISIDA</div>' +
+      '<div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:4px;">' + (info.nama_produk || namaInput) + '</div>' +
+      '<div style="font-size:12px;color:#94a3b8;">' +
+        (info.jenis ? '🏷️ ' + info.jenis + ' &nbsp;|&nbsp; ' : '') +
+        (info.bahan_aktif ? '🧪 ' + info.bahan_aktif + ' &nbsp;|&nbsp; ' : '') +
+        '🕒 Update: ' + tgl +
+      '</div>' +
+    '</div>' +
 
-    loader.style.display = 'block';
-    hasil.style.display  = 'none';
-    hasil.innerHTML      = '';
-    btnCari.disabled     = true;
-    btnWA.style.display  = 'none';
-    hasilPestisidaTeks   = '';
+    '<div class="info-box" style="border-left-color:#f59e0b; margin-bottom:14px;">' +
+      '<strong>💰 Harga Terkini</strong>' +
+      '<div style="margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">' +
+        '<div style="background:rgba(245,158,11,0.1);border-radius:12px;padding:14px;text-align:center;">' +
+          '<div style="font-size:10px;color:#94a3b8;font-weight:700;margin-bottom:6px;">ECERAN</div>' +
+          '<div style="font-size:16px;font-weight:800;color:#fff;">' + (info.harga_eceran || '-') + '</div>' +
+          '<div style="font-size:10px;color:#64748b;margin-top:4px;">' + (info.satuan || '') + '</div>' +
+        '</div>' +
+        '<div style="background:rgba(59,130,246,0.1);border-radius:12px;padding:14px;text-align:center;">' +
+          '<div style="font-size:10px;color:#94a3b8;font-weight:700;margin-bottom:6px;">GROSIR</div>' +
+          '<div style="font-size:16px;font-weight:800;color:#fff;">' + (info.harga_grosir || '-') + '</div>' +
+          '<div style="font-size:10px;color:#64748b;margin-top:4px;">' + (info.satuan || '') + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
 
-    const rotasi = ["🔍 MENCARI DI PASAR ONLINE...","📊 MENGUMPULKAN DATA HARGA...","🤖 AI MENGANALISIS...","✅ MENYUSUN LAPORAN..."];
-    let ri = 0;
-    const rotasiInterval = setInterval(() => { loaderTeks.textContent = rotasi[ri=(ri+1)%rotasi.length]; }, 1800);
+    '<div class="info-box" style="border-left-color:#38b6ff;">' +
+      '<strong>📊 Info Pasar</strong>' +
+      '<div style="margin-top:8px;font-size:13px;line-height:1.7;color:#cbd5e1;">' +
+        ikonTren + ' <strong>Tren Harga:</strong> <span style="color:#fff;">' + (info.tren ? info.tren.toUpperCase() : '-') + '</span><br>' +
+        (info.sumber_harga ? '🏪 <strong>Sumber:</strong> ' + info.sumber_harga + '<br>' : '') +
+        (info.catatan && info.catatan !== '-' ? '<br>📝 <em>' + info.catatan + '</em>' : '') +
+      '</div>' +
+    '</div>';
 
-    const wilayahKet = wilayah || 'Sulawesi Selatan / Wajo';
-    const tgl = new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  hasil.innerHTML = html;
 
-    const prompt = `Kamu adalah asisten harga pestisida pertanian Indonesia.
-Berikan info harga "${nama}" di wilayah ${wilayahKet}. Tanggal: ${tgl}.
-PENTING: Balas HANYA dengan JSON valid, tanpa komentar, tanpa markdown, langsung mulai dari { dan akhiri dengan }.
-
-{
-  "nama_produk": "nama lengkap produk",
-  "jenis": "herbisida/insektisida/fungisida/dll",
-  "bahan_aktif": "bahan aktif dan konsentrasi",
-  "fungsi_utama": "kegunaan singkat untuk padi",
-  "harga_pasar": [
-    {"ukuran":"100ml","harga_min":25000,"harga_max":35000,"satuan":"botol"},
-    {"ukuran":"500ml","harga_min":80000,"harga_max":120000,"satuan":"botol"},
-    {"ukuran":"1L","harga_min":150000,"harga_max":210000,"satuan":"botol"}
-  ],
-  "harga_eceran_kios": "kisaran harga di kios tani lokal",
-  "harga_online": "kisaran harga marketplace",
-  "tren_harga": "naik",
-  "alasan_tren": "penjelasan singkat kenapa harga naik/turun/stabil",
-  "dosis_padi": "dosis anjuran per hektar",
-  "tips_beli": "tips hemat satu kalimat",
-  "alternatif_murah": "nama produk alternatif murah",
-  "peringatan": "peringatan K3 satu kalimat"
-}`;
-
-    try {
-        const rawTeks = await kirimKeGAS(prompt, GAS_HARGA_URL);
-        clearInterval(rotasiInterval);
-        loader.style.display = 'none';
-        btnCari.disabled = false;
-
-        let info = null;
-        const m = rawTeks.match(/\{[\s\S]*\}/);
-        if (m) { try { info = JSON.parse(m[0]); } catch(e){} }
-
-        if (info) {
-            renderHasilPestisida(info, nama, wilayah, tgl);
-        } else {
-            hasil.innerHTML = `<div class="info-box" style="border-left-color:#f59e0b;">
-                <strong>💊 ${nama}</strong><br>
-                <div style="font-size:0.82rem;margin-top:8px;line-height:1.7;">${rawTeks.replace(/\n/g,'<br>')}</div>
-            </div>`;
-            hasilPestisidaTeks = `💊 *HARGA PESTISIDA - ${nama}*\n\n${rawTeks}`;
-        }
-        hasil.style.display = 'block';
-        btnWA.style.display  = 'block';
-
-    } catch (err) {
-        clearInterval(rotasiInterval);
-        loader.style.display = 'none';
-        btnCari.disabled = false;
-        hasil.style.display = 'block';
-        hasil.innerHTML = `<div class="info-box" style="border-left-color:#ef4444;background:rgba(239,68,68,0.05);">
-            <strong>❌ Gagal Mengambil Data</strong><br>
-            <span style="font-size:0.8rem;color:#94a3b8;">${err.message || 'Periksa koneksi internet'}</span><br><br>
-            <span style="font-size:0.75rem;color:#64748b;">💡 Pastikan koneksi internet aktif. Jika error berlanjut, coba lagi dalam beberapa detik.</span>
-        </div>`;
-    }
-}
-
-function renderHasilPestisida(info, namaInput, wilayah, tgl) {
-    const hasil = document.getElementById('pestisidaHasil');
-
-    let tabelHarga = '';
-    if (info.harga_pasar?.length > 0) {
-        tabelHarga = `<table style="width:100%;font-size:0.82rem;border-collapse:collapse;margin-top:10px;">
-        <tr style="background:rgba(245,158,11,0.15);">
-            <th style="padding:10px 8px;text-align:left;color:#f59e0b;font-size:0.75rem;font-weight:700;">UKURAN</th>
-            <th style="padding:10px 8px;text-align:right;color:#f59e0b;font-size:0.75rem;font-weight:700;">MIN</th>
-            <th style="padding:10px 8px;text-align:right;color:#f59e0b;font-size:0.75rem;font-weight:700;">MAX</th>
-        </tr>`;
-        info.harga_pasar.forEach((h,i) => {
-            tabelHarga += `<tr style="background:${i%2===0?'rgba(255,255,255,0.02)':'transparent'};border-bottom:1px solid rgba(255,255,255,0.04);">
-                <td style="padding:10px 8px;color:#cbd5e1;">${h.ukuran} / ${h.satuan}</td>
-                <td style="padding:10px 8px;text-align:right;color:#4ade80;font-weight:700;">Rp ${Number(h.harga_min).toLocaleString('id-ID')}</td>
-                <td style="padding:10px 8px;text-align:right;color:#fb923c;font-weight:700;">Rp ${Number(h.harga_max).toLocaleString('id-ID')}</td>
-            </tr>`;
-        });
-        tabelHarga += '</table>';
-    }
-
-    const ikonTren = info.tren_harga==='naik'?'📈':info.tren_harga==='turun'?'📉':'➡️';
-    const warnaTren = info.tren_harga==='naik'?'#ef4444':info.tren_harga==='turun'?'#4ade80':'#f59e0b';
-
-    hasil.innerHTML = `
-        <div style="background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(217,119,6,0.06));border:1px solid rgba(245,158,11,0.25);border-radius:20px;padding:18px;margin-bottom:14px;">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-                <div>
-                    <div style="font-size:0.7rem;color:#f59e0b;font-weight:700;letter-spacing:1px;margin-bottom:4px;">${(info.jenis||'PESTISIDA').toUpperCase()}</div>
-                    <div style="font-size:1.1rem;font-weight:800;color:#fff;">${info.nama_produk||namaInput}</div>
-                </div>
-                <div style="background:rgba(245,158,11,0.2);padding:8px 12px;border-radius:10px;text-align:center;">
-                    <div style="font-size:0.65rem;color:#f59e0b;font-weight:600;">TREN</div>
-                    <div style="font-size:1.2rem;">${ikonTren}</div>
-                </div>
-            </div>
-            <div style="font-size:0.8rem;color:#94a3b8;"><strong style="color:#f59e0b;">Bahan Aktif:</strong> ${info.bahan_aktif||'-'}</div>
-            ${info.fungsi_utama?`<div style="font-size:0.8rem;color:#94a3b8;margin-top:6px;"><strong style="color:#f59e0b;">Fungsi:</strong> ${info.fungsi_utama}</div>`:''}
-        </div>
-
-        <div class="info-box" style="border-left-color:#f59e0b;background:rgba(245,158,11,0.03);padding:16px;margin-bottom:14px;">
-            <strong>💰 Kisaran Harga Pasar</strong>
-            ${tabelHarga}
-            <div style="font-size:0.75rem;color:#64748b;margin-top:8px;text-align:right;">📅 ${tgl}${wilayah?' • '+wilayah:' • Sulsel'}</div>
-        </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-            <div style="background:#111c2e;border-radius:14px;padding:14px;border-left:3px solid #3b82f6;">
-                <div style="font-size:0.7rem;color:#3b82f6;font-weight:700;margin-bottom:6px;">🛒 ONLINE</div>
-                <div style="font-size:0.8rem;color:#fff;font-weight:600;">${info.harga_online||'Cek marketplace'}</div>
-            </div>
-            <div style="background:#111c2e;border-radius:14px;padding:14px;border-left:3px solid #10b981;">
-                <div style="font-size:0.7rem;color:#10b981;font-weight:700;margin-bottom:6px;">🏪 KIOS LOKAL</div>
-                <div style="font-size:0.8rem;color:#fff;font-weight:600;">${info.harga_eceran_kios||'Tanya toko setempat'}</div>
-            </div>
-        </div>
-
-        <div class="info-box" style="border-left-color:${warnaTren};margin-bottom:14px;">
-            <strong>${ikonTren} Tren Harga: <span style="color:${warnaTren};">${(info.tren_harga||'Stabil').toUpperCase()}</span></strong><br>
-            <span style="font-size:0.82rem;">${info.alasan_tren||'-'}</span>
-        </div>
-
-        ${info.dosis_padi?`<div class="info-box" style="border-left-color:#10b981;margin-bottom:14px;"><strong>🌾 Dosis Padi:</strong><br><span style="font-size:0.82rem;">${info.dosis_padi}</span></div>`:''}
-        ${info.tips_beli?`<div class="info-box" style="border-left-color:#8b5cf6;margin-bottom:14px;"><strong>💡 Tips Hemat:</strong><br><span style="font-size:0.82rem;">${info.tips_beli}</span></div>`:''}
-        ${info.alternatif_murah?`<div class="info-box" style="border-left-color:#38b6ff;margin-bottom:14px;"><strong>🔄 Alternatif Murah:</strong><br><span style="font-size:0.82rem;">${info.alternatif_murah}</span></div>`:''}
-        ${info.peringatan?`<div class="info-box" style="border-left-color:#ef4444;background:rgba(239,68,68,0.04);margin-bottom:14px;"><strong>⚠️ Peringatan:</strong><br><span style="font-size:0.82rem;">${info.peringatan}</span></div>`:''}
-    `;
-
-    // Bangun teks WA
-    let wa = `💊 *INFO HARGA PESTISIDA*\n🔍 ${info.nama_produk||namaInput}\n📅 ${tgl}${wilayah?' | '+wilayah:''}\n━━━━━━━━━━━━━━━━━━━━\n\n`;
-    wa += `🏷️ *Jenis:* ${info.jenis||'-'}\n🧪 *Bahan Aktif:* ${info.bahan_aktif||'-'}\n\n`;
-    if (info.harga_pasar?.length>0) {
-        wa += `💰 *HARGA PASAR:*\n`;
-        info.harga_pasar.forEach(h => { wa += `• ${h.ukuran}: Rp ${Number(h.harga_min).toLocaleString('id-ID')} – Rp ${Number(h.harga_max).toLocaleString('id-ID')}\n`; });
-        wa += '\n';
-    }
-    wa += `🛒 Online: ${info.harga_online||'-'}\n🏪 Kios: ${info.harga_eceran_kios||'-'}\n\n`;
-    wa += `📈 Tren: ${info.tren_harga||'-'} — ${info.alasan_tren||''}\n`;
-    if (info.dosis_padi) wa += `\n🌾 Dosis Padi: ${info.dosis_padi}`;
-    if (info.tips_beli)  wa += `\n💡 Tips: ${info.tips_beli}`;
-    wa += `\n\n_PPL Milenial Wajo — Smart Farming_`;
-    hasilPestisidaTeks = wa;
+  // Simpan teks untuk WhatsApp
+  waPestisidaTeks =
+    '🧴 *CEK HARGA PESTISIDA*\n\n' +
+    '🏷️ *Produk:* ' + (info.nama_produk || namaInput) + '\n' +
+    (info.jenis ? '📌 *Jenis:* ' + info.jenis + '\n' : '') +
+    (info.bahan_aktif ? '🧪 *Bahan Aktif:* ' + info.bahan_aktif + '\n' : '') +
+    '🕒 *Update:* ' + tgl + '\n\n' +
+    '💰 *HARGA TERKINI*\n' +
+    '• Eceran: ' + (info.harga_eceran || '-') + '\n' +
+    '• Grosir: ' + (info.harga_grosir || '-') + '\n' +
+    (info.satuan ? '• Satuan: ' + info.satuan + '\n' : '') +
+    '\n' + ikonTren + ' Tren: ' + (info.tren || '-') + '\n' +
+    (info.sumber_harga ? '🏪 Sumber: ' + info.sumber_harga + '\n' : '') +
+    (info.catatan && info.catatan !== '-' ? '\n📝 ' + info.catatan : '') +
+    '\n\n_PPL Milenial Wajo — Smart Farming_';
 }
 
 function kirimPestisidaKeWA() {
-    if (!hasilPestisidaTeks) { alert("Belum ada data untuk dikirim!"); return; }
-    window.open(`https://wa.me/?text=${encodeURIComponent(hasilPestisidaTeks)}`,'_blank');
+  if (!waPestisidaTeks) return;
+  window.open('https://wa.me/?text=' + encodeURIComponent(waPestisidaTeks), '_blank');
 }
 
-// ────────────────────────────────────────────
-// HARGA GABAH
-// ────────────────────────────────────────────
-function cariGabahCepat(wilayah) {
-    document.getElementById('inputWilayahGabah').value = wilayah;
-    document.getElementById('selectJenisGabah').value = 'semua';
-    cariHargaGabah();
-}
-
+// ====================================================================
+// FUNGSI UTAMA PENCARIAN GABAH
+// ====================================================================
 async function cariHargaGabah() {
-    const wilayah = document.getElementById('inputWilayahGabah').value.trim() || 'Sulawesi Selatan';
-    const jenis   = document.getElementById('selectJenisGabah').value;
+    const wilayah = document.getElementById('inputWilayahGabah').value.trim();
+    const jenisGabah = document.getElementById('selectJenisGabah').value;
+    const loader = document.getElementById('gabahLoader');
+    const hasilDiv = document.getElementById('gabahHasil');
+    const btnWA = document.getElementById('btnKirimWAGabah');
 
-    const loader     = document.getElementById('gabahLoader');
-    const hasil      = document.getElementById('gabahHasil');
-    const btnCari    = document.getElementById('btnCariGabah');
-    const btnWA      = document.getElementById('btnKirimWAGabah');
-    const loaderTeks = document.getElementById('gabahLoaderTeks');
+    // Validasi input kosong
+    if (!wilayah) {
+        alert("⚠️ Masukkan nama wilayah / kabupaten terlebih dahulu!");
+        return;
+    }
 
-    loader.style.display = 'block';
-    hasil.style.display  = 'none';
-    hasil.innerHTML      = '';
-    btnCari.disabled     = true;
-    btnWA.style.display  = 'none';
-    hasilGabahTeks       = '';
-
-    const rotasi = ["🌾 MENGAMBIL DATA HARGA GABAH...","📊 CEK HPP KEMENTAN...","📡 ANALISIS PASAR LOKAL...","✅ MENYUSUN LAPORAN..."];
-    let ri = 0;
-    const rotasiInterval = setInterval(() => { loaderTeks.textContent = rotasi[ri=(ri+1)%rotasi.length]; }, 1800);
-
-    const tgl = new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
-    const jenisKet = jenis === 'semua' ? 'GKP dan GKG' : jenis;
-
-    const prompt = `Kamu adalah asisten harga gabah pertanian Indonesia yang sangat akurat.
-Berikan data harga gabah ${jenisKet} di wilayah ${wilayah}. Tanggal: ${tgl}.
-Sertakan HPP Kementan terbaru, harga pasar/penggilingan, dan analisis tren.
-PENTING: Balas HANYA dengan JSON valid, langsung mulai { tanpa markdown.
-
-{
-  "wilayah": "${wilayah}",
-  "tanggal": "${tgl}",
-  "hpp_gkp": 6000,
-  "hpp_gkg": 7400,
-  "hpp_catatan": "HPP Permentan terbaru",
-  "harga_pasar": [
-    {"jenis":"GKP","keterangan":"Gabah Kering Panen","harga_petani":5800,"harga_penggilingan":6200,"satuan":"per kg"},
-    {"jenis":"GKG","keterangan":"Gabah Kering Giling","harga_petani":7200,"harga_penggilingan":7600,"satuan":"per kg"}
-  ],
-  "perbandingan_hpp": "di bawah HPP / sesuai HPP / di atas HPP",
-  "tren_harga": "naik",
-  "faktor_tren": "penjelasan faktor penyebab tren",
-  "prediksi_bulan_depan": "prediksi harga bulan berikutnya",
-  "musim_panen": "sedang panen raya / menjelang panen / paceklik",
-  "tips_petani": "saran singkat untuk petani agar dapat harga terbaik",
-  "harga_beras_medium": "kisaran harga beras medium di pasar dari gabah ini",
-  "catatan_wilayah": "informasi spesifik wilayah jika ada"
-}`;
+    // Reset Tampilan
+    if (loader) loader.style.display = 'block';
+    if (hasilDiv) { hasilDiv.style.display = 'none'; hasilDiv.innerHTML = ''; }
+    if (btnWA) btnWA.style.display = 'none';
 
     try {
-        const rawTeks = await kirimKeGAS(prompt, GAS_HARGA_URL);
-        clearInterval(rotasiInterval);
-        loader.style.display = 'none';
-        btnCari.disabled = false;
+        // Susun kueri pencarian (hilangkan 'semua' agar prompt AI tidak bingung)
+        let teksJenis = jenisGabah === 'semua' ? '' : jenisGabah;
+        const kueriPencarian = `Harga gabah ${teksJenis} terbaru di ${wilayah}`.replace(/\s+/g, ' ').trim();
+        
+        const urlTarget = `${GAS_URL_5}?kueri=${encodeURIComponent(kueriPencarian)}&tipe=gabah`;
 
-        let info = null;
-        const m = rawTeks.match(/\{[\s\S]*\}/);
-        if (m) { try { info = JSON.parse(m[0]); } catch(e){} }
-
-        if (info) {
-            renderHasilGabah(info, wilayah, tgl);
-        } else {
-            hasil.innerHTML = `<div class="info-box" style="border-left-color:#10b981;">
-                <strong>🌾 Harga Gabah ${wilayah}</strong><br>
-                <div style="font-size:0.82rem;margin-top:8px;line-height:1.7;">${rawTeks.replace(/\n/g,'<br>')}</div>
-            </div>`;
-            hasilGabahTeks = `🌾 *HARGA GABAH - ${wilayah}*\n\n${rawTeks}`;
+        // Panggil AppScript
+        const response = await fetch(urlTarget);
+        const dataJSON = await response.json();
+        
+        if (loader) loader.style.display = 'none';
+        
+        // Cek Error
+        if (dataJSON.status === "error") {
+            throw new Error(dataJSON.pesan);
         }
-        hasil.style.display = 'block';
-        btnWA.style.display  = 'block';
 
-    } catch (err) {
-        clearInterval(rotasiInterval);
-        loader.style.display = 'none';
-        btnCari.disabled = false;
-        hasil.style.display = 'block';
-        hasil.innerHTML = `<div class="info-box" style="border-left-color:#ef4444;background:rgba(239,68,68,0.05);">
-            <strong>❌ Gagal Mengambil Data</strong><br>
-            <span style="font-size:0.8rem;color:#94a3b8;">${err.message || 'Periksa koneksi internet'}</span><br><br>
-            <span style="font-size:0.75rem;color:#64748b;">💡 Coba lagi dalam beberapa detik.</span>
-        </div>`;
+        const info = dataJSON.data ? dataJSON.data : dataJSON;
+
+        // Render ke UI
+        const tglHariIni = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+        renderGabah(info, wilayah, tglHariIni);
+        
+        // Tampilkan Hasil & Tombol WA
+        if (hasilDiv) hasilDiv.style.display = 'block';
+        if (btnWA) btnWA.style.display = 'block';
+
+    } catch (error) {
+        if (loader) loader.style.display = 'none';
+        if (hasilDiv) {
+            hasilDiv.style.display = 'block';
+            hasilDiv.innerHTML = `
+            <div class="info-box" style="border-left-color:#ef4444; background: rgba(239, 68, 68, 0.05);">
+                <strong style="color: #ef4444;">❌ Gagal Mengambil Data Harga Gabah</strong><br>
+                <span style="font-size:12px;color:#cbd5e1;">${error.message}</span>
+            </div>`;
+        }
     }
 }
 
-function renderHasilGabah(info, wilayah, tgl) {
-    const hasil = document.getElementById('gabahHasil');
-    const ikonTren = info.tren_harga==='naik'?'📈':info.tren_harga==='turun'?'📉':'➡️';
-    const warnaTren = info.tren_harga==='naik'?'#ef4444':info.tren_harga==='turun'?'#4ade80':'#10b981';
-
-    // Kartu HPP
-    let hpp_html = '';
-    if (info.hpp_gkp || info.hpp_gkg) {
-        hpp_html = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-            <div style="background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(5,150,105,0.05));border:1px solid rgba(16,185,129,0.3);border-radius:14px;padding:14px;text-align:center;">
-                <div style="font-size:0.65rem;color:#10b981;font-weight:700;letter-spacing:1px;margin-bottom:6px;">HPP GKP</div>
-                <div style="font-size:1.3rem;font-weight:800;color:#fff;">Rp ${Number(info.hpp_gkp||0).toLocaleString('id-ID')}</div>
-                <div style="font-size:0.65rem;color:#64748b;margin-top:4px;">/kg</div>
-            </div>
-            <div style="background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(37,99,235,0.05));border:1px solid rgba(59,130,246,0.3);border-radius:14px;padding:14px;text-align:center;">
-                <div style="font-size:0.65rem;color:#3b82f6;font-weight:700;letter-spacing:1px;margin-bottom:6px;">HPP GKG</div>
-                <div style="font-size:1.3rem;font-weight:800;color:#fff;">Rp ${Number(info.hpp_gkg||0).toLocaleString('id-ID')}</div>
-                <div style="font-size:0.65rem;color:#64748b;margin-top:4px;">/kg</div>
-            </div>
+function renderGabah(info, wilayahInput, tgl) {
+    const hasil = document.getElementById('gabahHasil'); // ID sesuai HTML
+    const ikonTren = info.tren === 'naik' ? '📈' : info.tren === 'turun' ? '📉' : '➡️';
+    const statusIkon = info.status_vs_hpp && info.status_vs_hpp.toLowerCase().includes('di bawah') ? '⚠️' : '✅';
+    
+    let html = `
+    <div style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(5,150,105,0.04));border:1px solid rgba(16,185,129,0.25);border-radius:18px;padding:18px;margin-bottom:14px;">
+        <div style="font-size:11px;color:#10b981;font-weight:700;letter-spacing:1px;margin-bottom:6px;">INFO PASAR GABAH</div>
+        <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:4px;">📍 ${info.wilayah || wilayahInput}</div>
+        <div style="font-size:11px;color:#94a3b8;">🕒 Update: ${tgl} • Musim: <span style="color:#3b82f6;">${info.musim || '-'}</span></div>
+    </div>
+    
+    <div style="font-size:0.75rem;color:#94a3b8;font-weight:600;margin-bottom:8px;">HPP KEMENTAN (Acuan)</div>
+    <div class="hpp-grid">
+        <div class="hpp-card" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3);">
+            <div class="label" style="color:#10b981;">HPP GKP</div>
+            <div class="value" style="color:#fff;">${rp(info.hpp_gkp)}</div>
+            <div class="unit">/kg</div>
         </div>
-        <div style="background:rgba(16,185,129,0.06);border-radius:10px;padding:8px 12px;margin-bottom:14px;font-size:0.75rem;color:#94a3b8;text-align:center;">
-            📜 ${info.hpp_catatan||'Harga Pembelian Pemerintah (HPP) — Kementan RI'}
-        </div>`;
-    }
-
-    // Tabel harga pasar
-    let tabelHarga = '';
-    if (info.harga_pasar?.length > 0) {
-        tabelHarga = `<table style="width:100%;font-size:0.82rem;border-collapse:collapse;margin-top:10px;">
-        <tr style="background:rgba(16,185,129,0.12);">
-            <th style="padding:10px 8px;text-align:left;color:#10b981;font-size:0.72rem;font-weight:700;">JENIS</th>
-            <th style="padding:10px 8px;text-align:right;color:#10b981;font-size:0.72rem;font-weight:700;">DI PETANI</th>
-            <th style="padding:10px 8px;text-align:right;color:#10b981;font-size:0.72rem;font-weight:700;">PENGGILINGAN</th>
-        </tr>`;
-        info.harga_pasar.forEach((h,i) => {
-            const statusPetani = Number(h.harga_petani) >= Number(info.hpp_gkp||0) ? '✅' : '⚠️';
-            tabelHarga += `<tr style="background:${i%2===0?'rgba(255,255,255,0.02)':'transparent'};border-bottom:1px solid rgba(255,255,255,0.04);">
-                <td style="padding:10px 8px;">
-                    <span style="color:#fff;font-weight:700;">${h.jenis}</span><br>
-                    <span style="font-size:0.72rem;color:#64748b;">${h.keterangan||''}</span>
-                </td>
-                <td style="padding:10px 8px;text-align:right;color:#4ade80;font-weight:700;">${statusPetani} Rp ${Number(h.harga_petani||0).toLocaleString('id-ID')}</td>
-                <td style="padding:10px 8px;text-align:right;color:#fb923c;font-weight:700;">Rp ${Number(h.harga_penggilingan||0).toLocaleString('id-ID')}</td>
-            </tr>`;
-        });
-        tabelHarga += '</table>';
-    }
-
-    // Status vs HPP
-    let statusHPP = info.perbandingan_hpp || '';
-    let warnaHPP = '#f59e0b', ikonHPP = '⚖️';
-    if (statusHPP.includes('atas')) { warnaHPP='#4ade80'; ikonHPP='✅'; }
-    else if (statusHPP.includes('bawah')) { warnaHPP='#ef4444'; ikonHPP='⚠️'; }
-    else if (statusHPP.includes('sesuai')) { warnaHPP='#10b981'; ikonHPP='✅'; }
-
-    hasil.innerHTML = `
-        <!-- Judul Wilayah -->
-        <div style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(5,150,105,0.06));border:1px solid rgba(16,185,129,0.25);border-radius:20px;padding:18px;margin-bottom:14px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-                <div>
-                    <div style="font-size:0.7rem;color:#10b981;font-weight:700;letter-spacing:1px;margin-bottom:4px;">HARGA GABAH</div>
-                    <div style="font-size:1.1rem;font-weight:800;color:#fff;">📍 ${info.wilayah||wilayah}</div>
-                </div>
-                <div style="background:rgba(16,185,129,0.2);padding:8px 12px;border-radius:10px;text-align:center;">
-                    <div style="font-size:0.65rem;color:#10b981;font-weight:600;">TREN</div>
-                    <div style="font-size:1.2rem;">${ikonTren}</div>
-                </div>
-            </div>
-            <div style="font-size:0.75rem;color:#64748b;margin-top:8px;">📅 ${tgl} • ${info.musim_panen||'Informasi musim tidak tersedia'}</div>
+        <div class="hpp-card" style="background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.3);">
+            <div class="label" style="color:#3b82f6;">HPP GKG</div>
+            <div class="value" style="color:#fff;">${rp(info.hpp_gkg)}</div>
+            <div class="unit">/kg</div>
         </div>
-
-        <!-- HPP Cards -->
-        ${hpp_html}
-
-        <!-- Tabel Harga Pasar -->
-        <div class="info-box" style="border-left-color:#10b981;background:rgba(16,185,129,0.03);padding:16px;margin-bottom:14px;">
-            <strong>💰 Harga di Tingkat Petani & Penggilingan</strong>
-            ${tabelHarga}
+    </div>
+    ${info.hpp_sumber ? `<div style="font-size:10px;text-align:center;color:#64748b;margin-top:-6px;margin-bottom:16px;">Sumber: ${info.hpp_sumber}</div>` : ''}
+    
+    <div class="info-box" style="border-left-color:#f59e0b; margin-bottom:14px; padding:0; overflow:hidden;">
+        <div style="background:rgba(0,0,0,0.2); padding:10px 14px; font-size:0.75rem; font-weight:700; color:#f59e0b;">HARGA PASAR AKTUAL</div>
+        <table class="harga-table" style="margin:0;">
+            <tr>
+                <th style="color:#94a3b8; width:40%;">Kategori</th>
+                <th style="color:#94a3b8; width:30%;">Tingkat Petani</th>
+                <th style="color:#94a3b8; width:30%;">Penggilingan</th>
+            </tr>
+            <tr>
+                <td>🌾 <strong>GKP</strong> (Panen)</td>
+                <td style="font-weight:700; color:#fff;">${info.harga_gkp_petani || '-'}</td>
+                <td style="font-weight:700; color:#fff;">${info.harga_gkp_penggilingan || '-'}</td>
+            </tr>
+            <tr>
+                <td>🍚 <strong>GKG</strong> (Giling)</td>
+                <td style="font-weight:700; color:#fff;">${info.harga_gkg_petani || '-'}</td>
+                <td style="font-weight:700; color:#fff;">${info.harga_gkg_penggilingan || '-'}</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="info-box" style="border-left-color:#38b6ff;">
+        <strong>📊 Analisis & Prospek</strong>
+        <div style="margin-top:8px; font-size:13px; line-height:1.6; color:#cbd5e1;">
+            <div style="margin-bottom:6px;">${statusIkon} <strong>Status vs HPP:</strong> <span style="color:#fff;">${info.status_vs_hpp || '-'}</span></div>
+            <div style="margin-bottom:6px;">${ikonTren} <strong>Tren Pasar:</strong> <span style="color:#fff;">${info.tren ? info.tren.toUpperCase() : '-'}</span></div>
+            <div style="margin-bottom:6px;">🎯 <strong>Faktor Utama:</strong> ${info.faktor_tren || '-'}</div>
+            ${info.harga_beras_medium ? `<div style="margin-bottom:6px;">🍙 <strong>Harga Beras Medium:</strong> ${info.harga_beras_medium}</div>` : ''}
+            ${info.prediksi ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.1);">🔮 <strong>Prediksi:</strong> ${info.prediksi}</div>` : ''}
         </div>
-
-        <!-- Status vs HPP -->
-        <div class="info-box" style="border-left-color:${warnaHPP};margin-bottom:14px;">
-            <strong>${ikonHPP} Status vs HPP: <span style="color:${warnaHPP};">${statusHPP.toUpperCase()}</span></strong>
-        </div>
-
-        <!-- Tren -->
-        <div class="info-box" style="border-left-color:${warnaTren};margin-bottom:14px;">
-            <strong>${ikonTren} Tren: <span style="color:${warnaTren};">${(info.tren_harga||'Stabil').toUpperCase()}</span></strong><br>
-            <span style="font-size:0.82rem;">${info.faktor_tren||'-'}</span>
-        </div>
-
-        ${info.prediksi_bulan_depan?`<div class="info-box" style="border-left-color:#8b5cf6;margin-bottom:14px;"><strong>🔮 Prediksi Bulan Depan:</strong><br><span style="font-size:0.82rem;">${info.prediksi_bulan_depan}</span></div>`:''}
-        ${info.tips_petani?`<div class="info-box" style="border-left-color:#f59e0b;margin-bottom:14px;"><strong>💡 Tips untuk Petani:</strong><br><span style="font-size:0.82rem;">${info.tips_petani}</span></div>`:''}
-        ${info.harga_beras_medium?`<div class="info-box" style="border-left-color:#38b6ff;margin-bottom:14px;"><strong>🛒 Harga Beras Medium di Pasar:</strong><br><span style="font-size:0.82rem;">${info.harga_beras_medium}</span></div>`:''}
-        ${info.catatan_wilayah?`<div class="info-box" style="border-left-color:#64748b;margin-bottom:14px;"><strong>📝 Catatan ${wilayah}:</strong><br><span style="font-size:0.82rem;">${info.catatan_wilayah}</span></div>`:''}
-    `;
-
-    // Teks WA
-    let wa = `🌾 *HARGA GABAH ${(info.wilayah||wilayah).toUpperCase()}*\n📅 ${tgl}\n━━━━━━━━━━━━━━━━━━━━\n\n`;
-    wa += `📜 *HPP Pemerintah:*\n• GKP: Rp ${Number(info.hpp_gkp||0).toLocaleString('id-ID')}/kg\n• GKG: Rp ${Number(info.hpp_gkg||0).toLocaleString('id-ID')}/kg\n\n`;
-    if (info.harga_pasar?.length>0) {
-        wa += `💰 *HARGA PASAR:*\n`;
-        info.harga_pasar.forEach(h => {
-            wa += `• ${h.jenis}: Petani Rp ${Number(h.harga_petani||0).toLocaleString('id-ID')}/kg | Penggilingan Rp ${Number(h.harga_penggilingan||0).toLocaleString('id-ID')}/kg\n`;
-        });
-        wa += '\n';
-    }
-    wa += `📊 Status: ${statusHPP}\n`;
-    wa += `${ikonTren} Tren: ${info.tren_harga||'-'} — ${info.faktor_tren||''}\n`;
-    if (info.tips_petani) wa += `\n💡 Tips: ${info.tips_petani}`;
-    if (info.prediksi_bulan_depan) wa += `\n🔮 Prediksi: ${info.prediksi_bulan_depan}`;
-    wa += `\n\n_PPL Milenial Wajo — Smart Farming_`;
-    hasilGabahTeks = wa;
+    </div>`;
+    
+    hasil.innerHTML = html;
+    
+    waGabahTeks = `🌾 *CEK HARGA GABAH*\n\n` +
+        `📍 *Wilayah:* ${info.wilayah || wilayahInput}\n` +
+        `🕒 *Update:* ${tgl}\n` +
+        `🌤️ *Musim:* ${info.musim || '-'}\n\n` +
+        `🏛️ *HPP KEMENTAN*\n` +
+        `• GKP: ${rp(info.hpp_gkp)}\n` +
+        `• GKG: ${rp(info.hpp_gkg)}\n\n` +
+        `💰 *HARGA PASAR LOKAL*\n` +
+        (info.harga_gkp_petani ? `• GKP Petani: ${info.harga_gkp_petani} | Penggilingan: ${info.harga_gkp_penggilingan || '-'}\n` : '') +
+        (info.harga_gkg_petani ? `• GKG Petani: ${info.harga_gkg_petani} | Penggilingan: ${info.harga_gkg_penggilingan || '-'}\n` : '') +
+        `\n${statusIkon} Status vs HPP: ${info.status_vs_hpp || '-'}\n` +
+        `${ikonTren} Tren: ${info.tren || '-'} — ${info.faktor_tren || ''}\n` +
+        (info.prediksi ? `\n🔮 Prediksi: ${info.prediksi}` : '') +
+        `\n\n_PPL Milenial Wajo — Smart Farming_`;
 }
 
 function kirimGabahKeWA() {
-    if (!hasilGabahTeks) { alert("Belum ada data untuk dikirim!"); return; }
-    window.open(`https://wa.me/?text=${encodeURIComponent(hasilGabahTeks)}`,'_blank');
+    if (!waGabahTeks) return;
+    window.open('https://wa.me/?text=' + encodeURIComponent(waGabahTeks), '_blank');
 }
 
-// ========================= AKHIR FITUR HARGA PESTISIDA & GABAH =========================
+// ====================================================================
+// FUNGSI PENCARIAN CEPAT (SHORTCUT BUTTONS)
+// ====================================================================
+function cariCepat(namaPestisida) {
+    document.getElementById('inputNamaPestisida').value = namaPestisida;
+    document.getElementById('inputWilayahPestisida').value = ''; // Opsional
+    cariHargaPestisida(); // Langsung eksekusi pencarian
+}
+
+function cariGabahCepat(namaWilayah) {
+    document.getElementById('inputWilayahGabah').value = namaWilayah;
+    document.getElementById('selectJenisGabah').value = 'semua';
+    cariHargaGabah(); // Langsung eksekusi pencarian
+}
+
+// ====================================================================
+// FUNGSI UTAMA PENCARIAN PESTISIDA (SEBELUMNYA TIDAK ADA DI KODE ANDA)
+// ====================================================================
+async function cariHargaPestisida() {
+    const nama = document.getElementById('inputNamaPestisida').value.trim();
+    const wilayah = document.getElementById('inputWilayahPestisida').value.trim();
+    const loader = document.getElementById('pestisidaLoader');
+    const hasilDiv = document.getElementById('pestisidaHasil');
+    const btnWA = document.getElementById('btnKirimWAPestisida');
+
+    // Validasi input kosong
+    if (!nama) {
+        alert("⚠️ Masukkan nama atau merek pestisida terlebih dahulu!");
+        return;
+    }
+
+    // Reset Tampilan (Tampilkan loader, sembunyikan hasil)
+    if (loader) loader.style.display = 'block';
+    if (hasilDiv) { hasilDiv.style.display = 'none'; hasilDiv.innerHTML = ''; }
+    if (btnWA) btnWA.style.display = 'none';
+
+    try {
+        // Susun Kueri
+        let kueriPencarian = `Harga pestisida ${nama} terbaru`;
+        if (wilayah) kueriPencarian += ` di ${wilayah}`;
+
+        // Menggunakan GAS_URL_5 (sesuaikan jika endpoint harga berbeda)
+        const urlTarget = `${GAS_URL_5}?kueri=${encodeURIComponent(kueriPencarian)}&tipe=pestisida`;
+
+        // Panggil AppScript
+        const response = await fetch(urlTarget);
+        const dataJSON = await response.json();
+        
+        if (loader) loader.style.display = 'none';
+        
+        // Cek Error dari AppScript
+        if (dataJSON.status === "error") {
+            throw new Error(dataJSON.pesan);
+        }
+
+        // Antisipasi kompatibilitas: ambil .data (jika dibungkus) atau langsung objeknya
+        const info = dataJSON.data ? dataJSON.data : dataJSON;
+
+        // Render ke UI
+        const tglHariIni = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+        renderPestisida(info, nama, wilayah, tglHariIni);
+        
+        // Tampilkan Hasil & Tombol WA
+        if (hasilDiv) hasilDiv.style.display = 'block';
+        if (btnWA) btnWA.style.display = 'block';
+
+    } catch (error) {
+        if (loader) loader.style.display = 'none';
+        if (hasilDiv) {
+            hasilDiv.style.display = 'block';
+            hasilDiv.innerHTML = `
+            <div class="info-box" style="border-left-color:#ef4444; background: rgba(239, 68, 68, 0.05);">
+                <strong style="color: #ef4444;">❌ Gagal Mengambil Data Harga Pestisida</strong><br>
+                <span style="font-size:12px;color:#cbd5e1;">${error.message}</span>
+            </div>`;
+        }
+    }
+}
+// ====================================================================
+// AKHIR KODE FULL HARGA PESTISIDA & HARGA GABAH
 
 </script>
         <div id="customAlertModal">
