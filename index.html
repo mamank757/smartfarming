@@ -2500,6 +2500,11 @@ if (!document.getElementById('appMessageStyle')) {
     `;
     document.head.appendChild(style);
 }
+
+// Letakkan di luar fungsi, sejajar dengan fungsi-fungsi lainnya
+function isWilayahSulsel(lat, lon) {
+    return lat >= -8.0 && lat <= -1.5 && lon >= 119.0 && lon <= 122.5;
+}
         function handleFile(event) {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -2639,12 +2644,126 @@ if (!document.getElementById('appMessageStyle')) {
                     document.getElementById('alamatDesa').innerText = "Satelit Cuaca Aktif"; 
                 }
 
+                // ─── FUNGSI FETCH DENGAN RETRY ─────────────────────────────
+                async function fetchDenganRetry(url, maxCoba = 3, jedaMs = 1500) {
+                    for (let i = 0; i < maxCoba; i++) {
+                        try {
+                            const controller = new AbortController();
+                            const timeout = setTimeout(() => controller.abort(), 12000);
+                            const res = await fetch(url, { signal: controller.signal });
+                            clearTimeout(timeout);
+                            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                            return await res.json();
+                        } catch (e) {
+                            console.warn(`Percobaan ${i+1}/${maxCoba} gagal:`, e.message);
+                            if (i < maxCoba - 1) await new Promise(r => setTimeout(r, jedaMs));
+                        }
+                    }
+                    throw new Error(`Gagal setelah ${maxCoba} percobaan`);
+                }
+
+                // ─── PROVIDER 1: Open-Meteo (Primary) ──────────────────────
                 const urlArchive = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${getFormatTanggal(30)}&end_date=${getFormatTanggal(1)}&daily=precipitation_sum&timezone=auto`;
                 const urlForecast = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=rain,temperature_2m,relative_humidity_2m,dew_point_2m,wind_speed_10m,wind_direction_10m,surface_pressure,weather_code&hourly=precipitation_probability,precipitation,temperature_850hPa,cape,temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`;
-                
-                const [resA, resF] = await Promise.all([fetch(urlArchive), fetch(urlForecast)]);
-                const dataArchive = await resA.json(); 
-                const dataForecast = await resF.json();
+
+                // ─── PROVIDER 2: wttr.in (Fallback, tanpa API key) ──────────
+                const urlWttr = `https://wttr.in/${lat},${lon}?format=j1`;
+
+                // ─── FUNGSI KONVERSI DATA WTTR.IN → FORMAT OPEN-METEO ──────
+                function konversiWttrKeOpenMeteo(wttrData) {
+                    const cc = wttrData.current_condition[0];
+                    const weather3days = wttrData.weather || [];
+
+                    // Mapping kode cuaca wttr ke WMO code Open-Meteo
+                    const mapWmoCode = (wttrCode) => {
+                        const c = parseInt(wttrCode);
+                        if (c === 113) return 0;       // Cerah
+                        if ([116, 119, 122].includes(c)) return 3; // Berawan
+                        if ([143, 248, 260].includes(c)) return 45; // Kabut
+                        if ([176, 293, 296, 299, 302, 305].includes(c)) return 61; // Hujan ringan-sedang
+                        if ([308, 311, 314, 353, 356].includes(c)) return 65; // Hujan lebat
+                        if ([389, 392, 395].includes(c)) return 95; // Badai petir
+                        return 1;
+                    };
+
+                    // Bangun array hourly dari data wttr (3 hari × 8 slot/hari)
+                    const hourlyTimes = [], hourlyTemp = [], hourlyCode = [];
+                    const hourlyPrecip = [], hourlyProb = [];
+                    weather3days.forEach(day => {
+                        (day.hourly || []).forEach(h => {
+                            const tStr = `${day.date}T${String(parseInt(h.time)/100).padStart(2,'0')}:00`;
+                            hourlyTimes.push(tStr);
+                            hourlyTemp.push(parseFloat(h.tempC));
+                            hourlyCode.push(mapWmoCode(h.weatherCode));
+                            hourlyPrecip.push(parseFloat(h.precipMM));
+                            hourlyProb.push(parseInt(h.chanceofrain));
+                        });
+                    });
+
+                    const dailyDates = [], dailyCode = [], dailyMax = [], dailyMin = [];
+                    weather3days.forEach(day => {
+                        dailyDates.push(day.date);
+                        const avgCode = mapWmoCode((day.hourly||[{weatherCode:113}])[4]?.weatherCode || 113);
+                        dailyCode.push(avgCode);
+                        dailyMax.push(parseFloat(day.maxtempC));
+                        dailyMin.push(parseFloat(day.mintempC));
+                    });
+
+                    return {
+                        current: {
+                            temperature_2m: parseFloat(cc.temp_C),
+                            relative_humidity_2m: parseInt(cc.humidity),
+                            dew_point_2m: parseFloat(cc.DewPointC),
+                            wind_speed_10m: parseFloat(cc.windspeedKmph),
+                            wind_direction_10m: parseInt(cc.winddirDegree),
+                            surface_pressure: parseFloat(cc.pressure),
+                            weather_code: mapWmoCode(cc.weatherCode),
+                            rain: parseFloat(cc.precipMM)
+                        },
+                        hourly: {
+                            time: hourlyTimes,
+                            temperature_2m: hourlyTemp,
+                            weather_code: hourlyCode,
+                            precipitation: hourlyPrecip,
+                            precipitation_probability: hourlyProb,
+                            temperature_850hPa: hourlyTemp.map(t => t - 8),
+                            cape: hourlyTemp.map(() => 500)
+                        },
+                        daily: {
+                            time: dailyDates,
+                            weather_code: dailyCode,
+                            temperature_2m_max: dailyMax,
+                            temperature_2m_min: dailyMin
+                        }
+                    };
+                }
+
+                // ─── AMBIL DATA: COBA OPEN-METEO, FALLBACK KE WTTR.IN ──────
+                let dataForecast, dataArchive;
+                document.getElementById('resConf').innerText = "Menghubungi server cuaca...";
+
+                try {
+                    // Coba Open-Meteo terlebih dahulu (dengan retry)
+                    const [resF, resA] = await Promise.all([
+                        fetchDenganRetry(urlForecast),
+                        fetchDenganRetry(urlArchive).catch(() => ({ daily: { precipitation_sum: [] } }))
+                    ]);
+                    dataForecast = resF;
+                    dataArchive = resA;
+                    console.log("✅ Data cuaca dari Open-Meteo");
+                } catch (errOpenMeteo) {
+                    // Fallback ke wttr.in jika Open-Meteo gagal
+                    console.warn("⚠️ Open-Meteo gagal, beralih ke wttr.in...", errOpenMeteo.message);
+                    document.getElementById('resConf').innerText = "Beralih ke server cadangan...";
+                    try {
+                        const wttrRaw = await fetchDenganRetry(urlWttr, 3, 2000);
+                        dataForecast = konversiWttrKeOpenMeteo(wttrRaw);
+                        dataArchive = { daily: { precipitation_sum: [] } };
+                        console.log("✅ Data cuaca dari wttr.in (fallback)");
+                    } catch (errWttr) {
+                        throw new Error("Semua sumber cuaca tidak dapat dijangkau. Periksa koneksi internet Anda.");
+                    }
+                }
                 
                 const cur = dataForecast.current; 
                 const hourly = dataForecast.hourly;
@@ -2827,18 +2946,21 @@ if (!document.getElementById('appMessageStyle')) {
                 loadGlobalClimateIndices();
 
             } catch (err) {
-                console.error(err);
+                console.error("❌ loadWeather error:", err);
                 document.getElementById('resLabel').innerText = "❌ Gagal Mengambil Data Cuaca";
-                document.getElementById('resConf').innerText = "Periksa GPS dan Internet";
+                document.getElementById('resConf').innerText = err.message || "Periksa GPS dan koneksi internet";
                 document.getElementById('gpsPrompt').style.display = 'block';
                 document.getElementById('weatherData').style.display = 'none';
                 
                 const btn = document.querySelector('.btn-live');
                 if (btn) {
-                    btn.innerText = "SINKRONKAN GPS & SATELIT";
+                    btn.innerText = "🔄 COBA LAGI";
                     btn.style.opacity = "1"; 
                     btn.disabled = false;
+                    btn.style.background = "";
                 }
+                // Tampilkan pesan error detail agar user tahu penyebabnya
+                alert(`Gagal memuat data cuaca.\n\nPenyebab: ${err.message || "Tidak diketahui"}\n\nSolusi:\n• Pastikan GPS aktif\n• Izin Lokasi diberikan\n• Koneksi internet stabil\n• Coba lagi beberapa saat`);
             }
         }
         async function startBWDCamera() {
@@ -2961,14 +3083,16 @@ if (!document.getElementById('appMessageStyle')) {
                 }
             } catch (e) { 
                 alert("Gagal koneksi server!"); 
-                // Aktifkan kembali tombol jika gagal
-                btnAnalisis.disabled = false;
-                btnAnalisis.style.opacity = "1";
             }
             document.getElementById('scanWindow').classList.remove('is-scanning');
             document.getElementById('loader').style.display = 'none';
             btnAnalisis.disabled = false;
             btnAnalisis.style.opacity = "1";
+            // Sembunyikan tombol setelah analisis selesai (berhasil maupun gagal)
+            // Tombol akan muncul kembali saat user memilih foto baru di handleFile()
+            if (currentMode !== 'malai') {
+                btnAnalisis.style.display = 'none';
+            }
         }
         
         const BWD_STANDAR = [
@@ -3736,51 +3860,67 @@ const upwellingAktif = (
 }
 
         async function loadGlobalClimateIndices() {
-            const statusDiv = document.getElementById('ensoStatus');
-            if (statusDiv) statusDiv.innerText = "🛰️ Menghubungkan ke NOAA...";
-            
-            try {
-                const koordinatTeks = document.getElementById('lokasiSawah').innerText;
-                let lat = -4.85; 
-                let lon = 120.60;
-                
-                if (koordinatTeks && koordinatTeks !== "-") {
-                    const parts = koordinatTeks.split(',');
-                    lat = parseFloat(parts[0].trim());
-                    lon = parseFloat(parts[1].trim());
-                }
+    const statusDiv = document.getElementById('ensoStatus');
+    if (statusDiv) statusDiv.innerText = "🛰️ Menghubungkan ke NOAA...";
+    
+    try {
+        let lat = -4.85;
+        let lon = 120.60;
 
-                const [enso, iod, sstLokal] = await Promise.all([
-                    getENSOAnomaly(),
-                    getIODAnomaly(),
-                    getLocalSSTTimeseries()
-                ]);
-                
-                const ensoSmooth = getMovingAverage(enso.anomalies, 2);
-const iodSmooth = getMovingAverage(iod.anomalies, 2);
-
-                renderMacroChart(enso.labels, enso.anomalies, iod.anomalies);
-                renderLocalChart(sstLokal.labels, sstLokal.boneData, sstLokal.makassarData);
-                
-                updateENSOIODStatus(enso, iod);
-                updateLocalWarning(sstLokal);
-
-                const boxLokal = document.getElementById('localSstBox');
-                if (boxLokal) boxLokal.style.display = 'block';
-                
-                showSSTRekomendasi(sstLokal);
-                simpulkanPrediksiIklimTerpadu(enso, iod, sstLokal);
-                
-            } catch (error) {
-                console.error("Gagal load data NOAA:", error);
-                if (statusDiv) {
-                    statusDiv.style.color = "var(--red-alert)";
-                    statusDiv.innerText = "⚠️ Gagal Sinkronisasi Satelit NOAA (Gunakan Data Estimasi)";
-                }
-            }
+        const koordinatEl = document.getElementById('lokasiSawah').innerText;
+        if (koordinatEl && koordinatEl !== "-") {
+            const parts = koordinatEl.split(',');
+            lat = parseFloat(parts[0].trim());
+            lon = parseFloat(parts[1].trim());
         }
 
-        function simpulkanPrediksiIklimTerpadu(enso, iod, sstLokal) {
+        const [enso, iod, sstLokal] = await Promise.all([
+            getENSOAnomaly(),
+            getIODAnomaly(),
+            getLocalSSTTimeseries()
+        ]);
+
+        renderMacroChart(enso.labels, enso.anomalies, iod.anomalies);
+        renderLocalChart(sstLokal.labels, sstLokal.boneData, sstLokal.makassarData);
+
+        updateENSOIODStatus(enso, iod);
+        updateLocalWarning(sstLokal);
+
+        const boxLokal = document.getElementById('localSstBox');
+        if (isWilayahSulsel(lat, lon)) {
+    if (boxLokal) boxLokal.style.display = 'block';
+    showSSTRekomendasi(sstLokal);
+    simpulkanPrediksiIklimTerpadu(enso, iod, sstLokal, true);
+} else {
+    if (boxLokal) boxLokal.style.display = 'none';
+    simpulkanPrediksiIklimTerpadu(enso, iod, null, false);
+}
+
+    } catch (error) {
+        console.error("Gagal load data NOAA:", error);
+        if (statusDiv) {
+            statusDiv.style.color = "var(--red-alert)";
+            statusDiv.innerText = "⚠️ Gagal Sinkronisasi Satelit NOAA (Gunakan Data Estimasi)";
+        }
+    }
+}
+        function simpulkanPrediksiIklimTerpadu(enso, iod, sstLokal, isSulsel = false) {
+    // Sembunyikan box jika di luar wilayah Sulsel
+    const terpaduBox = document.getElementById('iklimTerpaduBox');
+    if (!isSulsel) {
+        if (terpaduBox) terpaduBox.innerHTML = '';
+        return;
+    }
+    // Guard: jika tidak ada data SST lokal, gunakan nilai default
+    if (!sstLokal) {
+        sstLokal = {
+            boneData: [28.5, 28.5, 28.5, 28.5],
+            makassarData: [28.5, 28.5, 28.5, 28.5],
+            upwellingAktif: false,
+            sstBoneTerkini: 28.5,
+            sstMksTerkini: 28.5
+        };
+    }
     const nilaiEnso = enso.anomalies[enso.anomalies.length - 1];
     const nilaiIod  = iod.anomalies[iod.anomalies.length - 1];
     const sstBone     = sstLokal.boneData[sstLokal.boneData.length - 1];
@@ -3904,7 +4044,6 @@ const iodSmooth = getMovingAverage(iod.anomalies, 2);
                 </ul>`;
             }
             
-            let terpaduBox = document.getElementById('iklimTerpaduBox');
             if (terpaduBox) {
                 terpaduBox.className = "info-box";
                 terpaduBox.style.cssText = `margin-top: 25px; margin-bottom: 10px; padding: 18px; background: rgba(13, 20, 38, 0.85); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); border-left: 5px solid ${warnaAksen};`;
