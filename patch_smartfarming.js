@@ -715,7 +715,8 @@ function renderDaftarRiwayat() {
 function updateBadgeRiwayat() {
     const list = getRiwayat();
     const el = document.getElementById('fabRiwayatLabel');
-    if (el) el.textContent = list.length > 0 ? `Riwayat (${list.length})` : 'Riwayat';
+    // Ubah kata 'Riwayat' menjadi 'Riwayat Deteksi' di dua tempat ini:
+    if (el) el.textContent = list.length > 0 ? `Riwayat Deteksi (${list.length})` : 'Riwayat Deteksi';
 }
 
 // ============================================================
