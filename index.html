@@ -17,6 +17,106 @@
     <title>PPL Milenial Wajo - Smart Farming</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+    /* ── DROPDOWN NAVIGATION MENU ── */
+.nav-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: #111c2e;
+    padding: 8px;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 480px;
+    box-sizing: border-box;
+    margin-top: 8px;
+    margin-bottom: 15px;
+}
+.dropdown {
+    position: relative;
+    flex: 1 1 calc(33.33% - 6px);
+    min-width: 100px;
+}
+.dropdown-toggle {
+    width: 100%;
+    padding: 10px 6px;
+    border: none;
+    background: #1b273a;
+    color: #708099;
+    cursor: pointer;
+    font-weight: 700;
+    border-radius: 8px;
+    font-size: 10px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+.dropdown-toggle.active {
+    background: #3b82f6 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(59,130,246,0.3);
+}
+.dropdown-toggle .dd-arrow {
+    font-size: 8px;
+    transition: transform 0.2s;
+    line-height: 1;
+}
+.dropdown-menu-list {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 175px;
+    background: #1b273a;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    z-index: 999;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.dropdown-menu-list.open { display: block; }
+.dd-cat-label {
+    font-size: 9px;
+    color: #3b82f6;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 8px 14px 4px;
+    text-transform: uppercase;
+    background: rgba(59,130,246,0.06);
+    display: block;
+}
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 11px 14px;
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    background: transparent;
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: background 0.15s;
+    box-sizing: border-box;
+}
+.dropdown-item:hover { background: rgba(59,130,246,0.15); color: #fff; }
+.dropdown-item.active { background: #3b82f6; color: #fff; }
+
+/* Light mode override */
+body.light-mode .nav-bar { background: #e2e8f0 !important; }
+body.light-mode .dropdown-toggle { background: #f1f5f9 !important; color: #334155 !important; }
+body.light-mode .dropdown-toggle.active { background: #3b82f6 !important; color: #fff !important; }
+body.light-mode .dropdown-menu-list { background: #ffffff !important; border-color: #cbd5e1 !important; }
+body.light-mode .dropdown-item { color: #334155 !important; border-color: #e2e8f0 !important; }
+body.light-mode .dropdown-item:hover { background: #eff6ff !important; color: #1e40af !important; }
+body.light-mode .dropdown-item.active { background: #3b82f6 !important; color: #fff !important; }
+body.light-mode .dd-cat-label { color: #2563eb !important; }
         :root {
             --bg-color: #0b1528;
             --card-bg: #1b273a;
@@ -840,25 +940,80 @@ body.light-mode .harga-table td { color: #334155 !important; border-bottom: 1px 
 </div>
 </div>
 
-<div class="tab-container">
-    <button class="tab-btn" id="tabCuaca" onclick="switchMode('cuaca')">RISIKO CUACA</button>
-    <button class="tab-btn" id="tabKalender" onclick="switchMode('kalender')">RISIKO IKLIM</button>
-    <button class="tab-btn" id="tabBiaya" onclick="switchMode('biaya')">BIAYA TANI</button>
-    <button class="tab-btn" id="tabUkur" onclick="switchMode('ukur')">UKUR LAHAN</button>
-    <button class="tab-btn" id="tabVarietas" onclick="switchMode('varietas')">VARIETAS PADI</button>
-    <button class="tab-btn" id="tabPupuk" onclick="switchMode('pupuk')">DOSIS PUPUK</button> 
-    <button class="tab-btn" id="tabBWD" onclick="switchMode('bwd')">UJI BWD UREA</button>
-    <button class="tab-btn" id="tabTanah" onclick="switchMode('tanah')">FISIK TANAH</button>
-    <button class="tab-btn" id="tabMalai" onclick="switchMode('malai')">HASIL PANEN</button>
-    <button class="tab-btn" id="tabHama" onclick="switchMode('hama')">HAMA PADI</button>
-    <button class="tab-btn" id="tabDaun" onclick="switchMode('daun')">PENYAKIT PADI</button>
-    <button class="tab-btn" id="tabGulma" onclick="switchMode('gulma')">JENIS GULMA</button>
-    <button class="tab-btn" id="tabPestisida" onclick="switchMode('pestisida')">HARGA PESTISIDA</button>
-    <button class="tab-btn" id="tabGabah" onclick="switchMode('gabah')">HARGA GABAH</button>
-    <button class="tab-btn" id="tabChat1" onclick="toggleChatbox(1)">KONSUL ASIST 1</button>
-    <button class="tab-btn" id="tabChat2" onclick="toggleChatbox(2)">KONSUL ASIST 2</button>
-    <button class="tab-btn" id="tabChat3" onclick="toggleChatbox(3)">KONSUL ASIST 3</button>
-    <button class="tab-btn" id="tabChat4" onclick="toggleChatbox(4)">KONSUL ASIST 4</button>
+<div class="nav-bar" id="mainNavBar">
+
+  <div class="dropdown" id="dd-cuaca">
+    <button class="dropdown-toggle" onclick="toggleDropdown('cuaca')">
+      🌦️ CUACA &amp; IKLIM <span class="dd-arrow" id="arrow-cuaca">▼</span>
+    </button>
+    <div class="dropdown-menu-list" id="menu-cuaca">
+      <span class="dd-cat-label">Prakiraan &amp; Risiko</span>
+      <button class="dropdown-item" onclick="pilihMenu('cuaca','cuaca',event)">🌤️ Risiko Cuaca</button>
+      <button class="dropdown-item" onclick="pilihMenu('cuaca','kalender',event)">📅 Risiko Iklim</button>
+    </div>
+  </div>
+
+  <div class="dropdown" id="dd-lahan">
+    <button class="dropdown-toggle" onclick="toggleDropdown('lahan')">
+      🌾 LAHAN &amp; TANI <span class="dd-arrow" id="arrow-lahan">▼</span>
+    </button>
+    <div class="dropdown-menu-list" id="menu-lahan">
+      <span class="dd-cat-label">Manajemen Lahan</span>
+      <button class="dropdown-item" onclick="pilihMenu('lahan','biaya',event)">💰 Biaya Tani</button>
+      <button class="dropdown-item" onclick="pilihMenu('lahan','ukur',event)">📐 Ukur Lahan</button>
+      <button class="dropdown-item" onclick="pilihMenu('lahan','malai',event)">🌾 Hasil Panen</button>
+    </div>
+  </div>
+
+  <div class="dropdown" id="dd-pupuk">
+    <button class="dropdown-toggle" onclick="toggleDropdown('pupuk')">
+      🧪 PUPUK &amp; BENIH <span class="dd-arrow" id="arrow-pupuk">▼</span>
+    </button>
+    <div class="dropdown-menu-list" id="menu-pupuk">
+      <span class="dd-cat-label">Nutrisi Tanaman</span>
+      <button class="dropdown-item" onclick="pilihMenu('pupuk','varietas',event)">🌱 Varietas Padi</button>
+      <button class="dropdown-item" onclick="pilihMenu('pupuk','pupuk',event)">🧮 Dosis Pupuk</button>
+      <button class="dropdown-item" onclick="pilihMenu('pupuk','bwd',event)">🔬 Uji BWD Urea</button>
+    </div>
+  </div>
+
+  <div class="dropdown" id="dd-hama">
+    <button class="dropdown-toggle" onclick="toggleDropdown('hama')">
+      🐛 HAMA &amp; PENYAKIT <span class="dd-arrow" id="arrow-hama">▼</span>
+    </button>
+    <div class="dropdown-menu-list" id="menu-hama">
+      <span class="dd-cat-label">Proteksi Tanaman</span>
+      <button class="dropdown-item" onclick="pilihMenu('hama','hama',event)">🐛 Hama Padi</button>
+      <button class="dropdown-item" onclick="pilihMenu('hama','daun',event)">🍃 Penyakit Padi</button>
+      <button class="dropdown-item" onclick="pilihMenu('hama','gulma',event)">🌿 Jenis Gulma</button>
+      <button class="dropdown-item" onclick="pilihMenu('hama','tanah',event)">🌍 Fisik Tanah</button>
+    </div>
+  </div>
+
+  <div class="dropdown" id="dd-harga">
+    <button class="dropdown-toggle" onclick="toggleDropdown('harga')">
+      💲 HARGA &amp; PASAR <span class="dd-arrow" id="arrow-harga">▼</span>
+    </button>
+    <div class="dropdown-menu-list" id="menu-harga">
+      <span class="dd-cat-label">Informasi Pasar</span>
+      <button class="dropdown-item" onclick="pilihMenu('harga','pestisida',event)">🧴 Harga Pestisida</button>
+      <button class="dropdown-item" onclick="pilihMenu('harga','gabah',event)">🌾 Harga Gabah</button>
+    </div>
+  </div>
+
+  <div class="dropdown" id="dd-konsul">
+    <button class="dropdown-toggle" onclick="toggleDropdown('konsul')">
+      💬 KONSULTASI <span class="dd-arrow" id="arrow-konsul">▼</span>
+    </button>
+    <div class="dropdown-menu-list" id="menu-konsul">
+      <span class="dd-cat-label">Asisten AI</span>
+      <button class="dropdown-item" onclick="pilihKonsulDD(1,event)">🤖 Konsul Asisten 1</button>
+      <button class="dropdown-item" onclick="pilihKonsulDD(2,event)">🤖 Konsul Asisten 2</button>
+      <button class="dropdown-item" onclick="pilihKonsulDD(3,event)">🤖 Konsul Asisten 3</button>
+      <button class="dropdown-item" onclick="pilihKonsulDD(4,event)">🤖 Konsul Asisten 4</button>
+    </div>
+  </div>
+
 </div>
 
     <div class="card">
@@ -6145,7 +6300,58 @@ async function cariHargaPestisida() {
 }
 // ====================================================================
 // AKHIR KODE FULL HARGA PESTISIDA & HARGA GABAH
+// ── DROPDOWN NAVIGATION LOGIC ──────────────────────────────
+function toggleDropdown(id) {
+    const menu = document.getElementById('menu-' + id);
+    const arrow = document.getElementById('arrow-' + id);
+    const toggle = document.querySelector('#dd-' + id + ' .dropdown-toggle');
+    const isOpen = menu.classList.contains('open');
+    closeAllDropdowns();
+    if (!isOpen) {
+        menu.classList.add('open');
+        arrow.style.transform = 'rotate(180deg)';
+        toggle.style.background = '#2563eb';
+        toggle.style.color = '#fff';
+    }
+}
 
+function closeAllDropdowns() {
+    document.querySelectorAll('.dropdown-menu-list').forEach(m => m.classList.remove('open'));
+    document.querySelectorAll('.dd-arrow').forEach(a => a.style.transform = '');
+    document.querySelectorAll('.dropdown-toggle:not(.active)').forEach(t => {
+        t.style.background = '';
+        t.style.color = '';
+    });
+}
+
+function pilihMenu(ddId, mode, e) {
+    if (e) e.stopPropagation();
+    closeAllDropdowns();
+    // Aktifkan toggle kategori
+    document.querySelectorAll('.dropdown-toggle').forEach(t => t.classList.remove('active'));
+    document.querySelector('#dd-' + ddId + ' .dropdown-toggle').classList.add('active');
+    // Aktifkan item yang dipilih
+    document.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active'));
+    if (e && e.target) e.target.classList.add('active');
+    // Panggil fungsi switchMode yang sudah ada
+    switchMode(mode);
+}
+
+function pilihKonsulDD(num, e) {
+    if (e) e.stopPropagation();
+    closeAllDropdowns();
+    document.querySelectorAll('.dropdown-toggle').forEach(t => t.classList.remove('active'));
+    document.querySelector('#dd-konsul .dropdown-toggle').classList.add('active');
+    document.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active'));
+    if (e && e.target) e.target.classList.add('active');
+    // Panggil fungsi toggleChatbox yang sudah ada
+    toggleChatbox(num);
+}
+
+// Tutup dropdown saat klik di luar
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dropdown')) closeAllDropdowns();
+});
 </script>
         <div id="customAlertModal">
     <div class="modal-card">
