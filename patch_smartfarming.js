@@ -335,11 +335,11 @@ body.light-mode .toast-notif { background: #ffffff; }
     <div id="btnFloatingAksi">
         <button class="fab-kecil fab-lahan" onclick="bukaPanel('multiLahan')">
             <span class="fab-icon">🌾</span>
-            <span>Lahan</span>
+            <span>Daftar Sawah</span>
         </button>
         <button class="fab-kecil fab-riwayat" onclick="bukaPanel('riwayat')">
             <span class="fab-icon">📋</span>
-            <span id="fabRiwayatLabel">Riwayat</span>
+            <span id="fabRiwayatLabel">Riwayat Deteksi</span>
         </button>
         <button class="fab-kecil fab-notif" onclick="bukaPanel('notif')" id="fabNotifBtn">
             <span class="fab-icon">🔔</span>
@@ -347,7 +347,7 @@ body.light-mode .toast-notif { background: #ffffff; }
         </button>
         <button class="fab-kecil fab-harga" onclick="bukaPanel('harga')">
             <span class="fab-icon">💰</span>
-            <span>Harga</span>
+            <span>Atur Harga</span>
         </button>
     </div>
 
