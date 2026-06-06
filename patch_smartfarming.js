@@ -331,8 +331,7 @@ body.light-mode .toast-notif { background: #ffffff; }
 (function injectHTML() {
     document.body.insertAdjacentHTML('beforeend', `
 
-    <!-- ── BOTTOM NAVIGATION BAR ── -->
-    <div id="btnFloatingAksi">
+        <div id="btnFloatingAksi">
         <button class="fab-kecil fab-lahan" onclick="bukaPanel('multiLahan')">
             <span class="fab-icon">🌾</span>
             <span>Daftar Sawah</span>
@@ -351,8 +350,7 @@ body.light-mode .toast-notif { background: #ffffff; }
         </button>
     </div>
 
-    <!-- ── PANEL MULTI-LAHAN ── -->
-    <div id="panelMultiLahan">
+        <div id="panelMultiLahan">
         <div id="panelMultiLahanInner">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
                 <h3 style="margin:0; font-size:1.05rem; color:#fff;">🌾 Lahan Saya</h3>
@@ -360,8 +358,7 @@ body.light-mode .toast-notif { background: #ffffff; }
             </div>
             <div id="daftarLahan"></div>
 
-            <!-- Form Tambah Lahan -->
-            <div class="form-tambah-lahan">
+                        <div class="form-tambah-lahan">
                 <div style="font-size:0.8rem; font-weight:700; color:#3b82f6; margin-bottom:12px;">➕ Tambah Petak Sawah Baru</div>
                 <input type="text" id="inputNamaLahan" placeholder="Nama Lahan (cth: Sawah Depan, Lahan Belakang)">
                 <input type="date" id="inputTglTanamLahan" placeholder="Tanggal Tanam">
@@ -380,8 +377,7 @@ body.light-mode .toast-notif { background: #ffffff; }
         </div>
     </div>
 
-    <!-- ── PANEL RIWAYAT ── -->
-    <div id="panelRiwayat">
+        <div id="panelRiwayat">
         <div id="panelRiwayatInner">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
                 <h3 style="margin:0; font-size:1.05rem; color:#fff;">📋 Riwayat Analisis</h3>
@@ -394,8 +390,7 @@ body.light-mode .toast-notif { background: #ffffff; }
         </div>
     </div>
 
-    <!-- ── PANEL PENGINGAT/NOTIFIKASI ── -->
-    <div id="panelNotif">
+        <div id="panelNotif">
         <div id="panelNotifInner">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
                 <h3 style="margin:0; font-size:1.05rem; color:#fff;">🔔 Pengingat Musim Tanam</h3>
@@ -405,8 +400,7 @@ body.light-mode .toast-notif { background: #ffffff; }
         </div>
     </div>
 
-    <!-- ── PANEL HARGA PUPUK ── -->
-    <div id="panelHarga">
+        <div id="panelHarga">
         <div id="panelHargaInner">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
                 <h3 style="margin:0; font-size:1.05rem; color:#fff;">💰 Harga Aktual Saprotan</h3>
@@ -461,8 +455,7 @@ body.light-mode .toast-notif { background: #ffffff; }
         </div>
     </div>
 
-    <!-- ── TOAST NOTIFIKASI ── -->
-    <div class="toast-notif" id="toastNotif">
+        <div class="toast-notif" id="toastNotif">
         <div class="toast-icon" id="toastIcon">🔔</div>
         <div class="toast-teks">
             <h4 id="toastJudul">Pengingat Pemupukan</h4>
@@ -576,6 +569,9 @@ function pilihLahan(id) {
 }
 
 function hapusLahan(id) {
+    // TAMBAHAN: Dialog Peringatan sebelum hapus
+    if (!confirm('Apakah Anda yakin ingin menghapus data lahan ini?')) return;
+
     let list = getLahanList();
     list = list.filter(l => l.id !== id);
     saveLahanList(list);
@@ -660,7 +656,7 @@ function renderDaftarLahan() {
             </div>
             <div class="lahan-actions">
                 ${aktif && aktif.id === l.id ? '' : `<button class="btn-lahan-kecil btn-pilih" onclick="pilihLahan(${l.id})">Pilih</button>`}
-                <button class="btn-lahan-kecil btn-hapus" onclick="hapusLahan(${l.id})">🗑</button>
+                                <button class="btn-lahan-kecil btn-hapus" onclick="hapusLahan(${l.id})">HAPUS</button>
             </div>
         </div>
     `).join('');
