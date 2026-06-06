@@ -218,52 +218,67 @@
 #indikasiLahanAktif .nama-lahan { font-size: 0.85rem; font-weight: 700; color: #3b82f6; }
 #indikasiLahanAktif .ganti-lahan { font-size: 0.72rem; color: #64748b; }
 
-/* ── TOMBOL FLOATING AKSI ── */
+/* ── BOTTOM NAVIGATION BAR ── */
 #btnFloatingAksi {
     position: fixed;
-    bottom: 70px;
-    left: 16px;
+    bottom: 0;
+    left: 0;
+    right: 0;
     z-index: 500;
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    flex-direction: row;
+    gap: 0;
+    background: #1b273a;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 .fab-kecil {
-    background: #1b273a;
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #fff;
-    border-radius: 12px;
-    padding: 10px 14px;
-    font-size: 0.72rem;
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-top: 2px solid transparent;
+    color: #64748b;
+    padding: 10px 0 12px;
+    font-size: 0.62rem;
     font-weight: 700;
     cursor: pointer;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 6px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    gap: 4px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     white-space: nowrap;
-    transition: all 0.2s;
+    transition: color 0.15s, border-color 0.15s;
+    letter-spacing: 0.3px;
 }
-.fab-kecil:active { transform: scale(0.97); }
-.fab-lahan { border-color: rgba(59,130,246,0.4); }
-.fab-riwayat { border-color: rgba(16,185,129,0.4); }
-.fab-notif { border-color: rgba(245,158,11,0.4); }
-.fab-harga { border-color: rgba(139,92,246,0.4); }
+.fab-kecil .fab-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+    display: block;
+}
+.fab-kecil:active { opacity: 0.7; }
+.fab-lahan.fab-aktif   { color: #3b82f6; border-top-color: #3b82f6; }
+.fab-riwayat.fab-aktif { color: #10b981; border-top-color: #10b981; }
+.fab-notif.fab-aktif   { color: #f59e0b; border-top-color: #f59e0b; }
+.fab-harga.fab-aktif   { color: #8b5cf6; border-top-color: #8b5cf6; }
 
 /* ── BADGE NOTIF BARU ── */
 .badge-notif {
+    position: absolute;
+    top: 6px;
+    right: calc(50% - 18px);
     background: #ef4444;
     color: #fff;
-    font-size: 0.6rem;
+    font-size: 0.55rem;
     font-weight: 800;
     border-radius: 50%;
-    width: 16px;
-    height: 16px;
-    display: inline-flex;
+    width: 14px;
+    height: 14px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    margin-left: 4px;
 }
+#fabNotifBtn { position: relative; }
 
 /* ── TOAST NOTIFIKASI ── */
 .toast-notif {
@@ -302,7 +317,8 @@ body.light-mode .riwayat-hasil { color: #334155; }
 body.light-mode .harga-field input,
 body.light-mode .form-tambah-lahan input,
 body.light-mode .form-tambah-lahan select { background: #e2e8f0; color: #0f172a; border-color: #94a3b8; }
-body.light-mode .fab-kecil { background: #ffffff; color: #0f172a; }
+body.light-mode #btnFloatingAksi { background: #ffffff; border-top-color: #e2e8f0; }
+body.light-mode .fab-kecil { color: #94a3b8; }
 body.light-mode #indikasiLahanAktif { background: rgba(59,130,246,0.08); }
 body.light-mode .toast-notif { background: #ffffff; }
 `;
@@ -315,12 +331,24 @@ body.light-mode .toast-notif { background: #ffffff; }
 (function injectHTML() {
     document.body.insertAdjacentHTML('beforeend', `
 
-    <!-- ── TOMBOL FLOATING AKSI ── -->
+    <!-- ── BOTTOM NAVIGATION BAR ── -->
     <div id="btnFloatingAksi">
-        <button class="fab-kecil fab-lahan" onclick="bukaPanel('multiLahan')">🌾 <span>Lahan Saya</span></button>
-        <button class="fab-kecil fab-riwayat" onclick="bukaPanel('riwayat')">📋 <span>Riwayat</span></button>
-        <button class="fab-kecil fab-notif" onclick="bukaPanel('notif')" id="fabNotifBtn">🔔 <span>Pengingat</span></button>
-        <button class="fab-kecil fab-harga" onclick="bukaPanel('harga')">💰 <span>Harga Dasar</span></button>
+        <button class="fab-kecil fab-lahan" onclick="bukaPanel('multiLahan')">
+            <span class="fab-icon">🌾</span>
+            <span>Lahan</span>
+        </button>
+        <button class="fab-kecil fab-riwayat" onclick="bukaPanel('riwayat')">
+            <span class="fab-icon">📋</span>
+            <span id="fabRiwayatLabel">Riwayat</span>
+        </button>
+        <button class="fab-kecil fab-notif" onclick="bukaPanel('notif')" id="fabNotifBtn">
+            <span class="fab-icon">🔔</span>
+            <span>Pengingat</span>
+        </button>
+        <button class="fab-kecil fab-harga" onclick="bukaPanel('harga')">
+            <span class="fab-icon">💰</span>
+            <span>Harga</span>
+        </button>
     </div>
 
     <!-- ── PANEL MULTI-LAHAN ── -->
@@ -455,6 +483,13 @@ function bukaPanel(nama) {
         harga: 'panelHarga'
     };
     document.getElementById(map[nama]).classList.add('aktif');
+
+    // Tandai tab aktif
+    document.querySelectorAll('.fab-kecil').forEach(b => b.classList.remove('fab-aktif'));
+    const tabMap = { multiLahan: 'fab-lahan', riwayat: 'fab-riwayat', notif: 'fab-notif', harga: 'fab-harga' };
+    const tabEl = document.querySelector('.' + tabMap[nama]);
+    if (tabEl) tabEl.classList.add('fab-aktif');
+
     if (nama === 'multiLahan') renderDaftarLahan();
     if (nama === 'riwayat') renderDaftarRiwayat();
     if (nama === 'notif') renderJadwalNotif();
@@ -468,6 +503,11 @@ function tutupPanel(nama) {
         harga: 'panelHarga'
     };
     document.getElementById(map[nama]).classList.remove('aktif');
+
+    // Hapus status aktif tab
+    const tabMap = { multiLahan: 'fab-lahan', riwayat: 'fab-riwayat', notif: 'fab-notif', harga: 'fab-harga' };
+    const tabEl = document.querySelector('.' + tabMap[nama]);
+    if (tabEl) tabEl.classList.remove('fab-aktif');
 }
 
 // ============================================================
@@ -678,8 +718,8 @@ function renderDaftarRiwayat() {
 }
 function updateBadgeRiwayat() {
     const list = getRiwayat();
-    const fabRiwayat = document.querySelector('.fab-riwayat span');
-    if (fabRiwayat) fabRiwayat.textContent = `Riwayat (${list.length})`;
+    const el = document.getElementById('fabRiwayatLabel');
+    if (el) el.textContent = list.length > 0 ? `Riwayat (${list.length})` : 'Riwayat';
 }
 
 // ============================================================
@@ -1134,4 +1174,4 @@ window.addEventListener('load', function() {
     setTimeout(cekPengingatHariIni, 2000);
 });
 
-console.log('✅ Patch Smart Farming berhasil dimuat: Multi-Lahan, Riwayat, Notifikasi, Harga Pupuk, Fix GPS Drift');
+console.log('✅ Patch Smart Farming berhasil dimuat: Multi-Lahan, Riwayat, Notifikasi, Harga Pupuk, Fix GPS Drift, Bottom Nav Bar');
