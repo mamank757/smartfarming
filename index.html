@@ -948,8 +948,8 @@ body.light-mode .harga-table td { color: #334155 !important; border-bottom: 1px 
     </button>
     <div class="dropdown-menu-list" id="menu-cuaca">
       <span class="dd-cat-label">Prakiraan &amp; Risiko</span>
-      <button class="dropdown-item" onclick="pilihMenu('cuaca','cuaca',event)">🌤️ Risiko Cuaca</button>
-      <button class="dropdown-item" onclick="pilihMenu('cuaca','kalender',event)">📅 Risiko Iklim</button>
+      <button class="dropdown-item" onclick="pilihMenu('cuaca','cuaca',event)">🌤️ Cuaca & Risiko Hama/Penyakit</button>
+      <button class="dropdown-item" onclick="pilihMenu('cuaca','kalender',event)">📅 Iklim & Risiko Gagal Panen</button>
     </div>
   </div>
 
@@ -959,9 +959,9 @@ body.light-mode .harga-table td { color: #334155 !important; border-bottom: 1px 
     </button>
     <div class="dropdown-menu-list" id="menu-lahan">
       <span class="dd-cat-label">Manajemen Lahan</span>
-      <button class="dropdown-item" onclick="pilihMenu('lahan','biaya',event)">💰 Biaya Tani</button>
-      <button class="dropdown-item" onclick="pilihMenu('lahan','ukur',event)">📐 Ukur Lahan</button>
-      <button class="dropdown-item" onclick="pilihMenu('lahan','malai',event)">🌾 Hasil Panen</button>
+      <button class="dropdown-item" onclick="pilihMenu('lahan','biaya',event)">💰 Analisis Biaya Usaha Tani</button>
+      <button class="dropdown-item" onclick="pilihMenu('lahan','ukur',event)">📐 Ukur Luas Lahan/Sawah</button>
+      <button class="dropdown-item" onclick="pilihMenu('lahan','malai',event)">🌾 Perkiraan Hasil Panen</button>
     </div>
   </div>
 
@@ -971,9 +971,9 @@ body.light-mode .harga-table td { color: #334155 !important; border-bottom: 1px 
     </button>
     <div class="dropdown-menu-list" id="menu-pupuk">
       <span class="dd-cat-label">Nutrisi Tanaman</span>
-      <button class="dropdown-item" onclick="pilihMenu('pupuk','varietas',event)">🌱 Varietas Padi</button>
-      <button class="dropdown-item" onclick="pilihMenu('pupuk','pupuk',event)">🧮 Dosis Pupuk</button>
-      <button class="dropdown-item" onclick="pilihMenu('pupuk','bwd',event)">🔬 Uji BWD Urea</button>
+      <button class="dropdown-item" onclick="pilihMenu('pupuk','varietas',event)">🌱 Cari Varietas Padi Unggul</button>
+      <button class="dropdown-item" onclick="pilihMenu('pupuk','pupuk',event)">🧮 Lihat Dosis Pupuk ERDKK</button>
+      <button class="dropdown-item" onclick="pilihMenu('pupuk','bwd',event)">🔬 Uji Kebutuhan Urea - BWD</button>
     </div>
   </div>
 
@@ -983,10 +983,10 @@ body.light-mode .harga-table td { color: #334155 !important; border-bottom: 1px 
     </button>
     <div class="dropdown-menu-list" id="menu-hama">
       <span class="dd-cat-label">Proteksi Tanaman</span>
-      <button class="dropdown-item" onclick="pilihMenu('hama','hama',event)">🐛 Hama Padi</button>
-      <button class="dropdown-item" onclick="pilihMenu('hama','daun',event)">🍃 Penyakit Padi</button>
-      <button class="dropdown-item" onclick="pilihMenu('hama','gulma',event)">🌿 Jenis Gulma</button>
-      <button class="dropdown-item" onclick="pilihMenu('hama','tanah',event)">🌍 Fisik Tanah</button>
+      <button class="dropdown-item" onclick="pilihMenu('hama','hama',event)">🐛 Deteksi Hama Padi</button>
+      <button class="dropdown-item" onclick="pilihMenu('hama','daun',event)">🍃 Deteksi Penyakit Padi</button>
+      <button class="dropdown-item" onclick="pilihMenu('hama','gulma',event)">🌿 Deteksi Jenis Gulma</button>
+      <button class="dropdown-item" onclick="pilihMenu('hama','tanah',event)">🌍 Deteksi Fisik Tanah</button>
     </div>
   </div>
 
@@ -996,8 +996,8 @@ body.light-mode .harga-table td { color: #334155 !important; border-bottom: 1px 
     </button>
     <div class="dropdown-menu-list" id="menu-harga">
       <span class="dd-cat-label">Informasi Pasar</span>
-      <button class="dropdown-item" onclick="pilihMenu('harga','pestisida',event)">🧴 Harga Pestisida</button>
-      <button class="dropdown-item" onclick="pilihMenu('harga','gabah',event)">🌾 Harga Gabah</button>
+      <button class="dropdown-item" onclick="pilihMenu('harga','pestisida',event)">🧴 Harga Pestisida Terkini</button>
+      <button class="dropdown-item" onclick="pilihMenu('harga','gabah',event)">🌾 Harga Gabah Terkini</button>
     </div>
   </div>
 
@@ -1006,11 +1006,11 @@ body.light-mode .harga-table td { color: #334155 !important; border-bottom: 1px 
       💬 KONSULTASI <span class="dd-arrow" id="arrow-konsul">▼</span>
     </button>
     <div class="dropdown-menu-list" id="menu-konsul">
-      <span class="dd-cat-label">Asisten AI</span>
-      <button class="dropdown-item" onclick="pilihKonsulDD(1,event)">🤖 Konsul Asisten 1</button>
-      <button class="dropdown-item" onclick="pilihKonsulDD(2,event)">🤖 Konsul Asisten 2</button>
-      <button class="dropdown-item" onclick="pilihKonsulDD(3,event)">🤖 Konsul Asisten 3</button>
-      <button class="dropdown-item" onclick="pilihKonsulDD(4,event)">🤖 Konsul Asisten 4</button>
+      <span class="dd-cat-label">Asisten Penyuluh</span>
+      <button class="dropdown-item" onclick="pilihKonsulDD(1,event)">🤖 Konsultasi Asisten 1</button>
+      <button class="dropdown-item" onclick="pilihKonsulDD(2,event)">🤖 Konsultasi Asisten 2</button>
+      <button class="dropdown-item" onclick="pilihKonsulDD(3,event)">🤖 Konsultasi Asisten 3</button>
+      <button class="dropdown-item" onclick="pilihKonsulDD(4,event)">🤖 Konsultasi Asisten 4</button>
     </div>
   </div>
 
