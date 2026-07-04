@@ -1,6 +1,6 @@
 /**
  * patch_sync_jenis_sawah.js
- * Sinkronkan #selectJenisSawahRisiko (tab Risiko Iklim) dan
+ * Sinkronkan #selectJenisSawahRisiko (tab Risiko Iklim)dan
  * #selectJenisSawahJTO (tab Kalender TNM) agar selalu sama.
  * Muat SETELAH patch_sawah_rawa_v1.3.js
  */
