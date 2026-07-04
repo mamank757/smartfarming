@@ -4,7 +4,6 @@
  *  Versi: 3.13 — Transparansi Sumber Data ENSO/IOD
  * ------------------------------------------------------------
  *  PERBAIKAN v3.13 vs v3.12.1:
- *
  *  [BARU] Warning eksplisit di console kalau window.getENSOAnomaly /
  *  window.getIODAnomaly tidak ditemukan saat tombol analisis diklik.
  *  Sebelumnya kegagalan ini diam-diam jatuh ke nilai Netral tanpa
