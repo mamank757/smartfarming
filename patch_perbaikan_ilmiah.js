@@ -335,5 +335,4 @@
         '%c✅ patch_perbaikan_ilmiah.js dimuat — 5 perbaikan aktif',
         'color: #10b981; font-weight: bold;'
     );
-
 })();
