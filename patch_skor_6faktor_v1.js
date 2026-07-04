@@ -352,7 +352,16 @@
     }
 
     window.hitungRisikoDinamis = function (bulanIndex, fase, ensoVal, iodVal, baselineData) {
-        var lat = (window._lokasiKalender && window._lokasiKalender.lat) || -5.0;
+    // 🔧 FIX Bug #3: model ENSO/SST/IOD/ZOM/MJO/Bulan tidak berlaku untuk rawa
+    // (rawa pakai skor banjir langsung dari ZOM lokal, bukan wetness score iklim)
+    var elJTO = document.getElementById('selectJenisSawahRisiko')
+             || document.getElementById('selectJenisSawahJTO');
+    if (elJTO && elJTO.value === 'rawa' && typeof window._hitungRisikoAsli6F === 'function') {
+        return window._hitungRisikoAsli6F(bulanIndex, fase, ensoVal, iodVal, baselineData);
+    }
+
+    var lat = (window._lokasiKalender && window._lokasiKalender.lat) || -5.0;
+    
         var lon = (window._lokasiKalender && window._lokasiKalender.lon) || 120.0;
 
         // ── 1. Baseline ZOM ──────────────────────────────────────────────
