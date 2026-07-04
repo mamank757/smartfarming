@@ -9,7 +9,6 @@
  *   Guard cek __iklimTerpaduV1Aktif dipindah ke dalam
  *   waitForV1() dengan polling setiap 100ms (max 5 detik).
  *   Tidak lagi mati diam-diam saat v1 belum selesai inject.
- *
  * PERUBAHAN DARI v1:
  *   [ZOM-1] Tambah 2 sub-zona baru: hst_basah & kering_ekstrem
  *   [ZOM-2] deteksiZonaIklim() lebih presisi — 8 kondisi GPS
@@ -36,7 +35,6 @@
         console.warn('[patch_zom_kalibrasi_v2] sudah aktif, skip re-load.');
         return;
     }
-
     // ============================================================
     //  BAGIAN 0 — waitForV1()
     //  Polling sampai v1 selesai inject (max 5 detik / 50 tick).
