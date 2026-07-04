@@ -361,7 +361,6 @@
                 if (typeof tambahRiwayat === 'function') {
                     tambahRiwayat('varietas', label, ringkasan);
                 }
-
             }, 800);
         };
 
