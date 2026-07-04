@@ -4,7 +4,6 @@
  *  Integrasi 6 Faktor Iklim — RISIKO IKLIM & KALENDER TNM
  * ============================================================
  *  DAFTAR BUG YANG DIPERBAIKI:
- *
  *  [FIX-1]  Bobot ENSO/SST/IOD/ZOM/MJO/Bulan diluruskan agar
  *           sesuai tabel metodologi (ENSO 30%, SST 18%,
  *           IOD 17%, ZOM 18%, MJO 10%, Bulan 7%) → total 100%.
