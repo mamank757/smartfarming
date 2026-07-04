@@ -40,7 +40,6 @@
                 terapkanKeSemuaSelect(elRisiko.value, 'selectJenisSawahRisiko');
             });
         }
-
         if (elJTO && !elJTO._syncAttached) {
             elJTO._syncAttached = true;
             elJTO.value = ambilTersimpan();
