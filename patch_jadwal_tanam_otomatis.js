@@ -38,7 +38,6 @@
     var WARNA = '#3b82f6';
     var EPOCH_BULAN_BARU = new Date('2026-01-29T12:36:00Z');
     var SIKLUS_SINODIS   = 29.53059;
-
     var NAMA_HARI  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
     var NAMA_BULAN = ['Januari','Februari','Maret','April','Mei','Juni',
                       'Juli','Agustus','September','Oktober','November','Desember'];
