@@ -680,7 +680,6 @@
     window.addEventListener('popstate', function () {
         // Modal dikunci — back button tidak menutup peta
     });
-
     // =========================================================================
     //  SWIPE KE BAWAH — DIKUNCI (tidak menutup modal)
     // =========================================================================
