@@ -98,7 +98,6 @@
         window.__percepatanKalenderV1Aktif = true;
         console.log('%c✅ patch_percepatan_kalender_v1.js (BERSIH) AKTIF', 'color:#10b981; font-weight:bold;');
     }
-
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () { setTimeout(init, 700); });
     } else {
