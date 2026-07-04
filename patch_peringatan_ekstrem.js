@@ -632,7 +632,6 @@
     if (weatherDataEl) {
         observer.observe(weatherDataEl, { childList: true, subtree: false });
     }
-
     // Fallback: coba setelah DOM fully loaded
     document.addEventListener('DOMContentLoaded', function() {
         var wd = document.getElementById('weatherData');
