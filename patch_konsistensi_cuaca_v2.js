@@ -11,7 +11,6 @@
  *    antara "awan hujan di area" vs "hujan aktif di sawah"
  *  - tambahRingkasanSituasi() — kotak ringkasan cuaca hari ini
  *  - tambahKeteranganPrakiraan() — catatan resolusi kecamatan
- *
  *  CARA PASANG (setelah patch_lokasi_cuaca_terpadu.js):
  *    <script src="patch_konsistensi_cuaca_v2.js"></script>
  * ============================================================
