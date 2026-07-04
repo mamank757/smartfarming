@@ -6149,8 +6149,7 @@ setInterval(function() {
     if (typeof window._deteksiPerairan === 'function' && typeof window._bacaKoordinatGPS === 'function') {
         var gps = window._bacaKoordinatGPS();
         var zona = window._deteksiPerairan(gps.lat, gps.lon);
-        
-        if (zona) {
+                if (zona) {
             // Update Legend HTML
             var span1 = document.getElementById('namaPerairan1');
             var span2 = document.getElementById('namaPerairan2');
