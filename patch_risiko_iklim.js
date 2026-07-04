@@ -4,7 +4,6 @@
  * Versi: 2.0.2 — Risiko Curah Hujan Murni + Keterangan Label Dinamis
  * ------------------------------------------------------------
  * Menimpa fungsi di patch_risiko_iklim.js (versi sebelumnya)
- *
  * PERUBAHAN UTAMA:
  * ✅ Label grafik sekarang otomatis menambahkan "(AMAN)", 
  * "(WASPADA)", "(BAHAYA)", atau "(KRITIS)" berdasarkan skor.
