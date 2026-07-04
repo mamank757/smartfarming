@@ -679,7 +679,6 @@
                 try { if (typeof currentMode !== 'undefined') currentMode = mode; } catch (e) {}
                 return;
             }
-
             if (boxEl) boxEl.style.display = 'none';
             if (tabEl) tabEl.classList.remove('active');
 
