@@ -3,7 +3,6 @@
  *  patch_skor_6faktor_v1.js  —  VERSI PERBAIKAN
  *  Integrasi 6 Faktor Iklim — RISIKO IKLIM & KALENDER TNM
  * ============================================================
- *
  *  DAFTAR BUG YANG DIPERBAIKI:
  *
  *  [FIX-1]  Bobot ENSO/SST/IOD/ZOM/MJO/Bulan diluruskan agar
