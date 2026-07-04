@@ -4,7 +4,6 @@
  *  Versi: 2.0 — Fix: renderSemuaRisikoGPS tidak di-export ke window
  * ------------------------------------------------------------
  *  PERUBAHAN v2.0 vs v1.0:
- *
  *  [FIX-KRITIS] pasangRiwayatRisikoIklim() sebelumnya memanggil
  *   tunggu('renderSemuaRisikoGPS', ...) yang selalu timeout karena
  *   fungsi itu private di dalam IIFE patch_cuaca_langsung.js —
