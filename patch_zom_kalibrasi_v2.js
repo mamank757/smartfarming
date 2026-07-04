@@ -6,7 +6,6 @@
  *
  * PASANG SETELAH patch_iklim_terpadu_v1.js
  * (file ini adalah layer kalibrasi di atas konsolidasi v1)
- *
  * FIX v2.1 — RACE CONDITION:
  *   Guard cek __iklimTerpaduV1Aktif dipindah ke dalam
  *   waitForV1() dengan polling setiap 100ms (max 5 detik).
