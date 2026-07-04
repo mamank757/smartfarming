@@ -7,7 +7,7 @@
  *   Letakkan PALING TERAKHIR — setelah patch_skor_6faktor_v1.js
  *   DAN setelah patch_fix_integrasi_6faktor_v1.js. Urutan akhir
  *   yang disarankan di index.html:
- *     ... (semua patch lain seperti sekarang) ...
+ *     (semua patch lain seperti sekarang) ...
  *     <script src="patch_skor_6faktor_v1.js"></script>
  *     <script src="patch_nasional_vfinal.js"></script>
  *     <script src="patch_percepatan_kalender_v1.js"></script>
