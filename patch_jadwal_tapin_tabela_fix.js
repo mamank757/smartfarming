@@ -3,7 +3,6 @@
  *  patch_jadwal_tapin_tabela_fix.js
  *  Versi: 2.0 — Koreksi Agronomis Tapin vs Tabela
  * ------------------------------------------------------------
- *
  *  LOGIKA YANG BENAR:
  *
  *  Tabela tidak mengalami stagnasi transplanting, sehingga
