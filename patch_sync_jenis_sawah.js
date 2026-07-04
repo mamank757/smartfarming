@@ -7,7 +7,6 @@
 (function () {
     'use strict';
     if (window.__syncJenisSawahAktif) return;
-
     var KEY = 'sf_jenis_sawah_global';
 
     function ambilTersimpan() {
