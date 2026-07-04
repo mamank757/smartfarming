@@ -330,5 +330,4 @@ body.light-mode #weatherData div[style*="color:#475569"] {
     } else {
         document.addEventListener('DOMContentLoaded', suntikCSS);
     }
-
 })();
