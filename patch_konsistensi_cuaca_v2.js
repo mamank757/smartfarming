@@ -4,7 +4,6 @@
  *  PPL Milenial Wajo — Smart Farming
  *  Versi: 2.0
  * ============================================================
- *
  *  Mempertahankan logika dari patch_konsistensi_cuaca_v1.js:
  *  - klasifikasiCuacaGabungan() — ikon & label berdasarkan
  *    kode WMO + intensitas presipitasi aktual di titik sawah
