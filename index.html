@@ -5867,7 +5867,14 @@ async function cariHargaPestisida() {
     </div>
 </div>
    <script>
-    window._GAS_MJO_URL = "https://script.google.com/macros/s/AKfycbzg0kyEhxDnXi-KsohB1TY7DQyLHG6ogjA_U0-C6u0O1qn3uMfbuwZRKmceBz0jQeRSqA/exec";
+    /* ── URL GAS MJO (ganti dengan URL deploy MJO_BOM_Proxy_GAS.gs) ── */
+     window._GAS_MJO_URL = "https://script.google.com/macros/s/AKfycbzg0kyEhxDnXi-KsohB1TY7DQyLHG6ogjA_U0-C6u0O1qn3uMfbuwZRKmceBz0jQeRSqA/exec";
+ 
+    /* ── URL GAS Kelvin & Rossby Wave ── */
+   window.GAS_ENDPOINTS = {
+    kelvin: 'https://script.google.com/macros/s/AKfycbyYZXjPUtNYQaByrjjQPLOQF6mqfFSCeRft_S2e6SWyBAq_Ww7owkLjAy7I3iS77_bCXw/exec',
+    rossby: 'https://script.google.com/macros/s/AKfycbyB9mSCcNo151SQ-F-OyFmE43asmY3nfp2R2RobSIWRXSNFd7oj7GBtZr7V8up1D5eLpw/exec'
+};
 </script>
 <script src="mjo_loader.js"></script>
 <script src="patch_smartfarming.js"></script>
@@ -6177,12 +6184,6 @@ setInterval(function() {
     }
 }, 1000);
 </script>
- <script>
-window.GAS_ENDPOINTS = {
-    kelvin: 'https://script.google.com/macros/s/AKfycbyYZXjPUtNYQaByrjjQPLOQF6mqfFSCeRft_S2e6SWyBAq_Ww7owkLjAy7I3iS77_bCXw/exec',
-    rossby: 'https://script.google.com/macros/s/AKfycbyB9mSCcNo151SQ-F-OyFmE43asmY3nfp2R2RobSIWRXSNFd7oj7GBtZr7V8up1D5eLpw/exec'
-};
-</script>   
    
 <script src="patch_skor_6faktor_v1.js"></script>       
 <script src="patch_nasional_vfinal.js"></script>        
