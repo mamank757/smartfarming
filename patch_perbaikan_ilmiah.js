@@ -5,7 +5,6 @@
  * File ini menimpa (override) 5 fungsi yang memiliki masalah ilmiah.
  * Cara pakai: tambahkan <script src="patch_perbaikan_ilmiah.js"></script>
  * di bagian PALING BAWAH <body>, SETELAH semua script lain.
- *
  * Daftar perbaikan:
  *   [1] normalisasiCurahHujan()  — tambahkan faktor musim
  *   [2] hitungRisikoSheathBlight() — perbaiki tumpang tindih fase & threshold
