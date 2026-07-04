@@ -1,5 +1,5 @@
 /**
- * patch_percepatan_kalender_v1.js — VERSI BERSIH
+ * patch_percepatan_kalender_v1.js — VERSI BERSIH 
  * Logika percepatan untuk ENSO, IOD, dan SST (MJO dihapus agar tidak bentrok)
  */
 (function () {
