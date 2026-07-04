@@ -11,14 +11,12 @@
  *   [3] hitungRisikoTungro()     — koreksi threshold suhu untuk Sulsel
  *   [4] persenBernas (inline di tampilkanHasil) — nilai lebih realistis
  *   [5] simpulkanPrediksiIklimTerpadu() — bobot IOD dinamis (bukan tetap 0.6)
- *
  * Referensi ilmiah tercantum di masing-masing fungsi.
  * =============================================================================
  */
 
 (function() {
     'use strict';
-
     /* =========================================================================
      * [1] normalisasiCurahHujan — PERBAIKAN UTAMA
      * =========================================================================
