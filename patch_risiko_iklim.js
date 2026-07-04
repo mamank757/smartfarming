@@ -563,7 +563,6 @@ const riskPanen = window.hitungRisikoDinamis(tglPanen.getMonth(),     'Panen',  
         '%c✅ patch_risiko_iklim_v2.js v2.0.2 aktif — Keterangan Level Otomatis',
         'color:#38b6ff; font-weight:bold;'
     );
-    
     // ============================================================
     //  EKSPOR EKSPLISIT
     // ============================================================
