@@ -5,7 +5,6 @@
  * ------------------------------------------------------------
  * MASALAH YANG DIPERBAIKI:
  *   patch_skor_6faktor_v1.js punya DUA override berbeda:
- *
  *   1) window.hitungRisikoDinamis
  *      → SUDAH punya guard rawa (cek #selectJenisSawahRisiko/JTO,
  *        kalau 'rawa' langsung delegasi ke window._hitungRisikoAsli6F
