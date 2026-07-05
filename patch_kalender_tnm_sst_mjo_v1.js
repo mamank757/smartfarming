@@ -7,7 +7,7 @@
  *   Letakkan PALING TERAKHIR — setelah patch_skor_6faktor_v1.js
  *   DAN setelah patch_fix_integrasi_6faktor_v1.js. Urutan akhir
  *   yang disarankan di index.html:
- *     (semua patch lain seperti sekarang) ...
+ *     ... (semua patch lain seperti sekarang) ...
  *     <script src="patch_skor_6faktor_v1.js"></script>
  *     <script src="patch_nasional_vfinal.js"></script>
  *     <script src="patch_percepatan_kalender_v1.js"></script>
@@ -78,46 +78,70 @@
     var BATAS_SST = { min: 0.70, max: 1.30 };
     var BATAS_MJO_SEKARANG = { min: 0.80, max: 1.20 };
     var BATAS_MJO_DEPAN    = { min: 0.90, max: 1.10 };
-    var AMBANG_LAPOR_PERSEN = 2; // hanya dilaporkan di alasan jika |penyesuaian| >= 2%
+    var AMBANG_LAPOR_PERSEN = 2;
+
+    // Cek jenis sawah tadah hujan
+    function isTadahHujan() {
+        var elJTO    = document.getElementById('selectJenisSawahJTO');
+        var elRisiko = document.getElementById('selectJenisSawahRisiko');
+        var val = (elJTO && elJTO.value) || (elRisiko && elRisiko.value) || '';
+        return val === 'tadah_hujan' || val === 'tadahhujan' || val === 'tadah hujan';
+    }
 
     /**
-     * Bangun array rawZOM 12 bulan yang sudah disisipi pengaruh SST & MJO,
-     * dan kembalikan juga log penyesuaian per bulan untuk transparansi.
+     * [FIX TADAH HUJAN — 23 Mei → 31 Mei]
+     * Untuk tadah hujan, koreksi SST/MJO ke rawZOM dikurangi ke 40-50%
+     * dari skala normal. Alasan: cariOnsetHujan di V4 memakai rawZOM untuk
+     * menentukan bulan olah tanah. Koreksi SST +7.8% menggeser onset
+     * 1-3 hari, yang karena constraint batasBulan di cariTglFaseBulan
+     * menyebabkan lompatan diskrit 8 hari (melewati jendela fase bulan
+     * 3-8 lalu loncat ke siklus bulan baru berikutnya).
+     * Dengan skala 40%: koreksi SST maks ~3% — cukup untuk scoring
+     * tapi tidak cukup untuk menggeser onset/tanggal tanam.
      */
     function buatRawZOMTeradaptasi(rawZOM, lat, lon, ensoVal) {
         var hasil = rawZOM.slice();
-        var log   = {}; // { bulanIdx: { sstPct, mjoPct } }
+        var log   = {};
         var bulanIni   = new Date().getMonth();
         var bulanDepan = (bulanIni + 1) % 12;
+        var tadah      = isTadahHujan();
+
+        // Skala dikurangi 40-50% untuk tadah hujan
+        var skalSST  = tadah ? 0.024 : 0.06;
+        var skalMJO1 = tadah ? 0.05  : 0.10;
+        var skalMJO2 = tadah ? 0.02  : 0.04;
 
         for (var i = 0; i < 12; i++) {
             log[i] = { sstPct: 0, mjoPct: 0 };
 
-            // ── SST: berlaku sepanjang tahun (nilai klimatologis per-bulan) ──
             if (window._6F && typeof window._6F.getAnomaliSSTLokal === 'function') {
                 var sstAnom   = window._6F.getAnomaliSSTLokal(lat, lon, i);
-                var faktorSST = 1 + (sstAnom * 0.06);
+                var faktorSST = 1 + (sstAnom * skalSST);
                 faktorSST     = Math.max(BATAS_SST.min, Math.min(BATAS_SST.max, faktorSST));
                 hasil[i]      = hasil[i] * faktorSST;
                 log[i].sstPct = Math.round((faktorSST - 1) * 100);
             }
         }
 
-        // ── MJO: hanya bulan berjalan (penuh) & bulan depan (meluruh) ──
         if (window._6F && typeof window._6F.getDampakMJO === 'function' &&
             window.mjoData && window.mjoData.fase) {
 
             var mjoVal = window._6F.getDampakMJO(lat, lon, bulanIni, ensoVal || 0);
 
-            var faktorMjoSekarang = 1 + (mjoVal * 0.10);
+            var faktorMjoSekarang = 1 + (mjoVal * skalMJO1);
             faktorMjoSekarang = Math.max(BATAS_MJO_SEKARANG.min, Math.min(BATAS_MJO_SEKARANG.max, faktorMjoSekarang));
-            hasil[bulanIni]   = hasil[bulanIni] * faktorMjoSekarang;
+            hasil[bulanIni]      = hasil[bulanIni] * faktorMjoSekarang;
             log[bulanIni].mjoPct = Math.round((faktorMjoSekarang - 1) * 100);
 
-            var faktorMjoDepan = 1 + (mjoVal * 0.04);
+            var faktorMjoDepan = 1 + (mjoVal * skalMJO2);
             faktorMjoDepan = Math.max(BATAS_MJO_DEPAN.min, Math.min(BATAS_MJO_DEPAN.max, faktorMjoDepan));
-            hasil[bulanDepan]   = hasil[bulanDepan] * faktorMjoDepan;
+            hasil[bulanDepan]      = hasil[bulanDepan] * faktorMjoDepan;
             log[bulanDepan].mjoPct = Math.round((faktorMjoDepan - 1) * 100);
+        }
+
+        if (tadah) {
+            console.log('[kalender_tnm_sst_mjo] Tadah hujan: skala SST/MJO dikurangi 40-50%' +
+                ' (mencegah lompatan fase bulan). skalSST=' + skalSST + ' skalMJO=' + skalMJO1);
         }
 
         return { rawZOMBaru: hasil, log: log };
@@ -138,13 +162,8 @@
         var asli = window.rekomendasiWindowTanam;
 
         var dibungkus = function (skorBulan, rawZOM, zona, ensoVal, iodVal) {
-    var elJTO = document.getElementById('selectJenisSawahJTO');
-    if (elJTO && elJTO.value === 'rawa') {
-        return asli(skorBulan, rawZOM, zona, ensoVal, iodVal);
-    }
-
-    var lat = (window._lokasiKalender && window._lokasiKalender.lat) || -5.0;
-                var lon = (window._lokasiKalender && window._lokasiKalender.lon) || 120.0;
+            var lat = (window._lokasiKalender && window._lokasiKalender.lat) || -5.0;
+            var lon = (window._lokasiKalender && window._lokasiKalender.lon) || 120.0;
 
             var adaptasi      = buatRawZOMTeradaptasi(rawZOM, lat, lon, ensoVal);
             var rawZOMBaru    = adaptasi.rawZOMBaru;
