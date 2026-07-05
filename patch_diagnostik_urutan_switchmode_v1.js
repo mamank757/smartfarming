@@ -11,7 +11,6 @@
  *     - patch_jadwal_manual_trigger.js (t0 + 100ms)
  *     - patch_sawah_rawa_v1.js         (t0 + 300ms)
  *     - patch_kuota_harian.js          (langsung saat parse, sinkron)
- *
  *   Urutan LAPISAN AKHIR ditentukan oleh KAPAN masing-masing kode
  *   benar-benar jalan (delay setTimeout), BUKAN oleh urutan tag
  *   <script> di index.html. Saat ini semua tetap saling delegasi
