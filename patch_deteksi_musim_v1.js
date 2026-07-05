@@ -14,7 +14,6 @@
  *     hierarkis, dan mudah dibaca tanpa angka mm/bobot
  *   - Kalimat alasan disederhanakan: fokus pada AKSI dan
  *     WAKTU, bukan angka teknis
- *
  * [SEMUA FIX v3.0 TETAP DIPERTAHANKAN]
  * ============================================================
  */
