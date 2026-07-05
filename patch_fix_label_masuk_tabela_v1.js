@@ -349,7 +349,20 @@
        BAGIAN B — Perbaiki label ringkasan "Masuk Lahan" di DOM
        (dirender terpisah oleh patch_fix01_terapkan_tapin_tabela.js)
     ============================================================ */
+    /** Sama seperti getJenisSawah() di patch_bugfix_b1b3_v1.js — dipakai
+     *  untuk memastikan koreksi ini TIDAK PERNAH menyentuh mode Rawa,
+     *  karena Rawa tidak punya offset 15 hari antara Tapin & Tabela
+     *  (lihat patch_sawah_rawa_v1.js — bangunKegiatanRawa memakai
+     *  tglTanam yang SAMA untuk kedua metode). */
+    function getJenisSawahAktif() {
+        var elJTO    = document.getElementById('selectJenisSawahJTO');
+        var elRisiko = document.getElementById('selectJenisSawahRisiko');
+        return (elJTO && elJTO.value) || (elRisiko && elRisiko.value) || 'irigasi';
+    }
+
     function perbaikiLabelRingkasan() {
+        if (getJenisSawahAktif() === 'rawa') return; // ⛔ guard: jangan sentuh Rawa
+
         var multiJadwal = window._jtoData;
         var teksEl      = document.getElementById('jtoTeks');
         if (!multiJadwal || !multiJadwal.length || !teksEl) return;
