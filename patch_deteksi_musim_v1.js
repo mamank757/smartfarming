@@ -61,7 +61,7 @@
         {
             latMin: -6.0,  latMaks: -3.5,  lonMin: 120.0, lonMaks: 120.79,
             polaPuncak: 'timur',
-            rendengMulai: 3, gaduMulai: 9,
+            rendengMulai: 2, gaduMulai: 8,
             namaRendeng: 'MT I — Musim Utama Lokal', namaGadu: 'MT II — Musim Kedua Lokal',
             maxOnsetGeser: 1
         },
@@ -394,7 +394,15 @@
         var th = THRESHOLD_AIR[polaPuncak] || THRESHOLD_AIR.fallback;
         var PEMETAAN_POLA_KE_ZONA_IKLIM = {
             barat                : 'monsunal',
-            timur                : 'monsunal',
+            // [FIX ILMIAH] 'timur' = puncak hujan April–September (anti-monsun),
+            // secara definisi BMKG ini adalah zona Lokal/Anti-Monsunal, BUKAN
+            // Monsunal (yang puncaknya Oktober–Maret). Sebelumnya keduanya
+            // disatukan ke 'monsunal', sehingga lokasi berpola 'timur' salah
+            // diberi bobot sensitivitas ENSO/IOD milik Monsunal (1.00/0.55)
+            // padahal seharusnya bobot Lokal (0.50/0.40) — lihat BOBOT_ZONA_V2
+            // di patch_zom_kalibrasi_v2.js. Berlaku untuk SEMUA lokasi nasional
+            // yang terdeteksi berpola 'timur', bukan spesifik satu wilayah.
+            timur                : 'lokal',
             peralihan_sultra     : 'peralihan',
             ekuatorial_dua_puncak: 'ekuatorial'
         };
