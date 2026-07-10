@@ -489,6 +489,29 @@
 
             if (!Array.isArray(hasil)) return hasil;
 
+            // [MERGED — eks patch_fix_konsistensi_rawa_6faktor_v1.js]
+            // Untuk sawah RAWA, kandidat dipilih lewat model banjir khusus
+            // (threshold ZOM P65, lihat patch_sawah_rawa_v1.js) — BUKAN
+            // skor ENSO/IOD/SST/MJO/Fase Bulan biasa. Jangan tempeli tag
+            // "📊 Faktor 6F: ..." yang tidak relevan secara ilmiah untuk
+            // mode ini; tempelkan catatan yang benar sebagai gantinya.
+            var elJTORawa    = document.getElementById('selectJenisSawahJTO');
+            var elRisikoRawa = document.getElementById('selectJenisSawahRisiko');
+            var jenisSawahAktif6F = (elJTORawa && elJTORawa.value) || (elRisikoRawa && elRisikoRawa.value) || 'irigasi';
+
+            if (jenisSawahAktif6F === 'rawa') {
+                hasil.forEach(function (item) {
+                    if (item.alasan && item.alasan.indexOf('🌿 Model Rawa') === -1) {
+                        item.alasan = item.alasan +
+                            '\n🌿 Model Rawa: tanggal & varietas ditentukan dari threshold ' +
+                            'ZOM P65 (surut-banjir), bukan skor ENSO/IOD/SST/MJO iklim biasa.';
+                    }
+                });
+                hasil.sort(function (a, b) { return (b.nilaiTotal || 0) - (a.nilaiTotal || 0); });
+                console.log('%c[6F] Mode Rawa — tag "Faktor 6F" dilewati, catatan Model Rawa ditambahkan', 'color:#1D9E75;font-weight:bold;');
+                return hasil;
+            }
+
             var lat = (window._lokasiKalender && window._lokasiKalender.lat) || -5.0;
             var lon = (window._lokasiKalender && window._lokasiKalender.lon) || 120.0;
 
