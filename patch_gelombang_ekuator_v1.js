@@ -33,6 +33,14 @@
  *      ke depan masih relevan). Fase Generatif dan Panen tidak
  *      disentuh karena nilainya lebih banyak ditentukan bulan,
  *      bukan minggu.
+ *
+ * [MERGED v1.1] Menggabungkan guard sawah RAWA (dulu BUG-3 di
+ *   patch_bugfix_b1b3_v1.js — file itu sekarang dihapus, BUG-1
+ *   miliknya dipindah ke patch_fix_integrasi_6faktor_v1.js).
+ *   Sawah RAWA pakai model banjir sendiri (patch_sawah_rawa_v1.js);
+ *   delta Kelvin/Rossby di atas TIDAK relevan untuk risiko genangan
+ *   rawa, jadi dilewati sepenuhnya untuk mode itu — lihat
+ *   getJenisSawahGelombang() di BAGIAN 3.
  * ============================================================
  */
 
@@ -224,6 +232,15 @@
     //  Besaran: maksimal ±8% dari indeksKelvin → tidak mendominasi
     // ============================================================
 
+    // ── [MERGED — eks BUG-3 patch_bugfix_b1b3_v1.js] ──
+    // Sama seperti getJenisSawah() di file-file lain: baca dropdown
+    // jenis sawah yang sedang aktif (Risiko Iklim / Kalender TNM).
+    function getJenisSawahGelombang() {
+        var elJTO    = document.getElementById('selectJenisSawahJTO');
+        var elRisiko = document.getElementById('selectJenisSawahRisiko');
+        return (elJTO && elJTO.value) || (elRisiko && elRisiko.value) || 'irigasi';
+    }
+
     function pasangKelvinKeRisikoDinamis(tick) {
         tick = tick || 0;
         if (typeof window.hitungRisikoDinamis !== 'function') {
@@ -236,6 +253,14 @@
         var asli = window.hitungRisikoDinamis;
         window.hitungRisikoDinamis = function (bulanIndex, fase, ensoVal, iodVal, baselineData) {
             var hasil = asli.apply(this, arguments);
+
+            // [MERGED — eks BUG-3] Sawah RAWA pakai model banjir khusus
+            // (patch_sawah_rawa_v1.js) — delta Kelvin/Rossby (konveksi
+            // jangka pendek untuk sawah irigasi/tadah hujan) TIDAK relevan
+            // secara ilmiah untuk risiko genangan rawa. Lewati sepenuhnya,
+            // kembalikan hasil dari lapisan di bawah (skor_6faktor, yang
+            // sudah rawa-aware) apa adanya.
+            if (getJenisSawahGelombang() === 'rawa') return hasil;
 
             // Hanya fase Tanam dan Vegetatif yang relevan dengan kejadian minggu ini
             if (fase !== 'Tanam' && fase !== 'Vegetatif') return hasil;
