@@ -208,14 +208,25 @@
         var wrapper = document.createElement('div');
         wrapper.id = 'kotakGelombangEkuator';
         wrapper.style.cssText = 'margin-top:0;';
+
+        // Ringkasan status singkat untuk ditampilkan di summary accordion
+        // (tanpa perlu buka accordion dulu) supaya info penting tetap
+        // langsung terlihat sekilas.
+        var adaAktif = (kelvin && !kelvin.error && kelvin.aktif) ||
+                        (rossby && !rossby.error && rossby.aktif) ||
+                        (window.mjoData && window.mjoData.fase && parseFloat(window.mjoData.amplitudo || 0) >= 1.0);
+        var hintTeks = adaAktif ? '⚡ Ada gelombang aktif' : '✅ Tidak ada gelombang aktif';
+
         wrapper.innerHTML =
-            '<div class="info-box" style="border-left-color:#d946ef;margin-top:16px;">' +
-                '<strong>〰️ Gelombang Ekuatorial Aktif (1–2 Minggu)</strong>' +
-                '<div style="font-size:0.7rem;color:#64748b;margin-top:2px;">' +
-                'Pengaruh jangka pendek (hari–minggu) — lebih pendek dari MJO, relevan untuk RISIKO CUACA saja' +
+            '<details class="cuaca-accordion" style="border-left-color:#d946ef;">' +
+                '<summary>〰️ Gelombang Ekuatorial & MJO <span class="cuaca-accordion-hint">' + hintTeks + '</span></summary>' +
+                '<div class="cuaca-accordion-body">' +
+                    '<div style="font-size:0.7rem;color:#64748b;margin-bottom:4px;">' +
+                    'Pengaruh jangka pendek (hari–minggu) — lebih pendek dari siklus musiman, relevan untuk RISIKO CUACA saja' +
+                    '</div>' +
+                    isiMJO + isiKelvin + isiRossby +
                 '</div>' +
-            '</div>' +
-            isiMJO + isiKelvin + isiRossby;
+            '</details>';
 
         // Sisipkan setelah kotak Blast
         var kotakBlast = document.getElementById('boxBlastRisk');
