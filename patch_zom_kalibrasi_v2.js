@@ -181,6 +181,27 @@
 
     function deteksiZonaIklimV2(lat, lon) {
 
+        // [DATA-RIIL-FIX] PRIORITAS TERTINGGI: kalau ada stasiun ZOM asli
+        // BMKG dalam radius wajar (713 titik, lihat DATA_ZOM_REFERENSI di
+        // patch_risiko_iklim.js — sumber: Gas_ZOM_Lokal_1_.xlsx), pakai
+        // klasifikasi stasiun itu APA ADANYA. Ini data pengamatan riil per
+        // titik, jauh lebih akurat daripada kotak lat/lon perkiraan di
+        // bawah (baik REFERENSI_REGIONAL_SULSEL maupun 8 kondisi umum).
+        //
+        // KENAPA PENTING: sebelum fix ini, halaman bisa menampilkan DUA
+        // label zona yang BERBEDA untuk lokasi yang SAMA — satu dari
+        // window.tentukanZonaIklim (fungsi ini, berbasis kotak) dan satu
+        // lagi dari tentukanZonaIklim LOKAL milik patch_risiko_iklim.js
+        // (yang sudah lebih dulu memprioritaskan DATA_ZOM_REFERENSI).
+        // Contoh nyata: titik "Bola" (Wajo) dikode PERALIHAN di data
+        // stasiun riil, tapi masuk kotak "lokal" di REFERENSI_REGIONAL_
+        // SULSEL — dua sumber berbeda pendapat. Sekarang KEDUANYA
+        // mengecek sumber data yang SAMA lebih dulu, jadi selalu sinkron.
+        if (typeof window.cariZonaDariDataReferensi === 'function') {
+            var dariStasiunRiil = window.cariZonaDariDataReferensi(lat, lon);
+            if (dariStasiunRiil && dariStasiunRiil.tipe) return dariStasiunRiil.tipe;
+        }
+
         // [SULSEL-FIX] Cek dulu tabel regional yang lebih rinci —
         // kalau cocok, pakai ini (konsisten dengan mesin penjadwalan)
         // dan JANGAN lanjut ke 8 kondisi kotak umum di bawah.
