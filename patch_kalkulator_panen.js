@@ -139,6 +139,7 @@ body.light-mode #boxKalkulatorPanen .kp-result-circle{ background:#f1f5f9; }
     function htmlKonten() {
         return `
   <div class="kp-intro">
+    <strong style="color:${WARNA};display:block;margin-bottom:5px;">🌾 Kalkulator Prediksi Panen Padi</strong>
     <span style="font-size:0.78rem;color:#cbd5e1;line-height:1.6;">
       Model multiplikatif kerusakan lapangan &mdash; potensi maksimum 10 Ton/Ha, target aman 8 Ton/Ha.
       Koefisien tiap faktor dikalibrasi dari studi hama/penyakit padi (rujukan di tiap kartu &amp; catatan di bawah).
@@ -412,7 +413,21 @@ body.light-mode #boxKalkulatorPanen .kp-result-circle{ background:#f1f5f9; }
         btn.id = 'tabKalkulatorPanen';
         btn.textContent = 'KALKULATOR PANEN';
         btn.onclick = function () { window.switchMode('kalkulatorpanen'); };
-        tabContainer.appendChild(btn);
+
+        // [POSISI] Disisipkan tepat SETELAH tab "RISIKO CUACA" (#tabCuaca),
+        // supaya tab ini konsisten muncul di urutan ke-3 — setelah
+        // "KALENDER TNM" (disisipkan patch lain di posisi paling awal)
+        // dan "RISIKO CUACA" (tab statis pertama di index.html), tapi
+        // SEBELUM "RISIKO IKLIM"/"BIAYA TANI" dst. #tabCuaca dipakai
+        // sebagai jangkar karena statis & selalu ada — lebih andal
+        // daripada menghitung index posisi (yang bisa berubah tergantung
+        // urutan patch lain selesai jalan).
+        var jangkar = document.getElementById('tabCuaca');
+        if (jangkar) {
+            tabContainer.insertBefore(btn, jangkar.nextSibling);
+        } else {
+            tabContainer.appendChild(btn);
+        }
     }
 
     // ============================================================
@@ -453,7 +468,7 @@ body.light-mode #boxKalkulatorPanen .kp-result-circle{ background:#f1f5f9; }
                 if (box) box.style.display = 'block';
 
                 var titleEl = document.getElementById('modeTitle');
-                if (titleEl) { titleEl.innerText = 'Kalkulator Prediksi Panen'; titleEl.style.color = WARNA; }
+                if (titleEl) { titleEl.innerText = '🌾 Kalkulator Prediksi Panen'; titleEl.style.color = WARNA; }
                 var subEl = document.getElementById('tabSubtitleDisplay');
                 if (subEl) { subEl.innerText = ''; subEl.style.display = 'none'; }
 
