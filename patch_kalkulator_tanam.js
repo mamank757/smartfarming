@@ -1,6 +1,6 @@
 /**
  * ============================================================
- * patch_kalkulator_tanam.js
+ * patch_kalkulator_tanam.js  (v2.0 — retema mengikuti tema gelap app)
  * Tab baru: KEPUTUSAN TANAM — Kalkulator Keputusan Tanam Padi
  * ------------------------------------------------------------
  * Diadaptasi dari halaman mandiri "Kalkulator Keputusan Tanam Padi"
@@ -10,24 +10,17 @@
  * rendah, penalti panen basah saat durasi hujan melebihi umur
  * panen varietas).
  *
- * ARSITEKTUR — sama persis dengan patch_kalkulator_panen.js dan
- * pola tab/box yang sudah dipakai di seluruh aplikasi ini (lihat
- * patch_jadwal_tanam_otomatis.js). Kedua kalkulator ini SENGAJA
- * dibuat konsisten satu sama lain supaya mudah dirawat bersamaan.
+ * [v2.0] RETEMA — sama seperti patch_kalkulator_panen.js v2.0:
+ * palet krem/terrace bawaan halaman mandiri diganti tema gelap
+ * aplikasi (font Plus Jakarta Sans yang sudah dimuat index.html,
+ * kartu #111c2e + border-left aksen, grafik SVG disesuaikan agar
+ * kontras di latar gelap).
  *
- * DEPENDENSI EKSTERNAL: Tailwind CDN + Google Fonts — sama dengan
- * patch_kalkulator_panen.js, dan SUDAH dijaga anti-duplikat lewat
- * flag window yang sama (window.__tailwindCDNKalkulatorDimuat,
- * #fontsKalkulatorPadi) — aman dipasang salah satu saja atau
- * keduanya sekaligus, tidak akan memuat resource dua kali.
+ * ARSITEKTUR mekanis (tab/box/switchMode) TIDAK berubah dari v1.0.
+ * Guard resource bersama (Tailwind CDN) tetap kompatibel dipasang
+ * bersamaan dengan patch_kalkulator_panen.js.
  *
- * SEMUA CSS ASLI DI-SCOPE ke "#boxKalkulatorTanam ..." — alasan
- * sama seperti di patch_kalkulator_panen.js (versi asli memakai
- * body{...}/html{...} yang kalau tidak di-scope akan menimpa
- * tampilan seluruh aplikasi).
- *
- * CARA PASANG — boleh di posisi manapun, disarankan berdekatan
- * dengan patch_kalkulator_panen.js:
+ * CARA PASANG:
  *   <script src="patch_kalkulator_panen.js"></script>
  *   <script src="patch_kalkulator_tanam.js"></script>
  * ============================================================
@@ -41,12 +34,12 @@
         return;
     }
 
-    var WARNA = '#356e8c'; // biru "rain" — beda dari accent lain di app ini
+    var WARNA = '#38b6ff'; // biru — belum dipakai accent lain di app ini
 
     // ============================================================
-    //  0. RESOURCE BERSAMA (Tailwind CDN + Google Fonts)
-    //  Guard SAMA dengan patch_kalkulator_panen.js — aman dipasang
-    //  salah satu atau keduanya, resource hanya dimuat sekali.
+    //  0. RESOURCE BERSAMA — hanya Tailwind CDN (font Plus Jakarta
+    //  Sans sudah dimuat index.html). Guard SAMA dengan
+    //  patch_kalkulator_panen.js — aman dipasang salah satu/keduanya.
     // ============================================================
     function muatResourceBersama() {
         if (!window.__tailwindCDNKalkulatorDimuat) {
@@ -56,98 +49,83 @@
             document.head.appendChild(s);
             window.__tailwindCDNKalkulatorDimuat = true;
         }
-        if (!document.getElementById('fontsKalkulatorPadi')) {
-            var pre1 = document.createElement('link');
-            pre1.rel = 'preconnect'; pre1.href = 'https://fonts.googleapis.com';
-            document.head.appendChild(pre1);
-            var pre2 = document.createElement('link');
-            pre2.rel = 'preconnect'; pre2.href = 'https://fonts.gstatic.com'; pre2.crossOrigin = 'anonymous';
-            document.head.appendChild(pre2);
-
-            var link = document.createElement('link');
-            link.id = 'fontsKalkulatorPadi';
-            link.rel = 'stylesheet';
-            link.href = 'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap';
-            document.head.appendChild(link);
-        }
     }
 
     // ============================================================
-    //  1. CSS — disalin dari halaman asli, SELURUHNYA di-scope ke
-    //  #boxKalkulatorTanam supaya tidak bocor ke tab lain.
+    //  1. CSS — di-scope ke #boxKalkulatorTanam, mengikuti konvensi
+    //  warna & bingkai .info-box/.card bawaan app.
     // ============================================================
     function injeksiCSS() {
         if (document.getElementById('cssKalkulatorTanam')) return;
         var css = `
 #boxKalkulatorTanam{
-  --kt-ink:#20321f; --kt-ink-soft:#516350;
-  --kt-paper:#fbf6ea; --kt-paper-line:#e7dfc9;
-  --kt-dalam:#2f5233; --kt-dalam-soft:#e3ebe1;
-  --kt-sedang:#386377; --kt-sedang-soft:#e2ebf0;
-  --kt-pendek:#b9791f; --kt-pendek-soft:#f6ead2;
-  --kt-rain:#356e8c; --kt-rain-soft:#dfeaee;
-  --kt-soil:#8a5a34; --kt-soil-soft:#f0e4d5;
-  --kt-warn:#a1453a; --kt-warn-soft:#f2e0dc;
-  font-family:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
-  color: var(--kt-ink);
-  background:
-    radial-gradient(1100px 500px at 8% -8%, #2c4a34 0%, transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, #24402c 0%, transparent 50%),
-    linear-gradient(180deg,#152318 0%,#1c3322 45%,#213b28 100%);
-  border-radius: 18px;
-  padding: 12px;
-  margin: -4px;
+  --kt-dalam:#10b981;  --kt-dalam-soft:rgba(16,185,129,0.15);
+  --kt-sedang:#38b6ff; --kt-sedang-soft:rgba(56,182,255,0.15);
+  --kt-pendek:#f59e0b; --kt-pendek-soft:rgba(245,158,11,0.15);
+  --kt-warn:#ef4444;   --kt-warn-soft:rgba(239,68,68,0.15);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  color: var(--text-main,#fff);
 }
-#boxKalkulatorTanam *{ box-sizing: border-box; }
-#boxKalkulatorTanam .kt-font-display{ font-family:'Fraunces',ui-serif,Georgia,serif; }
-#boxKalkulatorTanam .kt-font-num{ font-family:'IBM Plex Mono',ui-monospace,SFMono-Regular,monospace; font-variant-numeric: tabular-nums; }
-
-#boxKalkulatorTanam .kt-terrace-strip{
-  height: 10px;
-  background: repeating-linear-gradient(-12deg, var(--kt-dalam) 0 20px, var(--kt-sedang) 20px 40px, var(--kt-pendek) 40px 60px);
-  opacity:.9;
+#boxKalkulatorTanam *{ box-sizing:border-box; }
+#boxKalkulatorTanam .kt-eyebrow{
+  font-size:.68rem; letter-spacing:.08em; text-transform:uppercase;
+  font-weight:700; color: var(--text-muted,#94a3b8);
 }
-#boxKalkulatorTanam .kt-terrace-header{ position:relative; overflow:hidden; }
-#boxKalkulatorTanam .kt-terrace-header svg{ position:absolute; inset:0; width:100%; height:100%; opacity:.35; }
-#boxKalkulatorTanam .kt-paper-panel{ background: var(--kt-paper); border: 1px solid var(--kt-paper-line); }
-#boxKalkulatorTanam .kt-eyebrow{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:600; color: var(--kt-ink-soft); }
+#boxKalkulatorTanam .kt-intro{
+  background: rgba(56,182,255,0.08); border:1px solid rgba(56,182,255,0.25);
+  border-left:4px solid ${WARNA}; border-radius:14px; padding:13px 15px; margin-bottom:16px;
+}
+#boxKalkulatorTanam .kt-panel{ background: var(--card-bg,#1b273a); border-radius:22px; overflow:hidden; }
 
-#boxKalkulatorTanam input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:8px; border-radius:999px; background:#e7dfc9; cursor:pointer; }
+#boxKalkulatorTanam input[type=range]{
+  -webkit-appearance:none; appearance:none; width:100%; height:8px;
+  border-radius:999px; background: rgba(255,255,255,0.1); cursor:pointer;
+}
 #boxKalkulatorTanam input[type=range]::-webkit-slider-thumb{
   -webkit-appearance:none; height:22px; width:22px; border-radius:50%;
-  background: var(--kt-thumb-color, var(--kt-rain)); border:3px solid #fbf6ea;
-  box-shadow: 0 1px 4px rgba(0,0,0,.35); cursor:pointer; margin-top:-7px; transition: transform .15s ease;
+  background: var(--kt-thumb-color, ${WARNA}); border:3px solid #0b1528;
+  box-shadow: 0 1px 4px rgba(0,0,0,.5); cursor:pointer; margin-top:-7px; transition: transform .15s ease;
 }
 #boxKalkulatorTanam input[type=range]::-webkit-slider-thumb:hover{ transform: scale(1.12); }
 #boxKalkulatorTanam input[type=range]::-webkit-slider-runnable-track{ height:8px; border-radius:999px; }
 #boxKalkulatorTanam input[type=range]::-moz-range-thumb{
   height:16px; width:16px; border-radius:50%;
-  background: var(--kt-thumb-color, var(--kt-rain)); border:3px solid #fbf6ea;
-  box-shadow: 0 1px 4px rgba(0,0,0,.35); cursor:pointer;
+  background: var(--kt-thumb-color, ${WARNA}); border:3px solid #0b1528;
+  box-shadow: 0 1px 4px rgba(0,0,0,.5); cursor:pointer;
 }
-#boxKalkulatorTanam input[type=range]::-moz-range-track{ height:8px; border-radius:999px; background:#e7dfc9; }
+#boxKalkulatorTanam input[type=range]::-moz-range-track{ height:8px; border-radius:999px; background: rgba(255,255,255,0.1); }
 
 #boxKalkulatorTanam .kt-variety-card{
-  background:#fffdf7; border:1px solid var(--kt-paper-line);
-  border-radius: 14px 14px 8px 8px;
+  background:#111c2e; border-radius:16px; border-left:4px solid var(--kt-card-accent,#3b82f6);
   transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
 }
 #boxKalkulatorTanam .kt-variety-card.kt-is-winner{
-  border-color: currentColor;
-  box-shadow: 0 8px 20px -10px rgba(32,50,31,.35);
+  box-shadow: 0 8px 20px -10px rgba(0,0,0,.5);
   transform: translateY(-3px);
+  background: rgba(255,255,255,0.04);
 }
 #boxKalkulatorTanam .kt-winner-badge{
   display:inline-flex; align-items:center; gap:4px;
-  font-size:.62rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+  font-size:.62rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
   padding:2px 8px; border-radius:999px;
-  background: var(--kt-ink); color:#fbf6ea;
+  background: rgba(255,255,255,0.15); color:#fff;
 }
 #boxKalkulatorTanam .kt-scarcity-chip{ font-size:.66rem; padding: 1px 7px; border-radius: 999px; font-weight:600; white-space:nowrap; }
 
+#boxKalkulatorTanam .kt-hasil-panel{
+  background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
+  border-radius:18px;
+}
+#boxKalkulatorTanam .kt-chart-wrap{ background:#0b1528; border:1px solid rgba(255,255,255,0.07); border-radius:14px; }
+
 @media (prefers-reduced-motion: reduce){ #boxKalkulatorTanam *{ transition:none !important; animation:none !important; } }
-#boxKalkulatorTanam .kt-fade-in{ animation: ktFadeIn .5s ease both; }
-@keyframes ktFadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+body.light-mode #boxKalkulatorTanam{ color:#0f172a; }
+body.light-mode #boxKalkulatorTanam .kt-eyebrow{ color:#475569; }
+body.light-mode #boxKalkulatorTanam .kt-panel{ background:#fff; }
+body.light-mode #boxKalkulatorTanam .kt-variety-card{ background:#f1f5f9; }
+body.light-mode #boxKalkulatorTanam .kt-hasil-panel{ background:#f8fafc; border-color:#e2e8f0; }
+body.light-mode #boxKalkulatorTanam .kt-chart-wrap{ background:#fff; border-color:#e2e8f0; }
 `;
         var style = document.createElement('style');
         style.id = 'cssKalkulatorTanam';
@@ -156,214 +134,200 @@
     }
 
     // ============================================================
-    //  2. HTML — konten identik dengan halaman asli, kelas CSS
-    //  custom diberi prefiks kt- agar ter-scope. ID SVG/DOM diberi
-    //  prefiks kt untuk menghindari kolisi dengan bagian app lain.
+    //  2. HTML — struktur sama, palet & bingkai mengikuti tema app.
+    //  Grafik SVG disesuaikan agar kontras di latar gelap (grid,
+    //  label sumbu, dan warna area diberi opacity lebih tinggi).
     // ============================================================
     function htmlKonten() {
         return `
-  <div class="max-w-5xl mx-auto">
-    <div class="kt-terrace-header rounded-2xl mb-4 px-6 py-7 md:px-9 md:py-9" style="background: linear-gradient(160deg,#1f3a2a,#28492f);">
-      <svg viewBox="0 0 800 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-        <polygon points="0,200 0,150 800,110 800,200" fill="#1c3423"/>
-        <polygon points="0,160 0,120 800,80 800,160" fill="#254631"/>
-        <polygon points="0,130 0,95 800,55 800,140" fill="#2d5238" opacity="0.8"/>
-      </svg>
-      <div class="relative">
-        <span class="kt-eyebrow" style="color:#d9c98a;">Alat Bantu Keputusan &middot; Petani &amp; Penyuluh</span>
-        <h1 class="kt-font-display text-3xl md:text-[2.4rem] font-semibold mt-1" style="color:#fbf6ea;">
-          Kalkulator Keputusan Tanam Padi
-        </h1>
-        <p class="text-sm mt-2 max-w-xl" style="color:#c9d6c4;">
-          Membandingkan 3 kategori varietas padi berdasarkan pemodelan curah hujan,
-          durasi musim, dan hukum kelangkaan pasar gabah.
-        </p>
-      </div>
-    </div>
+  <div class="kt-intro">
+    <strong style="color:${WARNA};display:block;margin-bottom:5px;">🗓️ Kalkulator Keputusan Tanam Padi</strong>
+    <span style="font-size:0.78rem;color:#cbd5e1;line-height:1.6;">
+      Membandingkan 3 kategori varietas padi berdasarkan pemodelan curah hujan,
+      durasi musim, dan hukum kelangkaan pasar gabah.
+    </span>
+  </div>
 
-    <div class="kt-paper-panel rounded-2xl shadow-2xl overflow-hidden">
-      <div class="kt-terrace-strip"></div>
-      <div class="p-6 md:p-9 grid grid-cols-1 md:grid-cols-2 gap-10">
+  <div class="kt-panel">
+    <div class="p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
 
-        <div class="space-y-7">
-          <div>
-            <span class="kt-eyebrow">Parameter Cuaca</span>
-            <h2 class="kt-font-display text-xl font-semibold mt-0.5">Intensitas dan Durasi Hujan</h2>
-          </div>
-
-          <div class="space-y-2.5">
-            <div class="flex justify-between items-end">
-              <label for="ktIntensity" class="font-medium text-sm flex items-center gap-1.5">
-                <span aria-hidden="true">&#128167;</span> Intensitas Curah Hujan Rata-rata Bulanan
-              </label>
-              <span id="ktIntensityDisplay" class="kt-font-num font-semibold text-sm px-2 py-0.5 rounded" style="color:var(--kt-rain); background:var(--kt-rain-soft);">
-                250 mm/bln
-              </span>
-            </div>
-            <input type="range" id="ktIntensity" min="0" max="500" step="10" value="250" style="--kt-thumb-color:var(--kt-rain);">
-            <div class="flex justify-between text-[11px]" style="color:var(--kt-ink-soft);">
-              <span>0 &middot; Rendah</span>
-              <span>Menengah 200&ndash;300</span>
-              <span>500 &middot; Sangat Tinggi</span>
-            </div>
-          </div>
-
-          <div class="space-y-2.5">
-            <div class="flex justify-between items-end">
-              <label for="ktDuration" class="font-medium text-sm flex items-center gap-1.5">
-                <span aria-hidden="true">&#128197;</span> Durasi Musim Hujan
-              </label>
-              <span id="ktDurationDisplay" class="kt-font-num font-semibold text-sm px-2 py-0.5 rounded" style="color:var(--kt-soil); background:var(--kt-soil-soft);">
-                95 Hari
-              </span>
-            </div>
-            <input type="range" id="ktDuration" min="0" max="150" step="1" value="95" style="--kt-thumb-color:var(--kt-soil);">
-            <div class="flex justify-between text-[11px]" style="color:var(--kt-ink-soft);">
-              <span>Anomali Pendek (El Nino)</span>
-              <span>Normal 80&ndash;100</span>
-              <span>Anomali Panjang (La Nina)</span>
-            </div>
-          </div>
+      <div class="space-y-6">
+        <div>
+          <span class="kt-eyebrow">Parameter Cuaca</span>
+          <h2 class="text-lg font-bold mt-0.5" style="color:var(--text-main,#fff);">Intensitas dan Durasi Hujan</h2>
         </div>
 
-        <div class="rounded-xl p-5 md:p-6 flex flex-col justify-center" style="background:linear-gradient(180deg,#f6f0df,#efe7cf);">
-          <span class="kt-eyebrow text-center mb-1">Rekomendasi Hasil</span>
-          <div class="text-center">
-            <div id="ktRecommendation" class="kt-font-display text-3xl font-bold mb-1" style="color:var(--kt-ink);">
-              Memuat&hellip;
-            </div>
-            <div class="text-sm font-medium mb-5" style="color:var(--kt-ink-soft);">
-              Estimasi keuntungan terbaik:
-              <span class="kt-font-num font-semibold" style="color:var(--kt-dalam);">Rp <span id="ktMaxProfit">0</span> Juta/Ha</span>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t" style="border-color:var(--kt-paper-line);">
-            <div id="ktCardDalam" class="kt-variety-card p-3 flex flex-col" style="color:var(--kt-dalam);">
-              <div class="flex flex-col mb-2">
-                <span class="text-xs font-semibold" style="color:var(--kt-dalam);">Umur Dalam</span>
-                <span id="ktBadgeDalam" class="kt-winner-badge w-max mt-1" style="display:none;">&#10003; Terbaik</span>
-              </div>
-              <div class="kt-font-num text-xl font-bold" id="ktProfitD" style="color:var(--kt-ink);">0</div>
-              <div class="text-[10px]" style="color:var(--kt-ink-soft);">Juta Rp/Ha</div>
-              <div class="mt-2 pt-2 border-t space-y-1" style="border-color:var(--kt-paper-line);">
-                <div class="flex items-center justify-between text-[11px]">
-                  <span style="color:var(--kt-ink-soft);">Prod.</span>
-                  <span class="kt-font-num font-medium"><span id="ktProdD">0</span> T/Ha</span>
-                </div>
-                <div class="flex items-center justify-between text-[11px]">
-                  <span style="color:var(--kt-ink-soft);">Harga</span>
-                  <span class="kt-font-num font-medium">Rp<span id="ktHargaDDisplay">0</span>rb</span>
-                </div>
-                <span id="ktScarcityD" class="kt-scarcity-chip inline-block mt-0.5" style="font-size: 0.6rem;"></span>
-              </div>
-            </div>
-
-            <div id="ktCardSedang" class="kt-variety-card p-3 flex flex-col" style="color:var(--kt-sedang);">
-              <div class="flex flex-col mb-2">
-                <span class="text-xs font-semibold" style="color:var(--kt-sedang);">Umur Sedang</span>
-                <span id="ktBadgeSedang" class="kt-winner-badge w-max mt-1" style="display:none; background: var(--kt-sedang);">&#10003; Terbaik</span>
-              </div>
-              <div class="kt-font-num text-xl font-bold" id="ktProfitS" style="color:var(--kt-ink);">0</div>
-              <div class="text-[10px]" style="color:var(--kt-ink-soft);">Juta Rp/Ha</div>
-              <div class="mt-2 pt-2 border-t space-y-1" style="border-color:var(--kt-paper-line);">
-                <div class="flex items-center justify-between text-[11px]">
-                  <span style="color:var(--kt-ink-soft);">Prod.</span>
-                  <span class="kt-font-num font-medium"><span id="ktProdS">0</span> T/Ha</span>
-                </div>
-                <div class="flex items-center justify-between text-[11px]">
-                  <span style="color:var(--kt-ink-soft);">Harga</span>
-                  <span class="kt-font-num font-medium">Rp<span id="ktHargaSDisplay">0</span>rb</span>
-                </div>
-                <span id="ktScarcityS" class="kt-scarcity-chip inline-block mt-0.5" style="font-size: 0.6rem;"></span>
-              </div>
-            </div>
-
-            <div id="ktCardPendek" class="kt-variety-card p-3 flex flex-col" style="color:var(--kt-pendek);">
-              <div class="flex flex-col mb-2">
-                <span class="text-xs font-semibold" style="color:var(--kt-pendek);">Umur Pendek</span>
-                <span id="ktBadgePendek" class="kt-winner-badge w-max mt-1" style="display:none; background: var(--kt-pendek);">&#10003; Terbaik</span>
-              </div>
-              <div class="kt-font-num text-xl font-bold" id="ktProfitP" style="color:var(--kt-ink);">0</div>
-              <div class="text-[10px]" style="color:var(--kt-ink-soft);">Juta Rp/Ha</div>
-              <div class="mt-2 pt-2 border-t space-y-1" style="border-color:var(--kt-paper-line);">
-                <div class="flex items-center justify-between text-[11px]">
-                  <span style="color:var(--kt-ink-soft);">Prod.</span>
-                  <span class="kt-font-num font-medium"><span id="ktProdP">0</span> T/Ha</span>
-                </div>
-                <div class="flex items-center justify-between text-[11px]">
-                  <span style="color:var(--kt-ink-soft);">Harga</span>
-                  <span class="kt-font-num font-medium">Rp<span id="ktHargaPDisplay">0</span>rb</span>
-                </div>
-                <span id="ktScarcityP" class="kt-scarcity-chip inline-block mt-0.5" style="font-size: 0.6rem;"></span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="px-6 md:px-9 pb-8 pt-2 border-t" style="border-color:var(--kt-paper-line);">
-        <div class="flex flex-wrap justify-between items-center gap-2 mb-3 mt-4">
-          <h2 class="kt-font-display text-lg font-semibold">
-            Kurva Keuntungan vs. Durasi
-            <span class="kt-font-num text-sm font-normal" style="color:var(--kt-ink-soft);">
-              (pada intensitas <span id="ktChartIntensityLabel">250</span> mm/bln)
+        <div class="space-y-2.5">
+          <div class="flex justify-between items-end">
+            <label for="ktIntensity" class="font-medium text-sm flex items-center gap-1.5">
+              <span aria-hidden="true">&#128167;</span> Intensitas Curah Hujan Rata-rata Bulanan
+            </label>
+            <span id="ktIntensityDisplay" class="font-semibold text-sm px-2 py-0.5 rounded" style="color:var(--kt-sedang); background:var(--kt-sedang-soft);">
+              250 mm/bln
             </span>
-          </h2>
-          <div class="flex flex-wrap gap-4 text-xs font-medium">
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:var(--kt-dalam);"></span> Dalam</span>
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:var(--kt-sedang);"></span> Sedang</span>
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:var(--kt-pendek);"></span> Pendek</span>
+          </div>
+          <input type="range" id="ktIntensity" min="0" max="500" step="10" value="250" style="--kt-thumb-color:var(--kt-sedang);">
+          <div class="flex justify-between text-[11px]" style="color:#64748b;">
+            <span>0 &middot; Rendah</span>
+            <span>Menengah 200&ndash;300</span>
+            <span>500 &middot; Sangat Tinggi</span>
           </div>
         </div>
 
-        <div class="relative w-full overflow-x-auto rounded-lg" style="background:#fffdf7; border:1px solid var(--kt-paper-line);">
-          <svg id="ktChartSvg" viewBox="0 0 640 270" class="w-full h-auto" style="min-width:520px;">
-            <defs>
-              <linearGradient id="ktGradDalam" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#2f5233" stop-opacity="0.32"/>
-                <stop offset="100%" stop-color="#2f5233" stop-opacity="0"/>
-              </linearGradient>
-              <linearGradient id="ktGradSedang" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#386377" stop-opacity="0.32"/>
-                <stop offset="100%" stop-color="#386377" stop-opacity="0"/>
-              </linearGradient>
-              <linearGradient id="ktGradPendek" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#b9791f" stop-opacity="0.30"/>
-                <stop offset="100%" stop-color="#b9791f" stop-opacity="0"/>
-              </linearGradient>
-            </defs>
-            <g id="ktPlotArea" transform="translate(46,14)">
-              <g id="ktGridGroup"></g>
-              <path id="ktAreaDalam" fill="url(#ktGradDalam)" stroke="none"/>
-              <path id="ktAreaSedang" fill="url(#ktGradSedang)" stroke="none"/>
-              <path id="ktAreaPendek" fill="url(#ktGradPendek)" stroke="none"/>
-              <path id="ktPathDalam" fill="none" stroke="#2f5233" stroke-width="2.75" stroke-linecap="round"/>
-              <path id="ktPathSedang" fill="none" stroke="#386377" stroke-width="2.75" stroke-linecap="round"/>
-              <path id="ktPathPendek" fill="none" stroke="#b9791f" stroke-width="2.75" stroke-linecap="round"/>
-              <line id="ktDurationLine" y1="0" y2="221" stroke="#356e8c" stroke-width="1.5" stroke-dasharray="4 4"/>
-              <circle id="ktPointDalam" r="5" fill="#2f5233" stroke="#fffdf7" stroke-width="2"/>
-              <circle id="ktPointSedang" r="5" fill="#386377" stroke="#fffdf7" stroke-width="2"/>
-              <circle id="ktPointPendek" r="5" fill="#b9791f" stroke="#fffdf7" stroke-width="2"/>
-              <text id="ktLabelDalam" class="kt-font-num" font-size="10.5" font-weight="600" fill="#2f5233"></text>
-              <text id="ktLabelSedang" class="kt-font-num" font-size="10.5" font-weight="600" fill="#386377"></text>
-              <text id="ktLabelPendek" class="kt-font-num" font-size="10.5" font-weight="600" fill="#b9791f"></text>
-            </g>
-          </svg>
+        <div class="space-y-2.5">
+          <div class="flex justify-between items-end">
+            <label for="ktDuration" class="font-medium text-sm flex items-center gap-1.5">
+              <span aria-hidden="true">&#128197;</span> Durasi Musim Hujan
+            </label>
+            <span id="ktDurationDisplay" class="font-semibold text-sm px-2 py-0.5 rounded" style="color:var(--kt-pendek); background:var(--kt-pendek-soft);">
+              95 Hari
+            </span>
+          </div>
+          <input type="range" id="ktDuration" min="0" max="150" step="1" value="95" style="--kt-thumb-color:var(--kt-pendek);">
+          <div class="flex justify-between text-[11px]" style="color:#64748b;">
+            <span>Anomali Pendek (El Nino)</span>
+            <span>Normal 80&ndash;100</span>
+            <span>Anomali Panjang (La Nina)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="kt-hasil-panel p-5 flex flex-col justify-center">
+        <span class="kt-eyebrow text-center mb-1">Rekomendasi Hasil</span>
+        <div class="text-center">
+          <div id="ktRecommendation" class="text-2xl font-bold mb-1" style="color:var(--text-main,#fff);">
+            Memuat&hellip;
+          </div>
+          <div class="text-sm font-medium mb-5" style="color:#94a3b8;">
+            Estimasi keuntungan terbaik:
+            <span class="font-semibold" style="color:var(--kt-dalam);">Rp <span id="ktMaxProfit">0</span> Juta/Ha</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t" style="border-color:rgba(255,255,255,0.08);">
+          <div id="ktCardDalam" class="kt-variety-card p-3 flex flex-col" style="--kt-card-accent:var(--kt-dalam);">
+            <div class="flex flex-col mb-2">
+              <span class="text-xs font-semibold" style="color:var(--kt-dalam);">Umur Dalam</span>
+              <span id="ktBadgeDalam" class="kt-winner-badge w-max mt-1" style="display:none;">&#10003; Terbaik</span>
+            </div>
+            <div class="text-xl font-bold" id="ktProfitD" style="color:var(--text-main,#fff);">0</div>
+            <div class="text-[10px]" style="color:#94a3b8;">Juta Rp/Ha</div>
+            <div class="mt-2 pt-2 border-t space-y-1" style="border-color:rgba(255,255,255,0.08);">
+              <div class="flex items-center justify-between text-[11px]">
+                <span style="color:#94a3b8;">Prod.</span>
+                <span class="font-medium" style="color:#e2e8f0;"><span id="ktProdD">0</span> T/Ha</span>
+              </div>
+              <div class="flex items-center justify-between text-[11px]">
+                <span style="color:#94a3b8;">Harga</span>
+                <span class="font-medium" style="color:#e2e8f0;">Rp<span id="ktHargaDDisplay">0</span>rb</span>
+              </div>
+              <span id="ktScarcityD" class="kt-scarcity-chip inline-block mt-0.5" style="font-size: 0.6rem;"></span>
+            </div>
+          </div>
+
+          <div id="ktCardSedang" class="kt-variety-card p-3 flex flex-col" style="--kt-card-accent:var(--kt-sedang);">
+            <div class="flex flex-col mb-2">
+              <span class="text-xs font-semibold" style="color:var(--kt-sedang);">Umur Sedang</span>
+              <span id="ktBadgeSedang" class="kt-winner-badge w-max mt-1" style="display:none;">&#10003; Terbaik</span>
+            </div>
+            <div class="text-xl font-bold" id="ktProfitS" style="color:var(--text-main,#fff);">0</div>
+            <div class="text-[10px]" style="color:#94a3b8;">Juta Rp/Ha</div>
+            <div class="mt-2 pt-2 border-t space-y-1" style="border-color:rgba(255,255,255,0.08);">
+              <div class="flex items-center justify-between text-[11px]">
+                <span style="color:#94a3b8;">Prod.</span>
+                <span class="font-medium" style="color:#e2e8f0;"><span id="ktProdS">0</span> T/Ha</span>
+              </div>
+              <div class="flex items-center justify-between text-[11px]">
+                <span style="color:#94a3b8;">Harga</span>
+                <span class="font-medium" style="color:#e2e8f0;">Rp<span id="ktHargaSDisplay">0</span>rb</span>
+              </div>
+              <span id="ktScarcityS" class="kt-scarcity-chip inline-block mt-0.5" style="font-size: 0.6rem;"></span>
+            </div>
+          </div>
+
+          <div id="ktCardPendek" class="kt-variety-card p-3 flex flex-col" style="--kt-card-accent:var(--kt-pendek);">
+            <div class="flex flex-col mb-2">
+              <span class="text-xs font-semibold" style="color:var(--kt-pendek);">Umur Pendek</span>
+              <span id="ktBadgePendek" class="kt-winner-badge w-max mt-1" style="display:none;">&#10003; Terbaik</span>
+            </div>
+            <div class="text-xl font-bold" id="ktProfitP" style="color:var(--text-main,#fff);">0</div>
+            <div class="text-[10px]" style="color:#94a3b8;">Juta Rp/Ha</div>
+            <div class="mt-2 pt-2 border-t space-y-1" style="border-color:rgba(255,255,255,0.08);">
+              <div class="flex items-center justify-between text-[11px]">
+                <span style="color:#94a3b8;">Prod.</span>
+                <span class="font-medium" style="color:#e2e8f0;"><span id="ktProdP">0</span> T/Ha</span>
+              </div>
+              <div class="flex items-center justify-between text-[11px]">
+                <span style="color:#94a3b8;">Harga</span>
+                <span class="font-medium" style="color:#e2e8f0;">Rp<span id="ktHargaPDisplay">0</span>rb</span>
+              </div>
+              <span id="ktScarcityP" class="kt-scarcity-chip inline-block mt-0.5" style="font-size: 0.6rem;"></span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <p class="text-center text-[11px] mt-4 pb-2" style="color:#9db09a;">
-      Model estimasi untuk bantu pengambilan keputusan &mdash; sesuaikan koefisien dengan data lapangan setempat.
-    </p>
-  </div>`;
+    <div class="px-4 md:px-6 pb-6 pt-2 border-t" style="border-color:rgba(255,255,255,0.08);">
+      <div class="flex flex-wrap justify-between items-center gap-2 mb-3 mt-4">
+        <h2 class="text-base font-bold" style="color:var(--text-main,#fff);">
+          Kurva Keuntungan vs. Durasi
+          <span class="text-sm font-normal" style="color:#94a3b8;">
+            (pada intensitas <span id="ktChartIntensityLabel">250</span> mm/bln)
+          </span>
+        </h2>
+        <div class="flex flex-wrap gap-4 text-xs font-medium" style="color:#cbd5e1;">
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:var(--kt-dalam);"></span> Dalam</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:var(--kt-sedang);"></span> Sedang</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:var(--kt-pendek);"></span> Pendek</span>
+        </div>
+      </div>
+
+      <div class="kt-chart-wrap relative w-full overflow-x-auto">
+        <svg id="ktChartSvg" viewBox="0 0 640 270" class="w-full h-auto" style="min-width:520px;">
+          <defs>
+            <linearGradient id="ktGradDalam" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#10b981" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="ktGradSedang" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#38b6ff" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#38b6ff" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="ktGradPendek" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.32"/>
+              <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <g id="ktPlotArea" transform="translate(46,14)">
+            <g id="ktGridGroup"></g>
+            <path id="ktAreaDalam" fill="url(#ktGradDalam)" stroke="none"/>
+            <path id="ktAreaSedang" fill="url(#ktGradSedang)" stroke="none"/>
+            <path id="ktAreaPendek" fill="url(#ktGradPendek)" stroke="none"/>
+            <path id="ktPathDalam" fill="none" stroke="#10b981" stroke-width="2.75" stroke-linecap="round"/>
+            <path id="ktPathSedang" fill="none" stroke="#38b6ff" stroke-width="2.75" stroke-linecap="round"/>
+            <path id="ktPathPendek" fill="none" stroke="#f59e0b" stroke-width="2.75" stroke-linecap="round"/>
+            <line id="ktDurationLine" y1="0" y2="221" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <circle id="ktPointDalam" r="5" fill="#10b981" stroke="#0b1528" stroke-width="2"/>
+            <circle id="ktPointSedang" r="5" fill="#38b6ff" stroke="#0b1528" stroke-width="2"/>
+            <circle id="ktPointPendek" r="5" fill="#f59e0b" stroke="#0b1528" stroke-width="2"/>
+            <text id="ktLabelDalam" font-size="10.5" font-weight="700" fill="#10b981"></text>
+            <text id="ktLabelSedang" font-size="10.5" font-weight="700" fill="#38b6ff"></text>
+            <text id="ktLabelPendek" font-size="10.5" font-weight="700" fill="#f59e0b"></text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <p class="text-center text-[11px] mt-3 pb-1" style="color:#64748b;">
+    Model estimasi untuk bantu pengambilan keputusan &mdash; sesuaikan koefisien dengan data lapangan setempat.
+  </p>`;
     }
 
     // ============================================================
-    //  3. LOGIKA KALKULASI — identik dengan versi asli, ID DOM
-    //  disesuaikan ke prefiks kt*, dibungkus dalam closure init
-    //  supaya tidak ada variabel/fungsi global yang bocor.
+    //  3. LOGIKA KALKULASI — tidak berubah dari v1.0, hanya warna
+    //  chip harga & grid SVG yang disesuaikan agar kontras gelap.
     // ============================================================
     function pasangLogika() {
         var elIntensity = document.getElementById('ktIntensity');
@@ -410,14 +374,12 @@
         var svgLabelSedang = document.getElementById('ktLabelSedang');
         var svgLabelPendek = document.getElementById('ktLabelPendek');
 
-        // ---------- Konstanta model produksi ----------
-        var P_d = 8, P_s = 7, P_p = 6;   // ton/ha, potensi maksimum per varietas
-        var biayaTanam = 15;              // juta/ha
+        var P_d = 8, P_s = 7, P_p = 6;
+        var biayaTanam = 15;
         var umurPanenDalam = 118;
         var umurPanenSedang = 105;
         var umurPanenPendek = 85;
 
-        // ---------- Model harga: HPP sebagai jangkar tunggal ----------
         var HPP = 6.5;
         var hargaCeiling = 7.5;
         var hargaFloorBasah = 5.8;
@@ -478,7 +440,6 @@
             return { z: z, harga: he.harga, profit: profit, yieldRatio: yieldRatio, premi: he.premi, penalti: he.penalti, parahBasah: he.parahBasah };
         }
 
-        // ---------- Konstanta grafik SVG ----------
         var plotW = 640 - 46 - 20;
         var plotH = 270 - 14 - 35;
         var maxD = 150;
@@ -491,23 +452,23 @@
 
         function initSVGGrid() {
             var gridHTML = '';
-            gridHTML += '<rect x="0" y="' + getY(0) + '" width="' + plotW + '" height="' + (plotH - getY(0)) + '" fill="rgba(161,69,58,0.06)" />';
+            gridHTML += '<rect x="0" y="' + getY(0) + '" width="' + plotW + '" height="' + (plotH - getY(0)) + '" fill="rgba(239,68,68,0.08)" />';
             gridHTML +=
-                '<rect x="' + getX(80) + '" y="0" width="' + (getX(100) - getX(80)) + '" height="' + plotH + '" fill="rgba(185,121,31,0.06)" />' +
-                '<text x="' + getX(90) + '" y="12" text-anchor="middle" font-size="9.5" fill="#b9791f" opacity="0.75">Fase Normal</text>';
+                '<rect x="' + getX(80) + '" y="0" width="' + (getX(100) - getX(80)) + '" height="' + plotH + '" fill="rgba(245,158,11,0.08)" />' +
+                '<text x="' + getX(90) + '" y="12" text-anchor="middle" font-size="9.5" fill="#f59e0b" opacity="0.85">Fase Normal</text>';
 
             [-15, 0, 15, 30, 45].forEach(function (val) {
                 var isZero = val === 0;
                 gridHTML +=
-                    '<line x1="0" y1="' + getY(val) + '" x2="' + plotW + '" y2="' + getY(val) + '" stroke="' + (isZero ? '#a1453a' : '#e7dfc9') + '" stroke-width="' + (isZero ? '1.5' : '1') + '" />' +
-                    '<text x="-10" y="' + (getY(val) + 3.5) + '" text-anchor="end" font-size="10" font-family="IBM Plex Mono, monospace" fill="' + (val < 0 ? '#a1453a' : '#7c8a76') + '">' + val + '</text>';
+                    '<line x1="0" y1="' + getY(val) + '" x2="' + plotW + '" y2="' + getY(val) + '" stroke="' + (isZero ? '#ef4444' : 'rgba(255,255,255,0.09)') + '" stroke-width="' + (isZero ? '1.5' : '1') + '" />' +
+                    '<text x="-10" y="' + (getY(val) + 3.5) + '" text-anchor="end" font-size="10" fill="' + (val < 0 ? '#ef4444' : '#94a3b8') + '">' + val + '</text>';
             });
-            gridHTML += '<text x="-38" y="' + (getY(0) - 6) + '" text-anchor="middle" font-size="9" fill="#a1453a" transform="rotate(-90 -38 ' + getY(0) + ')">BEP</text>';
+            gridHTML += '<text x="-38" y="' + (getY(0) - 6) + '" text-anchor="middle" font-size="9" fill="#ef4444" transform="rotate(-90 -38 ' + getY(0) + ')">BEP</text>';
 
             [0, 30, 60, 90, 120, 150].forEach(function (val) {
                 gridHTML +=
-                    '<line x1="' + getX(val) + '" y1="0" x2="' + getX(val) + '" y2="' + plotH + '" stroke="#e7dfc9" stroke-width="1" stroke-dasharray="3 4" />' +
-                    '<text x="' + getX(val) + '" y="' + (plotH + 17) + '" text-anchor="middle" font-size="10" font-family="IBM Plex Mono, monospace" fill="#7c8a76">' + val + ' hr</text>';
+                    '<line x1="' + getX(val) + '" y1="0" x2="' + getX(val) + '" y2="' + plotH + '" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="3 4" />' +
+                    '<text x="' + getX(val) + '" y="' + (plotH + 17) + '" text-anchor="middle" font-size="10" fill="#64748b">' + val + ' hr</text>';
             });
 
             svgGridGroup.innerHTML = gridHTML;
@@ -539,9 +500,9 @@
             dispChartIntensity.innerText = intensity;
 
             var pctI = (intensity - elIntensity.min) / (elIntensity.max - elIntensity.min) * 100;
-            elIntensity.style.background = 'linear-gradient(to right, var(--kt-rain) ' + pctI + '%, #e7dfc9 ' + pctI + '%)';
+            elIntensity.style.background = 'linear-gradient(to right, var(--kt-sedang) ' + pctI + '%, rgba(255,255,255,0.1) ' + pctI + '%)';
             var pctD = (duration - elDuration.min) / (elDuration.max - elDuration.min) * 100;
-            elDuration.style.background = 'linear-gradient(to right, var(--kt-soil) ' + pctD + '%, #e7dfc9 ' + pctD + '%)';
+            elDuration.style.background = 'linear-gradient(to right, var(--kt-pendek) ' + pctD + '%, rgba(255,255,255,0.1) ' + pctD + '%)';
 
             var fd = getFd(intensity), gd = getGd(duration);
             var fs = getFs(intensity), gs = getGs(duration);
@@ -564,16 +525,16 @@
             function setHargaChip(el, premi, penalti) {
                 if (penalti > 0.05) {
                     el.innerText = '\u{1F327}\uFE0F panen basah -' + penalti.toFixed(2);
-                    el.style.background = 'var(--kt-warn-soft)';
-                    el.style.color = 'var(--kt-warn)';
+                    el.style.background = 'rgba(239,68,68,0.15)';
+                    el.style.color = '#ef4444';
                 } else if (premi > 0.05) {
                     el.innerText = 'langka +' + premi.toFixed(2);
-                    el.style.background = 'var(--kt-dalam-soft)';
-                    el.style.color = 'var(--kt-dalam)';
+                    el.style.background = 'rgba(16,185,129,0.15)';
+                    el.style.color = '#10b981';
                 } else {
                     el.innerText = 'harga HPP standar';
-                    el.style.background = 'var(--kt-paper-line)';
-                    el.style.color = 'var(--kt-ink-soft)';
+                    el.style.background = 'rgba(255,255,255,0.08)';
+                    el.style.color = '#94a3b8';
                 }
             }
             setHargaChip(dispScarcityD, hasilD.premi, hasilD.penalti);
@@ -773,8 +734,8 @@
 
         window.__kalkulatorTanamAktif = true;
         console.log(
-            '%c✅ patch_kalkulator_tanam.js aktif — tab baru "KEPUTUSAN TANAM" ditambahkan',
-            'color:#356e8c;font-weight:bold;'
+            '%c✅ patch_kalkulator_tanam.js v2.0 aktif — tab baru "KEPUTUSAN TANAM" (tema gelap mengikuti app)',
+            'color:#38b6ff;font-weight:bold;'
         );
     }
 
