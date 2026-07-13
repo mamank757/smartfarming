@@ -1,6 +1,6 @@
 /**
  * ============================================================
- * patch_kalkulator_panen.js
+ * patch_kalkulator_panen.js  (v2.0 — retema mengikuti tema gelap app)
  * Tab baru: KALKULATOR PANEN — Prediksi Hasil Panen Padi
  * ------------------------------------------------------------
  * Diadaptasi dari halaman mandiri "Kalkulator Prediksi Panen Padi"
@@ -10,33 +10,21 @@
  * (Savary & Willocquet — RICEPEST; Suparyono & Sudir 1992; BB Padi;
  * Cybex Pertanian; Pusdatin).
  *
- * ARSITEKTUR — mengikuti pola tab/box yang SUDAH DIPAKAI di seluruh
- * aplikasi ini (lihat injeksiTab/injeksiBox/patchSwitchMode di
- * patch_jadwal_tanam_otomatis.js dan patch_pestisida.js):
- *   1. Tombol tab baru disisipkan ke .tab-container
- *   2. Box konten baru disisipkan ke .card, disembunyikan default
- *   3. window.switchMode dibungkus untuk menangani mode baru
- *      'kalkulatorpanen' tanpa mengubah switchMode asli
- *   4. Semua ID/fungsi dinamai unik (prefiks kp*) — TIDAK ada
- *      konflik dengan ID yang sudah dipakai aplikasi utama (sudah
- *      dicek: air/tanah/wbc/tikus/penggerek/hdb/dst. semuanya baru)
+ * [v2.0] RETEMA — versi v1.0 memakai tema "kertas/terrace" (krem,
+ * hijau tua, font Fraunces+IBM Plex) bawaan halaman mandiri aslinya.
+ * Versi ini disesuaikan penuh ke tema gelap aplikasi:
+ *   - Font: 'Plus Jakarta Sans' (SUDAH dimuat oleh index.html sendiri
+ *     — tidak perlu lagi injeksi Google Fonts Fraunces/IBM Plex)
+ *   - Background kartu: #111c2e (sama seperti .info-box bawaan app)
+ *     mewarisi background gelap .card, bukan panel krem sendiri
+ *   - Bingkai: border-left 4px warna aksen (pola .info-box bawaan
+ *     app), bukan border penuh gaya "kertas"
+ *   - Badge status: rgba(warna,0.15) + border rgba(warna,0.3~0.4)
+ *     — pola yang sama dipakai di badge "🟢 Aktif" pada Kalender TNM
  *
- * DEPENDENSI EKSTERNAL (dimuat otomatis oleh patch ini):
- *   - Tailwind CDN (dipakai HTML asli kalkulator apa adanya)
- *   - Google Fonts: Fraunces, IBM Plex Sans, IBM Plex Mono
- *   Kedua resource ini dijaga anti-duplikat lewat flag window
- *   supaya aman kalau dipasang bersamaan dengan
- *   patch_kalkulator_tanam.js (sama-sama butuh resource ini).
+ * ARSITEKTUR mekanis (tab/box/switchMode) TIDAK berubah dari v1.0.
  *
- * SEMUA CSS ASLI DI-SCOPE ke "#boxKalkulatorPanen ..." — versi
- * asli memakai selector polos (body{...}, input[type=range]{...})
- * yang KALAU tidak di-scope akan menimpa tampilan SELURUH aplikasi
- * (mis. body{background:...} akan mengubah warna latar semua tab
- * lain). Ini bukan sekadar copy-paste, tapi perbaikan supaya aman
- * digabung ke aplikasi yang lebih besar.
- *
- * CARA PASANG — boleh di posisi manapun setelah index.html dasar
- * termuat, disarankan dekat patch tab lain:
+ * CARA PASANG:
  *   <script src="patch_kalkulator_panen.js"></script>
  * ============================================================
  */
@@ -52,9 +40,9 @@
     var WARNA = '#65a30d'; // hijau-lime — belum dipakai accent lain di app ini
 
     // ============================================================
-    //  0. RESOURCE BERSAMA (Tailwind CDN + Google Fonts)
-    //  Dijaga anti-duplikat via flag window, aman dipasang bersamaan
-    //  dengan patch_kalkulator_tanam.js yang butuh resource sama.
+    //  0. RESOURCE BERSAMA — hanya Tailwind CDN (font Plus Jakarta
+    //  Sans SUDAH dimuat index.html sendiri, tidak perlu diinjeksi
+    //  lagi). Guard anti-duplikat sama dengan patch_kalkulator_tanam.js.
     // ============================================================
     function muatResourceBersama() {
         if (!window.__tailwindCDNKalkulatorDimuat) {
@@ -64,72 +52,77 @@
             document.head.appendChild(s);
             window.__tailwindCDNKalkulatorDimuat = true;
         }
-        if (!document.getElementById('fontsKalkulatorPadi')) {
-            var pre1 = document.createElement('link');
-            pre1.rel = 'preconnect'; pre1.href = 'https://fonts.googleapis.com';
-            document.head.appendChild(pre1);
-            var pre2 = document.createElement('link');
-            pre2.rel = 'preconnect'; pre2.href = 'https://fonts.gstatic.com'; pre2.crossOrigin = 'anonymous';
-            document.head.appendChild(pre2);
-
-            var link = document.createElement('link');
-            link.id = 'fontsKalkulatorPadi';
-            link.rel = 'stylesheet';
-            link.href = 'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap';
-            document.head.appendChild(link);
-        }
     }
 
     // ============================================================
-    //  1. CSS — disalin dari halaman asli, SELURUHNYA di-scope ke
-    //  #boxKalkulatorPanen supaya tidak bocor ke tab lain.
+    //  1. CSS — di-scope ke #boxKalkulatorPanen, memakai variabel &
+    //  konvensi warna yang SAMA dengan .info-box / .card bawaan app.
     // ============================================================
     function injeksiCSS() {
         if (document.getElementById('cssKalkulatorPanen')) return;
         var css = `
 #boxKalkulatorPanen{
-  --kp-ink:#20321f; --kp-ink-soft:#516350;
-  --kp-paper:#fbf6ea; --kp-paper-line:#e7dfc9;
-  --kp-dalam:#2f5233; --kp-dalam-soft:#e3ebe1;
-  --kp-rain:#356e8c; --kp-rain-soft:#dfeaee;
-  --kp-soil:#8a5a34; --kp-soil-soft:#f0e4d5;
-  --kp-warn:#a1453a; --kp-warn-soft:#f2e0dc;
-  --kp-gold:#b9791f; --kp-gold-soft:#f6ead2;
-  font-family:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
-  color: var(--kp-ink);
-  background:
-    radial-gradient(1100px 500px at 8% -8%, #2c4a34 0%, transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, #24402c 0%, transparent 50%),
-    linear-gradient(180deg,#152318 0%,#1c3322 45%,#213b28 100%);
-  border-radius: 18px;
-  padding: 12px;
-  margin: -4px;
+  --kp-dalam:#10b981; --kp-dalam-soft:rgba(16,185,129,0.15);
+  --kp-rain:#38b6ff;  --kp-rain-soft:rgba(56,182,255,0.15);
+  --kp-soil:#f59e0b;  --kp-soil-soft:rgba(245,158,11,0.15);
+  --kp-warn:#ef4444;  --kp-warn-soft:rgba(239,68,68,0.15);
+  --kp-gold:#fbbf24;  --kp-gold-soft:rgba(251,191,36,0.15);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  color: var(--text-main,#fff);
 }
-#boxKalkulatorPanen *{ box-sizing: border-box; }
-#boxKalkulatorPanen .kp-font-display{ font-family:'Fraunces',ui-serif,Georgia,serif; }
-#boxKalkulatorPanen .kp-font-num{ font-family:'IBM Plex Mono',ui-monospace,monospace; font-variant-numeric: tabular-nums; }
-#boxKalkulatorPanen .kp-terrace-strip{ height:8px; background: repeating-linear-gradient(-12deg, var(--kp-dalam) 0 22px, var(--kp-gold) 22px 44px); }
-#boxKalkulatorPanen .kp-paper-panel{ background: var(--kp-paper); border: 1px solid var(--kp-paper-line); }
-#boxKalkulatorPanen .kp-eyebrow{ font-size:.66rem; letter-spacing:.13em; text-transform:uppercase; font-weight:600; color: var(--kp-ink-soft); }
+#boxKalkulatorPanen *{ box-sizing:border-box; }
+#boxKalkulatorPanen .kp-eyebrow{
+  font-size:.66rem; letter-spacing:.08em; text-transform:uppercase;
+  font-weight:700; color: var(--text-muted,#94a3b8);
+}
+#boxKalkulatorPanen .kp-intro{
+  background: rgba(101,163,13,0.08); border:1px solid rgba(101,163,13,0.25);
+  border-left:4px solid ${WARNA}; border-radius:14px; padding:13px 15px; margin-bottom:16px;
+}
+#boxKalkulatorPanen .kp-panel{
+  background: var(--card-bg,#1b273a); border-radius:22px; padding:18px;
+}
+#boxKalkulatorPanen .kp-factor-card{
+  background:#111c2e; border-radius:16px; border-left:4px solid var(--kp-card-accent,#3b82f6);
+  padding:14px 16px;
+}
+#boxKalkulatorPanen .kp-cite{ font-size:.68rem; color: var(--text-muted,#64748b); font-style:italic; line-height:1.5; }
+#boxKalkulatorPanen .kp-threshold-band{ position:relative; }
+#boxKalkulatorPanen .kp-threshold-marker{ position:absolute; top:-2px; bottom:-2px; width:2px; background:var(--kp-warn); opacity:.65; }
 
-#boxKalkulatorPanen input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:7px; border-radius:999px; background:#e7dfc9; cursor:pointer; }
+#boxKalkulatorPanen input[type=range]{
+  -webkit-appearance:none; appearance:none; width:100%; height:7px;
+  border-radius:999px; background: rgba(255,255,255,0.1); cursor:pointer;
+}
 #boxKalkulatorPanen input[type=range]::-webkit-slider-thumb{
   -webkit-appearance:none; height:20px; width:20px; border-radius:50%;
-  background: var(--kp-thumb-color, var(--kp-dalam)); border:3px solid #fbf6ea;
-  box-shadow:0 1px 4px rgba(0,0,0,.35); cursor:pointer; margin-top:-7px; transition: transform .15s ease;
+  background: var(--kp-thumb-color, #3b82f6); border:3px solid #0b1528;
+  box-shadow:0 1px 4px rgba(0,0,0,.5); cursor:pointer; margin-top:-7px; transition: transform .15s ease;
 }
 #boxKalkulatorPanen input[type=range]::-webkit-slider-thumb:hover{ transform: scale(1.1); }
 #boxKalkulatorPanen input[type=range]::-moz-range-thumb{
   height:15px; width:15px; border-radius:50%;
-  background: var(--kp-thumb-color, var(--kp-dalam)); border:3px solid #fbf6ea;
-  box-shadow:0 1px 4px rgba(0,0,0,.35); cursor:pointer;
+  background: var(--kp-thumb-color, #3b82f6); border:3px solid #0b1528;
+  box-shadow:0 1px 4px rgba(0,0,0,.5); cursor:pointer;
 }
-#boxKalkulatorPanen input[type=range]::-moz-range-track{ height:7px; border-radius:999px; background:#e7dfc9; }
+#boxKalkulatorPanen input[type=range]::-moz-range-track{ height:7px; border-radius:999px; background: rgba(255,255,255,0.1); }
 
-#boxKalkulatorPanen .kp-factor-card{ background:#fffdf7; border:1px solid var(--kp-paper-line); border-radius:12px; }
-#boxKalkulatorPanen .kp-cite{ font-size:.68rem; color:var(--kp-ink-soft); font-style:italic; }
-#boxKalkulatorPanen .kp-threshold-band{ position:relative; }
-#boxKalkulatorPanen .kp-threshold-marker{ position:absolute; top:-2px; bottom:-2px; width:2px; background:var(--kp-warn); opacity:.55; }
+#boxKalkulatorPanen .kp-result-circle{
+  border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  border-width:8px; border-style:solid; width:11rem; height:11rem; margin:12px auto;
+  background:#111c2e;
+}
+#boxKalkulatorPanen .kp-status-box{
+  border-radius:14px; padding:14px 16px; margin-top:18px; border-left:4px solid transparent;
+  font-size:0.85rem; line-height:1.6;
+}
+
+body.light-mode #boxKalkulatorPanen{ color:#0f172a; }
+body.light-mode #boxKalkulatorPanen .kp-eyebrow{ color:#475569; }
+body.light-mode #boxKalkulatorPanen .kp-panel{ background:#fff; }
+body.light-mode #boxKalkulatorPanen .kp-factor-card{ background:#f1f5f9; }
+body.light-mode #boxKalkulatorPanen .kp-cite{ color:#64748b; }
+body.light-mode #boxKalkulatorPanen .kp-result-circle{ background:#f1f5f9; }
 
 @media (prefers-reduced-motion: reduce){ #boxKalkulatorPanen *{ transition:none !important; } }
 `;
@@ -140,177 +133,162 @@
     }
 
     // ============================================================
-    //  2. HTML — konten identik dengan halaman asli (elemen <body>),
-    //  hanya kelas CSS custom yang diberi prefiks kp- agar ter-scope.
-    //  Kelas utility Tailwind (grid, flex, rounded-2xl, dst.) TIDAK
-    //  perlu diubah karena sudah otomatis ter-scope oleh Tailwind
-    //  sendiri (utility class generik, tidak menimpa apa pun secara
-    //  global selain elemen yang benar-benar memakainya).
+    //  2. HTML — struktur sama, palet & bingkai mengikuti tema app
+    //  (.info-box style: background gelap + border-left aksen).
     // ============================================================
     function htmlKonten() {
         return `
-  <div class="max-w-5xl mx-auto">
-    <div class="rounded-2xl mb-4 px-6 py-7 md:px-9 md:py-8" style="background:linear-gradient(160deg,#1f3a2a,#28492f);">
-      <span class="kp-eyebrow" style="color:#d9c98a;">Model Kehilangan Hasil &middot; Berbasis Riset OPT Padi</span>
-      <h1 class="kp-font-display text-2xl md:text-3xl font-semibold mt-1" style="color:#fbf6ea;">
-        Kalkulator Prediksi Panen Padi
-      </h1>
-      <p class="text-sm mt-2 max-w-2xl" style="color:#c9d6c4;">
-        Model multiplikatif kerusakan lapangan &mdash; potensi maksimum 10 Ton/Ha, target aman 8 Ton/Ha.
-        Koefisien tiap faktor dikalibrasi dari studi hama/penyakit padi (rujukan di tiap kartu &amp; catatan di bawah).
-      </p>
-    </div>
+  <div class="kp-intro">
+    <strong style="color:${WARNA};display:block;margin-bottom:5px;">🌾 Kalkulator Prediksi Panen Padi</strong>
+    <span style="font-size:0.78rem;color:#cbd5e1;line-height:1.6;">
+      Model multiplikatif kerusakan lapangan &mdash; potensi maksimum 10 Ton/Ha, target aman 8 Ton/Ha.
+      Koefisien tiap faktor dikalibrasi dari studi hama/penyakit padi (rujukan di tiap kartu &amp; catatan di bawah).
+    </span>
+  </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-      <div class="lg:col-span-2 kp-paper-panel rounded-2xl shadow-2xl overflow-hidden">
-        <div class="kp-terrace-strip"></div>
-        <div class="p-6 md:p-7 space-y-5">
-          <div>
-            <span class="kp-eyebrow">Faktor Penentu &amp; Kerusakan</span>
-            <h2 class="kp-font-display text-lg font-semibold mt-0.5">Kondisi Lapangan</h2>
-          </div>
-
-          <div class="kp-factor-card p-4">
-            <div class="flex justify-between mb-1">
-              <label class="text-sm font-medium flex items-center gap-1.5">&#128167; Ketersediaan Air/Irigasi</label>
-              <span id="kpValAir" class="kp-font-num text-sm font-semibold px-2 py-0.5 rounded" style="color:var(--kp-rain); background:var(--kp-rain-soft);">100%</span>
-            </div>
-            <input type="range" id="kpAir" min="0" max="100" value="100" style="--kp-thumb-color:var(--kp-rain);">
-            <p class="text-xs mt-1.5" style="color:var(--kp-ink-soft);">
-              Faktor pembatas mutlak (Hukum Minimum Liebig) &mdash; 0% air = puso otomatis, karena berlaku
-              sebagai pengali terhadap seluruh hasil, bukan sekadar pengurang.
-            </p>
-          </div>
-
-          <div class="kp-factor-card p-4">
-            <div class="flex justify-between mb-1">
-              <label class="text-sm font-medium flex items-center gap-1.5">&#127793; Tingkat Kesuburan Tanah</label>
-              <span id="kpValTanah" class="kp-font-num text-sm font-semibold px-2 py-0.5 rounded" style="color:var(--kp-dalam); background:var(--kp-dalam-soft);">100%</span>
-            </div>
-            <input type="range" id="kpTanah" min="60" max="100" value="100" style="--kp-thumb-color:var(--kp-dalam);">
-            <p class="text-xs mt-1.5" style="color:var(--kp-ink-soft);">Keterbatasan hara memangkas potensi (batas bawah indeks kesuburan 60%).</p>
-          </div>
-
-          <div class="pt-1">
-            <span class="kp-eyebrow">4 Faktor Hama &amp; Penyakit Paling Merusak</span>
-          </div>
-
-          <div class="kp-factor-card p-4">
-            <div class="flex justify-between mb-1">
-              <label class="text-sm font-medium flex items-center gap-1.5">&#129433; Populasi Wereng Batang Coklat</label>
-              <span id="kpValWbc" class="kp-font-num text-sm font-semibold px-2 py-0.5 rounded" style="color:var(--kp-warn); background:var(--kp-warn-soft);">0 ekor/rumpun</span>
-            </div>
-            <div class="kp-threshold-band">
-              <input type="range" id="kpWbc" min="0" max="30" value="0" style="--kp-thumb-color:var(--kp-warn);">
-              <div class="kp-threshold-marker" style="left:33.3%;" title="Ambang ekonomi ~10 ekor/rumpun"></div>
-              <div class="kp-threshold-marker" style="left:66.7%;" title="Ambang puso ~20 ekor/rumpun"></div>
-            </div>
-            <p class="text-xs mt-1.5" style="color:var(--kp-ink-soft);">
-              Diukur populasi/rumpun (bukan persen) &mdash; begitu cara PPL/petani benar-benar memutuskan
-              di lapangan. Ambang ekonomi &plusmn;10 ekor/rumpun (garis pertama), di atas &plusmn;20 ekor/rumpun berisiko puso total (garis kedua).
-            </p>
-            <p class="kp-cite mt-1">Ambang kendali bervariasi 4&ndash;20 ekor/rumpun tergantung fase tanaman (BB Padi; Cybex Pertanian). Kurva kerusakan berbentuk S, bukan linear &mdash; sesuai sifat ledakan populasi WBC (satu betina bertelur 100&ndash;600 butir, menetas 7&ndash;10 hari) begitu ambang terlampaui.</p>
-          </div>
-
-          <div class="kp-factor-card p-4">
-            <div class="flex justify-between mb-1">
-              <label class="text-sm font-medium flex items-center gap-1.5">&#128000; Serangan Hama Tikus</label>
-              <span id="kpValTikus" class="kp-font-num text-sm font-semibold px-2 py-0.5 rounded" style="color:var(--kp-warn); background:var(--kp-warn-soft);">0%</span>
-            </div>
-            <input type="range" id="kpTikus" min="0" max="100" value="0" style="--kp-thumb-color:var(--kp-warn);">
-            <p class="text-xs mt-1.5" style="color:var(--kp-ink-soft);">Koefisien 1:1, langsung memotong sisa hasil.</p>
-            <p class="kp-cite mt-1">Kerugian tikus nasional 15&ndash;20%/tahun, bisa puso di petak terparah (BB Padi/Pusdatin). Slider ini memodelkan satu petak spesifik, bukan rerata nasional.</p>
-          </div>
-
-          <div class="kp-factor-card p-4">
-            <div class="flex justify-between mb-1">
-              <label class="text-sm font-medium flex items-center gap-1.5">&#128027; Gejala Beluk (Penggerek Batang)</label>
-              <span id="kpValPenggerek" class="kp-font-num text-sm font-semibold px-2 py-0.5 rounded" style="color:var(--kp-warn); background:var(--kp-warn-soft);">0%</span>
-            </div>
-            <input type="range" id="kpPenggerek" min="0" max="80" value="0" style="--kp-thumb-color:var(--kp-warn);">
-            <p class="text-xs mt-1.5" style="color:var(--kp-ink-soft);">Koefisien 1:1,2 &mdash; setiap 1% malai hampa (beluk) = kehilangan 1,2% hasil.</p>
-            <p class="kp-cite mt-1">Beluk terjadi di fase generatif: anakan sudah final, tidak ada kompensasi tunas baru
-              (berbeda dari sundep fase vegetatif yang masih bisa dikompensasi di bawah ~5% serangan) &mdash; karena itu model linear tanpa ambang di sini tepat.</p>
-          </div>
-
-          <div class="kp-factor-card p-4">
-            <div class="flex justify-between mb-1">
-              <label class="text-sm font-medium flex items-center gap-1.5">&#129440; Hawar Daun Bakteri (keparahan daun)</label>
-              <span id="kpValHdb" class="kp-font-num text-sm font-semibold px-2 py-0.5 rounded" style="color:var(--kp-gold); background:var(--kp-gold-soft);">0%</span>
-            </div>
-            <div class="kp-threshold-band">
-              <input type="range" id="kpHdb" min="0" max="100" value="0" style="--kp-thumb-color:var(--kp-gold);">
-              <div class="kp-threshold-marker" style="left:20%;" title="Ambang toleransi 20%"></div>
-            </div>
-            <p class="text-xs mt-1.5" style="color:var(--kp-ink-soft);">
-              <strong>Ada ambang toleransi &plusmn;20%</strong> (garis merah pada slider) &mdash; di bawahnya kerugian
-              &asymp;0% karena daun sehat sisa masih menopang fotosintesis. Di atasnya, tiap kenaikan 10% keparahan
-              baru memotong hasil &asymp;6%.
-            </p>
-            <p class="kp-cite mt-1">Suparyono &amp; Sudir (1992): ambang kerusakan HDB &asymp;20% (2 minggu sebelum panen); di atas ambang, tiap kenaikan keparahan 10% &rarr; kehilangan hasil 5&ndash;7%. Slider ini memodelkan keparahan hawar daun kronis, bukan kresek akut (layu fase muda) yang sifatnya skenario biner, bukan fungsi kontinu.</p>
-          </div>
-        </div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="lg:col-span-2 space-y-3">
+      <div>
+        <span class="kp-eyebrow">Faktor Penentu &amp; Kerusakan</span>
+        <h2 class="text-lg font-bold mt-0.5" style="color:var(--text-main,#fff);">Kondisi Lapangan</h2>
       </div>
 
-      <div class="kp-paper-panel rounded-2xl shadow-2xl overflow-hidden">
-        <div class="kp-terrace-strip"></div>
-        <div class="p-6 flex flex-col items-center text-center">
-          <span class="kp-eyebrow mb-2">Prediksi Hasil Akhir</span>
-
-          <div id="kpResultCircle" class="w-44 h-44 rounded-full flex flex-col items-center justify-center border-8 my-3" style="border-color:var(--kp-dalam); background:var(--kp-dalam-soft);">
-            <span id="kpHasilTon" class="kp-font-num text-4xl font-extrabold" style="color:var(--kp-ink);">10.00</span>
-            <span class="text-sm font-medium mt-1" style="color:var(--kp-ink-soft);">Ton/Ha</span>
-          </div>
-
-          <div class="w-full mt-2">
-            <div class="flex justify-between text-sm font-semibold mb-1">
-              <span style="color:var(--kp-ink-soft);">Tingkat Keberhasilan:</span>
-              <span id="kpHasilPersen" class="kp-font-num">100.0%</span>
-            </div>
-            <div class="w-full rounded-full h-3 mb-2 relative" style="background:var(--kp-paper-line);">
-              <div id="kpProgressBar" class="h-3 rounded-full transition-all duration-300" style="width:100%; background:var(--kp-dalam);"></div>
-              <div class="absolute top-0 bottom-0 border-l-2 border-dashed" style="left:80%; border-color:var(--kp-ink);" title="Target 8 Ton (80%)"></div>
-            </div>
-            <p class="text-xs text-left" style="color:var(--kp-ink-soft);">Garis putus-putus = target batas aman (8 Ton).</p>
-          </div>
-
-          <div id="kpStatusMessage" class="mt-5 w-full p-4 rounded-lg text-sm text-left" style="background:var(--kp-dalam-soft); color:var(--kp-dalam);">
-            <strong>Status: Aman!</strong> Target tercapai. Faktor pembatas utama: <span id="kpPrimaryConstraint" class="font-bold underline">-</span>
-          </div>
+      <div class="kp-factor-card" style="--kp-card-accent:var(--kp-rain);">
+        <div class="flex justify-between mb-1">
+          <label class="text-sm font-medium flex items-center gap-1.5">&#128167; Ketersediaan Air/Irigasi</label>
+          <span id="kpValAir" class="text-sm font-semibold px-2 py-0.5 rounded" style="color:var(--kp-rain); background:var(--kp-rain-soft);">100%</span>
         </div>
+        <input type="range" id="kpAir" min="0" max="100" value="100" style="--kp-thumb-color:var(--kp-rain);">
+        <p class="text-xs mt-1.5" style="color:#94a3b8;">
+          Faktor pembatas mutlak (Hukum Minimum Liebig) &mdash; 0% air = puso otomatis, karena berlaku
+          sebagai pengali terhadap seluruh hasil, bukan sekadar pengurang.
+        </p>
+      </div>
+
+      <div class="kp-factor-card" style="--kp-card-accent:var(--kp-dalam);">
+        <div class="flex justify-between mb-1">
+          <label class="text-sm font-medium flex items-center gap-1.5">&#127793; Tingkat Kesuburan Tanah</label>
+          <span id="kpValTanah" class="text-sm font-semibold px-2 py-0.5 rounded" style="color:var(--kp-dalam); background:var(--kp-dalam-soft);">100%</span>
+        </div>
+        <input type="range" id="kpTanah" min="60" max="100" value="100" style="--kp-thumb-color:var(--kp-dalam);">
+        <p class="text-xs mt-1.5" style="color:#94a3b8;">Keterbatasan hara memangkas potensi (batas bawah indeks kesuburan 60%).</p>
+      </div>
+
+      <div class="pt-1">
+        <span class="kp-eyebrow">4 Faktor Hama &amp; Penyakit Paling Merusak</span>
+      </div>
+
+      <div class="kp-factor-card" style="--kp-card-accent:var(--kp-warn);">
+        <div class="flex justify-between mb-1">
+          <label class="text-sm font-medium flex items-center gap-1.5">&#129433; Populasi Wereng Batang Coklat</label>
+          <span id="kpValWbc" class="text-sm font-semibold px-2 py-0.5 rounded" style="color:var(--kp-warn); background:var(--kp-warn-soft);">0 ekor/rumpun</span>
+        </div>
+        <div class="kp-threshold-band">
+          <input type="range" id="kpWbc" min="0" max="30" value="0" style="--kp-thumb-color:var(--kp-warn);">
+          <div class="kp-threshold-marker" style="left:33.3%;" title="Ambang ekonomi ~10 ekor/rumpun"></div>
+          <div class="kp-threshold-marker" style="left:66.7%;" title="Ambang puso ~20 ekor/rumpun"></div>
+        </div>
+        <p class="text-xs mt-1.5" style="color:#94a3b8;">
+          Diukur populasi/rumpun (bukan persen) &mdash; begitu cara PPL/petani benar-benar memutuskan
+          di lapangan. Ambang ekonomi &plusmn;10 ekor/rumpun (garis pertama), di atas &plusmn;20 ekor/rumpun berisiko puso total (garis kedua).
+        </p>
+        <p class="kp-cite mt-1">Ambang kendali bervariasi 4&ndash;20 ekor/rumpun tergantung fase tanaman (BB Padi; Cybex Pertanian). Kurva kerusakan berbentuk S, bukan linear &mdash; sesuai sifat ledakan populasi WBC (satu betina bertelur 100&ndash;600 butir, menetas 7&ndash;10 hari) begitu ambang terlampaui.</p>
+      </div>
+
+      <div class="kp-factor-card" style="--kp-card-accent:var(--kp-warn);">
+        <div class="flex justify-between mb-1">
+          <label class="text-sm font-medium flex items-center gap-1.5">&#128000; Serangan Hama Tikus</label>
+          <span id="kpValTikus" class="text-sm font-semibold px-2 py-0.5 rounded" style="color:var(--kp-warn); background:var(--kp-warn-soft);">0%</span>
+        </div>
+        <input type="range" id="kpTikus" min="0" max="100" value="0" style="--kp-thumb-color:var(--kp-warn);">
+        <p class="text-xs mt-1.5" style="color:#94a3b8;">Koefisien 1:1, langsung memotong sisa hasil.</p>
+        <p class="kp-cite mt-1">Kerugian tikus nasional 15&ndash;20%/tahun, bisa puso di petak terparah (BB Padi/Pusdatin). Slider ini memodelkan satu petak spesifik, bukan rerata nasional.</p>
+      </div>
+
+      <div class="kp-factor-card" style="--kp-card-accent:var(--kp-warn);">
+        <div class="flex justify-between mb-1">
+          <label class="text-sm font-medium flex items-center gap-1.5">&#128027; Gejala Beluk (Penggerek Batang)</label>
+          <span id="kpValPenggerek" class="text-sm font-semibold px-2 py-0.5 rounded" style="color:var(--kp-warn); background:var(--kp-warn-soft);">0%</span>
+        </div>
+        <input type="range" id="kpPenggerek" min="0" max="80" value="0" style="--kp-thumb-color:var(--kp-warn);">
+        <p class="text-xs mt-1.5" style="color:#94a3b8;">Koefisien 1:1,2 &mdash; setiap 1% malai hampa (beluk) = kehilangan 1,2% hasil.</p>
+        <p class="kp-cite mt-1">Beluk terjadi di fase generatif: anakan sudah final, tidak ada kompensasi tunas baru
+          (berbeda dari sundep fase vegetatif yang masih bisa dikompensasi di bawah ~5% serangan) &mdash; karena itu model linear tanpa ambang di sini tepat.</p>
+      </div>
+
+      <div class="kp-factor-card" style="--kp-card-accent:var(--kp-gold);">
+        <div class="flex justify-between mb-1">
+          <label class="text-sm font-medium flex items-center gap-1.5">&#129440; Hawar Daun Bakteri (keparahan daun)</label>
+          <span id="kpValHdb" class="text-sm font-semibold px-2 py-0.5 rounded" style="color:var(--kp-gold); background:var(--kp-gold-soft);">0%</span>
+        </div>
+        <div class="kp-threshold-band">
+          <input type="range" id="kpHdb" min="0" max="100" value="0" style="--kp-thumb-color:var(--kp-gold);">
+          <div class="kp-threshold-marker" style="left:20%;" title="Ambang toleransi 20%"></div>
+        </div>
+        <p class="text-xs mt-1.5" style="color:#94a3b8;">
+          <strong>Ada ambang toleransi &plusmn;20%</strong> (garis merah pada slider) &mdash; di bawahnya kerugian
+          &asymp;0% karena daun sehat sisa masih menopang fotosintesis. Di atasnya, tiap kenaikan 10% keparahan
+          baru memotong hasil &asymp;6%.
+        </p>
+        <p class="kp-cite mt-1">Suparyono &amp; Sudir (1992): ambang kerusakan HDB &asymp;20% (2 minggu sebelum panen); di atas ambang, tiap kenaikan keparahan 10% &rarr; kehilangan hasil 5&ndash;7%. Slider ini memodelkan keparahan hawar daun kronis, bukan kresek akut (layu fase muda) yang sifatnya skenario biner, bukan fungsi kontinu.</p>
       </div>
     </div>
 
-    <div class="kp-paper-panel rounded-2xl shadow-xl mt-5 p-6 md:p-7">
-      <span class="kp-eyebrow">Dasar Model</span>
-      <h2 class="kp-font-display text-lg font-semibold mt-0.5 mb-2">Kenapa Perkalian, Bukan Penjumlahan?</h2>
-      <p class="text-sm leading-relaxed" style="color:var(--kp-ink-soft);">
-        Model kehilangan hasil multi-faktor pada padi (mis. kerangka <em>RICEPEST</em>, Savary &amp; Willocquet
-        untuk Asia Tropis) menggabungkan faktor kerusakan secara terstruktur karena tiap faktor menyerang
-        bagian tanaman berbeda (akar/daun/batang/malai) dan bekerja semi-independen. Perkalian mencegah dua
-        kerusakan besar terjumlah melebihi 100% dan otomatis menegakkan Hukum Minimum Liebig untuk faktor
-        mutlak seperti air. Namun riset yang sama juga menunjukkan fungsi kerusakan sering punya
-        <strong> ambang toleransi</strong> (bukan garis lurus dari nol) &mdash; itu sebabnya HDB di kalkulator ini
-        memakai model ambang, sementara Beluk (tanpa kompensasi di fase generatif) tetap linear.
-      </p>
-      <p class="text-sm leading-relaxed mt-3" style="color:var(--kp-ink-soft);">
-        <strong>Kenapa WBC pakai satuan ekor/rumpun, bukan persen?</strong> Karena begitu cara PPL dan petani
-        benar-benar mengambil keputusan di lapangan (ambang ekonomi resmi dalam populasi, bukan skor visual).
-        Kurvanya juga sengaja berbentuk-S, bukan garis lurus seperti HDB &mdash; sifat WBC adalah ledakan populasi
-        eksponensial begitu ambang terlampaui (satu betina bertelur 100&ndash;600 butir, menetas 7&ndash;10 hari),
-        sehingga kerusakan nyaris nol lalu melonjak cepat mendekati ambang puso, bukan naik bertahap merata.
-      </p>
-      <p class="text-xs mt-3" style="color:var(--kp-ink-soft); opacity:.85;">
-        Rujukan: Savary &amp; Willocquet (RICEPEST, Asia Tropis) &middot; Suparyono &amp; Sudir (1992, ambang HDB)
-        &middot; BB Padi &amp; Cybex Pertanian (ambang ekonomi WBC, kerugian tikus &amp; penggerek batang).
-      </p>
+    <div class="kp-panel flex flex-col items-center text-center" style="align-self:flex-start;">
+      <span class="kp-eyebrow mb-2">Prediksi Hasil Akhir</span>
+
+      <div id="kpResultCircle" class="kp-result-circle" style="border-color:var(--kp-dalam);">
+        <span id="kpHasilTon" class="text-4xl font-extrabold" style="color:var(--text-main,#fff);">10.00</span>
+        <span class="text-sm font-medium mt-1" style="color:#94a3b8;">Ton/Ha</span>
+      </div>
+
+      <div class="w-full mt-2">
+        <div class="flex justify-between text-sm font-semibold mb-1">
+          <span style="color:#94a3b8;">Tingkat Keberhasilan:</span>
+          <span id="kpHasilPersen">100.0%</span>
+        </div>
+        <div class="w-full rounded-full h-3 mb-2 relative" style="background:rgba(255,255,255,0.1);">
+          <div id="kpProgressBar" class="h-3 rounded-full transition-all duration-300" style="width:100%; background:var(--kp-dalam);"></div>
+          <div class="absolute top-0 bottom-0 border-l-2 border-dashed" style="left:80%; border-color:#cbd5e1;" title="Target 8 Ton (80%)"></div>
+        </div>
+        <p class="text-xs text-left" style="color:#94a3b8;">Garis putus-putus = target batas aman (8 Ton).</p>
+      </div>
+
+      <div id="kpStatusMessage" class="kp-status-box w-full text-left" style="background:var(--kp-dalam-soft); border-left-color:var(--kp-dalam); color:var(--kp-dalam);">
+        <strong>Status: Aman!</strong> Target tercapai. Faktor pembatas utama: <span id="kpPrimaryConstraint" class="font-bold underline">-</span>
+      </div>
     </div>
+  </div>
+
+  <div class="kp-panel mt-4">
+    <span class="kp-eyebrow">Dasar Model</span>
+    <h2 class="text-lg font-bold mt-0.5 mb-2" style="color:var(--text-main,#fff);">Kenapa Perkalian, Bukan Penjumlahan?</h2>
+    <p class="text-sm leading-relaxed" style="color:#cbd5e1;">
+      Model kehilangan hasil multi-faktor pada padi (mis. kerangka <em>RICEPEST</em>, Savary &amp; Willocquet
+      untuk Asia Tropis) menggabungkan faktor kerusakan secara terstruktur karena tiap faktor menyerang
+      bagian tanaman berbeda (akar/daun/batang/malai) dan bekerja semi-independen. Perkalian mencegah dua
+      kerusakan besar terjumlah melebihi 100% dan otomatis menegakkan Hukum Minimum Liebig untuk faktor
+      mutlak seperti air. Namun riset yang sama juga menunjukkan fungsi kerusakan sering punya
+      <strong> ambang toleransi</strong> (bukan garis lurus dari nol) &mdash; itu sebabnya HDB di kalkulator ini
+      memakai model ambang, sementara Beluk (tanpa kompensasi di fase generatif) tetap linear.
+    </p>
+    <p class="text-sm leading-relaxed mt-3" style="color:#cbd5e1;">
+      <strong>Kenapa WBC pakai satuan ekor/rumpun, bukan persen?</strong> Karena begitu cara PPL dan petani
+      benar-benar mengambil keputusan di lapangan (ambang ekonomi resmi dalam populasi, bukan skor visual).
+      Kurvanya juga sengaja berbentuk-S, bukan garis lurus seperti HDB &mdash; sifat WBC adalah ledakan populasi
+      eksponensial begitu ambang terlampaui (satu betina bertelur 100&ndash;600 butir, menetas 7&ndash;10 hari),
+      sehingga kerusakan nyaris nol lalu melonjak cepat mendekati ambang puso, bukan naik bertahap merata.
+    </p>
+    <p class="text-xs mt-3" style="color:#64748b;">
+      Rujukan: Savary &amp; Willocquet (RICEPEST, Asia Tropis) &middot; Suparyono &amp; Sudir (1992, ambang HDB)
+      &middot; BB Padi &amp; Cybex Pertanian (ambang ekonomi WBC, kerugian tikus &amp; penggerek batang).
+    </p>
   </div>`;
     }
 
     // ============================================================
-    //  3. LOGIKA KALKULASI — identik dengan versi asli, hanya ID
-    //  DOM yang disesuaikan ke prefiks kp*.
+    //  3. LOGIKA KALKULASI — tidak berubah dari v1.0 (rumus/koefisien
+    //  identik dengan halaman asli).
     // ============================================================
     var POTENSI_MAKSIMAL = 10; // Ton/Ha
     var TARGET_MINIMAL = 8;    // Ton/Ha
@@ -379,34 +357,31 @@
         var statusBox = document.getElementById('kpStatusMessage');
 
         if (totalTon >= TARGET_MINIMAL) {
-            circle.style.borderColor = 'var(--kp-dalam)';
-            circle.style.background = 'var(--kp-dalam-soft)';
-            pBar.style.background = 'var(--kp-dalam)';
-            statusBox.style.background = 'var(--kp-dalam-soft)';
-            statusBox.style.color = 'var(--kp-dalam)';
+            circle.style.borderColor = '#10b981';
+            pBar.style.background = '#10b981';
+            statusBox.style.background = 'rgba(16,185,129,0.15)';
+            statusBox.style.borderLeftColor = '#10b981';
+            statusBox.style.color = '#10b981';
             statusBox.innerHTML = '<strong>&#128994; Status: Aman!</strong> Target tercapai. Faktor pembatas utama: <span class="font-bold underline">' + primaryConstraint + '</span>';
         } else if (totalTon > 4) {
-            circle.style.borderColor = 'var(--kp-gold)';
-            circle.style.background = 'var(--kp-gold-soft)';
-            pBar.style.background = 'var(--kp-gold)';
-            statusBox.style.background = 'var(--kp-gold-soft)';
-            statusBox.style.color = '#8a5a12';
+            circle.style.borderColor = '#fbbf24';
+            pBar.style.background = '#fbbf24';
+            statusBox.style.background = 'rgba(251,191,36,0.15)';
+            statusBox.style.borderLeftColor = '#fbbf24';
+            statusBox.style.color = '#fbbf24';
             statusBox.innerHTML = '<strong>&#128993; Status: Waspada!</strong> Hasil di bawah target 8 Ton. Segera atasi: <span class="font-bold underline">' + primaryConstraint + '</span>';
         } else {
-            circle.style.borderColor = 'var(--kp-warn)';
-            circle.style.background = 'var(--kp-warn-soft)';
-            pBar.style.background = 'var(--kp-warn)';
-            statusBox.style.background = 'var(--kp-warn-soft)';
-            statusBox.style.color = 'var(--kp-warn)';
+            circle.style.borderColor = '#ef4444';
+            pBar.style.background = '#ef4444';
+            statusBox.style.background = 'rgba(239,68,68,0.15)';
+            statusBox.style.borderLeftColor = '#ef4444';
+            statusBox.style.color = '#ef4444';
             statusBox.innerHTML = '<strong>&#128992; Status: Kritis/Gagal Panen!</strong> Kerugian sangat parah. Penyebab utama: <span class="font-bold underline">' + primaryConstraint + '</span>';
         }
     }
 
     // ============================================================
     //  4. INJEKSI BOX + PASANG EVENT LISTENER
-    //  (addEventListener, bukan oninput inline — konsisten dengan
-    //  konvensi patch lain di aplikasi ini & menghindari perlunya
-    //  fungsi global tambahan)
     // ============================================================
     function injeksiBox() {
         if (document.getElementById('boxKalkulatorPanen')) return;
@@ -423,7 +398,7 @@
             var el = document.getElementById(id);
             if (el) el.addEventListener('input', kpCalculateYield);
         });
-        kpCalculateYield(); // render nilai awal
+        kpCalculateYield();
     }
 
     // ============================================================
@@ -460,8 +435,6 @@
             if (el) el.style.display = 'none';
         });
         document.querySelectorAll('.info-box-dynamic').forEach(function (el) { el.style.display = 'none'; });
-        // Tangkap juga box lain yang disuntik patch manapun (mis. boxJadwalTanam,
-        // boxAturPestisida, boxKalkulatorTanam) tanpa perlu tahu semua ID-nya.
         document.querySelectorAll('.card > div[id^="box"]').forEach(function (b) {
             if (b.id !== 'boxKalkulatorPanen') b.style.display = 'none';
         });
@@ -502,7 +475,7 @@
     }
 
     // ============================================================
-    //  7. INIT (dengan retry — DOM utama mungkin belum siap)
+    //  7. INIT (dengan retry)
     // ============================================================
     function init(tick) {
         tick = tick || 0;
@@ -526,7 +499,7 @@
 
         window.__kalkulatorPanenAktif = true;
         console.log(
-            '%c✅ patch_kalkulator_panen.js aktif — tab baru "KALKULATOR PANEN" ditambahkan',
+            '%c✅ patch_kalkulator_panen.js v2.0 aktif — tab baru "KALKULATOR PANEN" (tema gelap mengikuti app)',
             'color:#65a30d;font-weight:bold;'
         );
     }
