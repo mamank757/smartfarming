@@ -648,7 +648,24 @@ body.light-mode #boxKalkulatorTanam .kt-chart-wrap{ background:#fff; border-colo
         btn.id = 'tabKalkulatorTanam';
         btn.textContent = 'KEPUTUSAN TANAM';
         btn.onclick = function () { window.switchMode('kalkulatortanam'); };
-        tabContainer.appendChild(btn);
+
+        // [POSISI] Disisipkan tepat SETELAH tab "KALKULATOR PANEN" kalau
+        // sudah ada (supaya urutannya Cuaca → Panen → Tanam, posisi ke-4),
+        // atau setelah "RISIKO CUACA" kalau patch_kalkulator_panen.js
+        // belum sempat jalan duluan (lalu saat Panen menyusul, ia juga
+        // menyisip tepat setelah #tabCuaca — otomatis mendorong tab ini
+        // ke posisi ke-4 tanpa perlu tahu urutan load pastinya). Logika
+        // ini SENGAJA dibuat tidak bergantung urutan siapa jalan duluan
+        // antara kedua patch kalkulator.
+        var jangkarPanen = document.getElementById('tabKalkulatorPanen');
+        var jangkarCuaca = document.getElementById('tabCuaca');
+        if (jangkarPanen) {
+            tabContainer.insertBefore(btn, jangkarPanen.nextSibling);
+        } else if (jangkarCuaca) {
+            tabContainer.insertBefore(btn, jangkarCuaca.nextSibling);
+        } else {
+            tabContainer.appendChild(btn);
+        }
     }
 
     // ============================================================
